@@ -8,24 +8,51 @@ interface FileUploaderProps {
     currentJobProgress?: number;
 }
 
+interface HistoryItem {
+    mediaId: string;
+    jobId: string;
+    fileName: string;
+    date: string;
+}
+
 export default function FileUploader({
     onUploadComplete,
     currentJobStatus,
     currentJobProgress = 0,
 }: FileUploaderProps) {
-    const [status, setStatus] = useState<
-        'idle' | 'uploading' | 'queued' | 'error'
-    >('idle');
+    const [status, setStatus] = useState<'idle' | 'uploading' | 'queued' | 'error'>('idle');
     const [uploadProgress, setUploadProgress] = useState(0);
     const [message, setMessage] = useState('');
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // History State
+    const [history, setHistory] = useState<HistoryItem[]>([]);
+    const [showHistory, setShowHistory] = useState(false);
+
+    // Load history on mount
+    useEffect(() => {
+        const saved = localStorage.getItem('vc_history');
+        if (saved) {
+            try {
+                setHistory(JSON.parse(saved));
+            } catch (e) {
+                console.error("Failed to parse history", e);
+            }
+        }
+    }, []);
+
+    // Save history helper
+    const addToHistory = (item: HistoryItem) => {
+        const newHistory = [item, ...history.filter(h => h.fileName !== item.fileName)].slice(0, 10); // Keep last 10, remove duplicates
+        setHistory(newHistory);
+        localStorage.setItem('vc_history', JSON.stringify(newHistory));
+    };
 
     // reset internal state when job completes
     useEffect(() => {
         if (currentJobStatus === 'COMPLETED') {
             setStatus('idle');
             setMessage('Ready');
-            // We essentially allow "Upload New" now.
         }
     }, [currentJobStatus]);
 
@@ -33,7 +60,22 @@ export default function FileUploader({
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Reset input value to allow re-uploading the same file
+        // Duplicate Check
+        const existing = history.find(h => h.fileName === file.name);
+        if (existing) {
+            const useExisting = window.confirm(
+                `You analyzed "${file.name}" on ${new Date(existing.date).toLocaleDateString()}.\n\nLoad the existing analysis instead of re-uploading?`
+            );
+
+            if (useExisting) {
+                onUploadComplete(existing.mediaId, existing.jobId);
+                // Clear input
+                e.target.value = '';
+                return;
+            }
+        }
+
+        // Reset input value to allow re-uploading the same file if they chose No
         e.target.value = '';
 
         setStatus('uploading');
@@ -58,7 +100,7 @@ export default function FileUploader({
                     setStatus('queued');
                     setMessage('Queuing for processing...');
                     // Start the job
-                    await startProcessing(response.mediaId);
+                    await startProcessing(response.mediaId, file.name);
                 } else {
                     setStatus('error');
                     setMessage('Upload failed.');
@@ -78,7 +120,7 @@ export default function FileUploader({
         }
     };
 
-    const startProcessing = async (mediaId: string) => {
+    const startProcessing = async (mediaId: string, fileName: string) => {
         try {
             const res = await fetch('/api/process', {
                 method: 'POST',
@@ -87,7 +129,14 @@ export default function FileUploader({
             });
             const data = await res.json();
             if (res.ok) {
-                // Determine layout will switch to external status
+                // Save to history
+                addToHistory({
+                    mediaId,
+                    jobId: data.jobId,
+                    fileName,
+                    date: new Date().toISOString()
+                });
+
                 onUploadComplete(mediaId, data.jobId);
             } else {
                 setStatus('error');
@@ -101,10 +150,9 @@ export default function FileUploader({
 
     // Determine what to display
     const isUploading = status === 'uploading';
-    // We are "processing" if local status is queued OR external job status is active
     const isProcessing =
         status === 'queued' ||
-        (currentJobStatus &&
+        (!!currentJobStatus && // Force boolean
             currentJobStatus !== 'COMPLETED' &&
             currentJobStatus !== 'FAILED' &&
             currentJobStatus !== '');
@@ -168,7 +216,80 @@ export default function FileUploader({
             </div>
 
             {/* Action Area */}
-            <div>
+            <div style={{ display: 'flex', gap: '1rem' }}>
+                {/* History Button */}
+                <div style={{ position: 'relative' }}>
+                    <button
+                        onClick={() => setShowHistory(!showHistory)}
+                        style={{
+                            padding: '0.6rem',
+                            background: 'white',
+                            color: '#555',
+                            border: '1px solid #ddd',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                        title="My Videos"
+                    >
+                        {/* Simple History Icon */}
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 20v-6M6 20V10M18 20V4" />
+                        </svg>
+                    </button>
+
+                    {showHistory && (
+                        <div style={{
+                            position: 'absolute',
+                            top: '110%',
+                            right: 0,
+                            width: '300px',
+                            background: 'white',
+                            border: '1px solid #ddd',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                            padding: '1rem',
+                            zIndex: 200
+                        }}>
+                            <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem' }}>Recent Videos</h4>
+                            {history.length === 0 ? (
+                                <p style={{ fontSize: '0.9rem', color: '#888' }}>No saved videos yet.</p>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                    {history.map((item, i) => (
+                                        <div
+                                            key={i}
+                                            onClick={() => {
+                                                onUploadComplete(item.mediaId, item.jobId);
+                                                setShowHistory(false);
+                                            }}
+                                            style={{
+                                                padding: '0.5rem',
+                                                border: '1px solid #eee',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer',
+                                                fontSize: '0.9rem',
+                                                transition: 'background 0.2s'
+                                            }}
+                                            onMouseEnter={e => e.currentTarget.style.background = '#f5f5f5'}
+                                            onMouseLeave={e => e.currentTarget.style.background = 'white'}
+                                        >
+                                            <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                {item.fileName}
+                                            </div>
+                                            <div style={{ fontSize: '0.75rem', color: '#999' }}>
+                                                {new Date(item.date).toLocaleDateString()}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
                 <input
                     type="file"
                     accept="video/*"
