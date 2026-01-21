@@ -68,7 +68,7 @@ a {
 
 .main-layout {
   display: grid;
-  grid-template-columns: 1fr 400px;
+  grid-template-columns: 1fr 550px;
   grid-template-rows: 100%;
   /* Force grid to stay within flex container */
   gap: 2rem;

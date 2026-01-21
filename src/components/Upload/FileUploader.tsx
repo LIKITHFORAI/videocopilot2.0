@@ -178,7 +178,7 @@ export default function FileUploader({
                 />
                 <button
                     onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading || isProcessing}
+                    disabled={!!isUploading || !!isProcessing}
                     style={{
                         padding: '0.6rem 1.2rem',
                         background: (isUploading || isProcessing) ? '#ccc' : 'var(--primary)',

@@ -8,47 +8,70 @@ if (apiKey && !isPlaceholder) {
     openai = new OpenAI({ apiKey });
 }
 
-export async function generateSummary(transcriptText: string) {
+export async function generateSummary(segments: any[]) {
     if (!openai) {
         return {
             summary: "This is a placeholder summary. Please provide a valid OpenAI API key to generate a real AI summary.",
-            keyPoints: ["Point 1: Upload a video", "Point 2: Wait for transcription", "Point 3: See AI insights"]
+            keyPoints: [
+                { text: "Point 1: Upload a video", timestamp: 0 },
+                { text: "Point 2: Wait for transcription", timestamp: 10 },
+                { text: "Point 3: See AI insights", timestamp: 20 }
+            ]
         };
     }
 
+    // Limit context to prevent token overflow, but prioritize evenly distributed segments or just header
+    // For now, just taking the first 30k chars of formatted text
+    const context = segments
+        .map(s => `[${Math.floor(s.start)}s] ${s.text}`)
+        .join('\n')
+        .substring(0, 30000);
+
     try {
         const response = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
+            model: "gpt-4o-mini", // Cost effective for summary
             messages: [
                 {
                     role: "system",
-                    content: `You are a video analysis assistant. Analyze the provided transcript and respond with a JSON object containing:
-                    - "summary": A concise 2-3 sentence summary of the video content
-                    - "keyPoints": An array of 3-5 key bullet points (as strings)
+                    content: `You are a video analysis assistant. Analyze the provided transcript (with timestamps) and respond with a JSON object containing:
+                    - "summary": A concise 2-3 sentence summary of the video content.
+                    - "keyPoints": An array of 3-5 key highlights. Each highlight must be an object with:
+                        - "text": The highlight description (string).
+                        - "timestamp": The start time in seconds (number) closest to where this point is discussed in the transcript.
                     
                     Example response format:
                     {
                         "summary": "This video discusses...",
-                        "keyPoints": ["First key point", "Second key point", "Third key point"]
+                        "keyPoints": [
+                            { "text": "Introduction to the topic", "timestamp": 0 },
+                            { "text": "Deep dive into feature X", "timestamp": 120 }
+                        ]
                     }`
                 },
                 {
                     role: "user",
-                    content: `Please analyze this transcript:\n\n${transcriptText.substring(0, 15000)}`
+                    content: `Please analyze this transcript:\n\n${context}`
                 }
             ],
             response_format: { type: "json_object" },
-            temperature: 0.7
+            temperature: 0.5
         });
 
         const content = JSON.parse(response.choices[0].message.content || '{}');
+        // Ensure structure is correct
+        const keyPoints = Array.isArray(content.keyPoints)
+            ? content.keyPoints.map((kp: any) => ({
+                text: typeof kp === 'string' ? kp : kp.text,
+                timestamp: typeof kp === 'string' ? 0 : (kp.timestamp || 0)
+            }))
+            : [];
+
         return {
             summary: content.summary || "No summary generated.",
-            keyPoints: content.keyPoints || []
+            keyPoints
         };
     } catch (e: any) {
         console.error("Summary generation error:", e);
-        console.error("Error details:", e.message, e.response?.data);
         return {
             summary: `Error: ${e.message || 'Failed to generate summary'}`,
             keyPoints: []

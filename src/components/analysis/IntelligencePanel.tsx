@@ -19,6 +19,11 @@ interface Message {
     citations?: { start: number; end: number; label: string }[];
 }
 
+interface KeyPoint {
+    text: string;
+    timestamp?: number;
+}
+
 export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChange, onProgressChange }: IntelligencePanelProps) {
     const [activeTab, setActiveTab] = useState<Tab>('transcript');
     const [jobStatus, setJobStatus] = useState<string>('');
@@ -87,20 +92,6 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
         }
     };
 
-    // Auto-inject summary into chat when data is available
-    useEffect(() => {
-        if (transcriptData && transcriptData.summary && messages.length === 0) {
-            const summaryMd = `### Video Recap\n${transcriptData.summary}\n\n### Key Highlights\n${(transcriptData.keyPoints || []).map((p: string) => `- ${p}`).join('\n')}\n\nCan I answer any questions about the video?`;
-            setMessages([{ role: 'assistant', content: summaryMd }]);
-
-            // Auto-switch to chat tab if current tab is transcript?
-            // User might want to see transcript first. Let's not force switch, but if they click Chat it's there.
-            // Actually, maybe highlighting that Chat is now active/ready?
-            // For now, let's just populate it.
-        }
-    }, [transcriptData]);
-
-
     const handleSendMessage = async () => {
         if (!input.trim() || !mediaId || isChatting) return;
 
@@ -140,6 +131,17 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
     };
 
     const transcript = transcriptData?.segments || [];
+
+    // Helper to get key points safely
+    const getKeyPoints = (): KeyPoint[] => {
+        if (!transcriptData?.keyPoints) return [];
+        return transcriptData.keyPoints.map((kp: any) => {
+            if (typeof kp === 'string') return { text: kp, timestamp: 0 };
+            return kp;
+        });
+    };
+
+    const keyPoints = getKeyPoints();
 
     return (
         <div className="intelligence-panel">
@@ -181,14 +183,74 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
 
                     {activeTab === 'chat' && (
                         <div className="chat-container" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                            <div className="messages" style={{ flex: 1, padding: '1rem', overflowY: 'auto' }}>
-                                {/* Placeholder only if no messages (and no summary yet) */}
-                                {messages.length === 0 && (
-                                    <div style={{ padding: '2rem', textAlign: 'center', opacity: 0.5 }}>
-                                        <p style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Ask anything about the video!</p>
-                                        {!transcriptData && <p>Waiting for analysis...</p>}
+                            <div className="messages" style={{ flex: 1, padding: '1.5rem', overflowY: 'auto' }}>
+                                {/* Dynamic Summary & Highlights Header */}
+                                {transcriptData && (
+                                    <div className="summary-header" style={{ marginBottom: '2rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
+                                        <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: '700' }}>Video Recap</h3>
+                                        <p style={{ fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.5rem', color: '#444' }}>
+                                            {transcriptData.summary}
+                                        </p>
+
+                                        <h3 style={{ fontSize: '1.1rem', marginBottom: '0.8rem', fontWeight: '700' }}>Key Highlights</h3>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                                            {keyPoints.map((point, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    onClick={() => point.timestamp !== undefined && onSeek(point.timestamp)}
+                                                    style={{
+                                                        padding: '1rem',
+                                                        background: 'white',
+                                                        border: '1px solid #e2e8f0',
+                                                        borderRadius: '12px',
+                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.03)',
+                                                        cursor: 'pointer',
+                                                        transition: 'all 0.2s',
+                                                        display: 'flex',
+                                                        alignItems: 'flex-start',
+                                                        gap: '0.8rem'
+                                                    }}
+                                                    onMouseEnter={(e) => {
+                                                        e.currentTarget.style.transform = 'translateY(-2px)';
+                                                        e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.06)';
+                                                        e.currentTarget.style.borderColor = 'var(--primary)';
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        e.currentTarget.style.transform = 'translateY(0)';
+                                                        e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.03)';
+                                                        e.currentTarget.style.borderColor = '#e2e8f0';
+                                                    }}
+                                                >
+                                                    <div style={{
+                                                        background: 'var(--primary)', color: 'white',
+                                                        borderRadius: '50%', width: '24px', height: '24px',
+                                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                        fontSize: '0.8rem', fontWeight: 'bold', flexShrink: 0, marginTop: '2px'
+                                                    }}>
+                                                        {idx + 1}
+                                                    </div>
+                                                    <div>
+                                                        <p style={{ fontSize: '0.95rem', margin: 0, fontWeight: '500' }}>{point.text}</p>
+                                                        {point.timestamp !== undefined && point.timestamp > 0 && (
+                                                            <span style={{ fontSize: '0.8rem', color: 'var(--primary)', marginTop: '0.3rem', display: 'block' }}>
+                                                                Jump to {formatTime(point.timestamp)}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
+
+                                {/* Chat Messages */}
+                                {messages.length === 0 && !transcriptData && (
+                                    <div style={{ padding: '2rem', textAlign: 'center', opacity: 0.5 }}>
+                                        <p style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Ask anything about the video!</p>
+                                        <p style={{ fontSize: '0.85rem' }}>Processing...</p>
+                                    </div>
+                                )}
+
                                 {messages.map((m, i) => (
                                     <div key={i} className={`message-row ${m.role}`}>
                                         <div className="message-content">

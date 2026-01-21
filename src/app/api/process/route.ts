@@ -115,7 +115,7 @@ async function processMedia(jobId: string, mediaId: string) {
 
         // 4. MERGING, SUMMARIZING & SAVING
         await updateJob(jobId, { status: 'SUMMARIZING', progress: 92 });
-        const summaryData = await generateSummary(fullText);
+        const summaryData = await generateSummary(allSegments);
 
         await updateJob(jobId, { status: 'MERGING', progress: 95 });
         const transcript = {
