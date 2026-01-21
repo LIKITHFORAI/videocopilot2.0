@@ -42,7 +42,6 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
         }
     }, [messages]);
 
-    // Poll for job status
     useEffect(() => {
         if (!jobId) return;
 
@@ -132,7 +131,6 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
 
     const transcript = transcriptData?.segments || [];
 
-    // Helper to get key points safely
     const getKeyPoints = (): KeyPoint[] => {
         if (!transcriptData?.keyPoints) return [];
         return transcriptData.keyPoints.map((kp: any) => {
@@ -142,6 +140,20 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
     };
 
     const keyPoints = getKeyPoints();
+
+    // Transform content to turn [MM:SS] into clickable links
+    const processContent = (text: string) => {
+        // Regex matches [MM:SS] or [H:MM:SS]
+        return text.replace(/\[((?:\d{1,2}:)?\d{1,2}:\d{2})\]/g, (match, timeStr) => {
+            const parts = timeStr.split(':').map(Number);
+            let seconds = 0;
+            if (parts.length === 3) seconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
+            else seconds = parts[0] * 60 + parts[1];
+
+            // Return Markdown link format: [08:10](#seek:490)
+            return `[${match}](#seek:${seconds})`;
+        });
+    };
 
     return (
         <div className="intelligence-panel">
@@ -184,7 +196,7 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
                     {activeTab === 'chat' && (
                         <div className="chat-container" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                             <div className="messages" style={{ flex: 1, padding: '1.5rem', overflowY: 'auto' }}>
-                                {/* Dynamic Summary & Highlights Header */}
+                                {/* Summary Header */}
                                 {transcriptData && (
                                     <div className="summary-header" style={{ marginBottom: '2rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
                                         <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: '700' }}>Video Recap</h3>
@@ -243,33 +255,47 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
                                     </div>
                                 )}
 
-                                {/* Chat Messages */}
-                                {messages.length === 0 && !transcriptData && (
-                                    <div style={{ padding: '2rem', textAlign: 'center', opacity: 0.5 }}>
-                                        <p style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Ask anything about the video!</p>
-                                        <p style={{ fontSize: '0.85rem' }}>Processing...</p>
-                                    </div>
-                                )}
-
                                 {messages.map((m, i) => (
                                     <div key={i} className={`message-row ${m.role}`}>
                                         <div className="message-content">
                                             {m.role === 'assistant' ? (
                                                 <div className="prose">
-                                                    <ReactMarkdown>{m.content}</ReactMarkdown>
-                                                    {m.citations && m.citations.length > 0 && (
-                                                        <div className="citations-list">
-                                                            {m.citations.map((c, j) => (
-                                                                <button
-                                                                    key={j}
-                                                                    onClick={() => onSeek(c.start)}
-                                                                    className="citation-chip"
-                                                                >
-                                                                    Jump to {c.label}
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                    )}
+                                                    <ReactMarkdown
+                                                        components={{
+                                                            a: ({ node, href, children, ...props }) => {
+                                                                if (href?.startsWith('#seek:')) {
+                                                                    const seconds = parseFloat(href.split(':')[1]);
+                                                                    return (
+                                                                        <button
+                                                                            onClick={(e) => {
+                                                                                e.preventDefault();
+                                                                                onSeek(seconds);
+                                                                            }}
+                                                                            style={{
+                                                                                background: '#eff6ff', // blue-50
+                                                                                color: '#2563eb', // blue-600
+                                                                                border: '1px solid #bfdbfe', // blue-200
+                                                                                borderRadius: '12px',
+                                                                                padding: '2px 8px',
+                                                                                fontSize: '0.85em',
+                                                                                fontWeight: '600',
+                                                                                cursor: 'pointer',
+                                                                                display: 'inline-block',
+                                                                                verticalAlign: 'middle',
+                                                                                margin: '0 2px',
+                                                                                textDecoration: 'none'
+                                                                            }}
+                                                                        >
+                                                                            {children}
+                                                                        </button>
+                                                                    );
+                                                                }
+                                                                return <a href={href} {...props}>{children}</a>;
+                                                            }
+                                                        }}
+                                                    >
+                                                        {processContent(m.content)}
+                                                    </ReactMarkdown>
                                                 </div>
                                             ) : (
                                                 <p>{m.content}</p>
