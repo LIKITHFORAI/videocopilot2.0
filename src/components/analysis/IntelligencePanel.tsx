@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 
-type Tab = 'transcript' | 'summary' | 'chat';
+type Tab = 'transcript' | 'chat';
 
 interface IntelligencePanelProps {
     mediaId: string | null;
@@ -49,7 +49,7 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
                 if (res.ok) {
                     const data = await res.json();
                     setJobStatus(data.status);
-                    if (onStatusChange) onStatusChange(data.status); // Notify parent
+                    if (onStatusChange) onStatusChange(data.status);
 
                     const newProgress = data.progress || 0;
                     if (onProgressChange) onProgressChange(newProgress);
@@ -86,6 +86,20 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
             console.error("Failed to fetch transcript", e);
         }
     };
+
+    // Auto-inject summary into chat when data is available
+    useEffect(() => {
+        if (transcriptData && transcriptData.summary && messages.length === 0) {
+            const summaryMd = `### Video Recap\n${transcriptData.summary}\n\n### Key Highlights\n${(transcriptData.keyPoints || []).map((p: string) => `- ${p}`).join('\n')}\n\nCan I answer any questions about the video?`;
+            setMessages([{ role: 'assistant', content: summaryMd }]);
+
+            // Auto-switch to chat tab if current tab is transcript?
+            // User might want to see transcript first. Let's not force switch, but if they click Chat it's there.
+            // Actually, maybe highlighting that Chat is now active/ready?
+            // For now, let's just populate it.
+        }
+    }, [transcriptData]);
+
 
     const handleSendMessage = async () => {
         if (!input.trim() || !mediaId || isChatting) return;
@@ -133,7 +147,6 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
 
                 <div className="tabs">
                     <div className={`tab ${activeTab === 'transcript' ? 'active' : ''}`} onClick={() => setActiveTab('transcript')}>Transcript</div>
-                    <div className={`tab ${activeTab === 'summary' ? 'active' : ''}`} onClick={() => setActiveTab('summary')}>Summary</div>
                     <div className={`tab ${activeTab === 'chat' ? 'active' : ''}`} onClick={() => setActiveTab('chat')}>Chat</div>
                 </div>
 
@@ -166,38 +179,14 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
                         </div>
                     )}
 
-                    {activeTab === 'summary' && (
-                        <div className="summary-content" style={{ padding: '1.5rem', height: '100%', overflowY: 'auto' }}>
-                            {!transcriptData ? <p style={{ opacity: 0.6 }}>Summary will be available after processing.</p> : (
-                                <div className="prose">
-                                    <h3 style={{ marginBottom: '1rem' }}>Video Recap</h3>
-                                    <p style={{ lineHeight: '1.6', marginBottom: '2rem' }}>{transcriptData.summary}</p>
-
-                                    {transcriptData.keyPoints?.length > 0 && (
-                                        <>
-                                            <h3 style={{ marginBottom: '1rem' }}>Key Highlights</h3>
-                                            <ul style={{ listStyle: 'none', padding: 0 }}>
-                                                {transcriptData.keyPoints.map((pt: string, i: number) => (
-                                                    <li key={i} style={{ marginBottom: '1rem', display: 'flex', gap: '0.75rem' }}>
-                                                        <span style={{ color: 'var(--primary)', fontWeight: 'bold' }}>•</span>
-                                                        <span>{pt}</span>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    )}
-
                     {activeTab === 'chat' && (
                         <div className="chat-container" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                             <div className="messages" style={{ flex: 1, padding: '1rem', overflowY: 'auto' }}>
+                                {/* Placeholder only if no messages (and no summary yet) */}
                                 {messages.length === 0 && (
                                     <div style={{ padding: '2rem', textAlign: 'center', opacity: 0.5 }}>
                                         <p style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Ask anything about the video!</p>
-                                        <p style={{ fontSize: '0.85rem' }}>Try: "What was the main outcome?" or "Where was X mentioned?"</p>
+                                        {!transcriptData && <p>Waiting for analysis...</p>}
                                     </div>
                                 )}
                                 {messages.map((m, i) => (
