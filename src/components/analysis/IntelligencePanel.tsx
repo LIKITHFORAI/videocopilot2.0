@@ -91,12 +91,19 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
         }
     };
 
-    const handleSendMessage = async () => {
-        if (!input.trim() || !mediaId || isChatting) return;
+    const handleSendMessage = async (textOverride?: string) => {
+        const textToSend = textOverride || input;
 
-        const userMsg: Message = { role: 'user', content: input };
+        if (!textToSend.trim() || !mediaId || isChatting) return;
+
+        const userMsg: Message = { role: 'user', content: textToSend };
         setMessages(prev => [...prev, userMsg]);
-        setInput('');
+
+        // Only clear input if we didn't use an override (i.e., user typed it)
+        if (!textOverride) {
+            setInput('');
+        }
+
         setIsChatting(true);
 
         try {
@@ -105,7 +112,7 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     mediaId,
-                    question: input,
+                    question: textToSend,
                     history: messages.map(m => ({ role: m.role, content: m.content }))
                 })
             });
@@ -121,6 +128,17 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
         } finally {
             setIsChatting(false);
         }
+    };
+
+    const handleHighlightClick = (point: KeyPoint) => {
+        // 1. Seek Video
+        if (point.timestamp !== undefined) {
+            onSeek(point.timestamp);
+        }
+
+        // 2. Trigger Chat Context
+        // We simulate a user asking about this highlight to generate a summary
+        handleSendMessage(`Check the video at ${formatTime(point.timestamp || 0)} and tell me more about: "${point.text}"`);
     };
 
     const formatTime = (seconds: number) => {
@@ -169,9 +187,15 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
                         <div className="transcript-content" style={{ padding: '1rem', height: '100%', overflowY: 'auto' }}>
                             {!mediaId && <p style={{ opacity: 0.6 }}>Upload a video to see the transcript.</p>}
 
+                            {/* Loading Skeleton for Transcript */}
                             {mediaId && polling && (
-                                <div style={{ textAlign: 'center', padding: '3rem', opacity: 0.5 }}>
-                                    <p style={{ fontStyle: 'italic' }}>Processing transcript in background...</p>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '0.5rem' }}>
+                                    {[...Array(12)].map((_, i) => (
+                                        <div key={i} style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                            <div className="skeleton" style={{ width: '45px', height: '16px' }}></div>
+                                            <div className="skeleton" style={{ flex: 1, height: '16px', maxWidth: `${Math.random() * 30 + 60}%` }}></div>
+                                        </div>
+                                    ))}
                                 </div>
                             )}
 
@@ -196,6 +220,30 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
                     {activeTab === 'chat' && (
                         <div className="chat-container" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                             <div className="messages" style={{ flex: 1, padding: '1.5rem', overflowY: 'auto' }}>
+                                {/* Loading Skeleton for Summary & Highlights */}
+                                {mediaId && polling && !transcriptData && (
+                                    <div className="skeleton-summary">
+                                        {/* Header */}
+                                        <div className="skeleton" style={{ width: '30%', height: '24px', marginBottom: '1rem' }}></div>
+                                        {/* Summary Lines */}
+                                        <div className="skeleton" style={{ width: '100%', height: '16px', marginBottom: '0.6rem' }}></div>
+                                        <div className="skeleton" style={{ width: '92%', height: '16px', marginBottom: '0.6rem' }}></div>
+                                        <div className="skeleton" style={{ width: '96%', height: '16px', marginBottom: '2rem' }}></div>
+
+                                        {/* Highlights Header */}
+                                        <div className="skeleton" style={{ width: '40%', height: '22px', marginBottom: '1.2rem' }}></div>
+
+                                        {/* Bubbles */}
+                                        {[...Array(3)].map((_, i) => (
+                                            <div key={i} className="skeleton" style={{ width: '100%', height: '70px', marginBottom: '1rem', borderRadius: '12px' }}></div>
+                                        ))}
+
+                                        <div style={{ textAlign: 'center', marginTop: '2rem', color: '#888', fontSize: '0.9rem' }}>
+                                            <p>AI is analyzing your video...</p>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Summary Header */}
                                 {transcriptData && (
                                     <div className="summary-header" style={{ marginBottom: '2rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
@@ -209,7 +257,7 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
                                             {keyPoints.map((point, idx) => (
                                                 <div
                                                     key={idx}
-                                                    onClick={() => point.timestamp !== undefined && onSeek(point.timestamp)}
+                                                    onClick={() => handleHighlightClick(point)}
                                                     style={{
                                                         padding: '1rem',
                                                         background: 'white',
@@ -317,7 +365,7 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
                                     disabled={!mediaId || polling || isChatting}
                                 />
                                 <button
-                                    onClick={handleSendMessage}
+                                    onClick={() => handleSendMessage()}
                                     disabled={!mediaId || polling || isChatting || !input.trim()}
                                 >
                                     Send
