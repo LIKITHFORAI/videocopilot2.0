@@ -1,0 +1,11 @@
+{
+  "jobId": "df7bf71f-6814-4207-a82d-6ac010b30224",
+  "mediaId": "9f236bbe-f770-44ad-8d25-6085532c882f",
+  "status": "FAILED",
+  "createdAt": "2026-01-21T06:02:17.857Z",
+  "progress": 40,
+  "updatedAt": "2026-01-21T06:02:53.842Z",
+  "chunkIndex": 1,
+  "totalChunks": 1,
+  "error": "Connection error."
+}

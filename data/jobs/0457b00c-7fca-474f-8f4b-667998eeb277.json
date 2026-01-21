@@ -1,0 +1,9 @@
+{
+  "jobId": "0457b00c-7fca-474f-8f4b-667998eeb277",
+  "mediaId": "63affbf5-514f-4bd4-bef3-ac54c719bf1d",
+  "status": "FAILED",
+  "createdAt": "2026-01-21T07:37:10.029Z",
+  "progress": 10,
+  "updatedAt": "2026-01-21T07:37:10.115Z",
+  "error": "ffmpeg exited with code 3199971767: Error opening input file C:\\Users\\herei\\.gemini\\antigravity\\scratch\\video-copilot\\data\\uploads\\63affbf5-514f-4bd4-bef3-ac54c719bf1d\\test_video_short.mp4.\nError opening input files: Invalid data found when processing input\n"
+}
