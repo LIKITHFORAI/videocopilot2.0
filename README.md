@@ -106,7 +106,7 @@ This is the easiest method because it uses the SSH tool already on your computer
 2.  **Run the Command**:
     Copy and paste this exact command:
     ```powershell
-    ssh -R 80:localhost:3001 nokey@localhost.run
+    ssh -R 80:localhost:3000 nokey@localhost.run
     ```
 
 3.  **Get the Link**:
@@ -119,7 +119,7 @@ Uses Node.js to create a tunnel.
 
 1.  **Run**:
     ```bash
-    npx localtunnel --port 3001
+    npx localtunnel --port 3000
     ```
 2.  **Get Password**:
     *   Run `curl ipv4.icanhazip.com` to get your public IP.

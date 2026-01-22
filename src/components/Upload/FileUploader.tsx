@@ -1,10 +1,15 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import ProgressSteps from './ProgressSteps';
+import { useDragDrop } from '@/hooks/useDragDrop';
+
+export interface FileUploaderRef {
+    uploadFile: (file: File) => void;
+}
 
 interface FileUploaderProps {
-    onUploadComplete: (mediaId: string, jobId: string) => void;
+    onUploadComplete: (mediaId: string, jobId: string, type: 'video' | 'audio') => void;
     currentJobStatus?: string;
     currentJobProgress?: number;
 }
@@ -14,15 +19,17 @@ interface HistoryItem {
     jobId: string;
     fileName: string;
     date: string;
+    type?: 'video' | 'audio'; // Add type to history
 }
 
-export default function FileUploader({
+const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
     onUploadComplete,
     currentJobStatus,
     currentJobProgress = 0,
-}: FileUploaderProps) {
+}, ref) => {
     const [status, setStatus] = useState<'idle' | 'uploading' | 'queued' | 'error'>('idle');
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [mediaType, setMediaType] = useState<'video' | 'audio'>('video');
     const [message, setMessage] = useState('');
     const [loadingFromHistory, setLoadingFromHistory] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -31,11 +38,41 @@ export default function FileUploader({
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const [showHistory, setShowHistory] = useState(false);
 
+    // Popup UX State
+    const [isClosing, setIsClosing] = useState(false);
+    const popupRef = useRef<HTMLDivElement>(null);
+    const buttonRef = useRef<HTMLButtonElement>(null);
+
+    const closePopup = () => {
+        setIsClosing(true);
+        setTimeout(() => {
+            setShowHistory(false);
+            setIsClosing(false);
+        }, 1000);
+    };
+
+    // Click Outside Listener
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (showHistory && !isClosing &&
+                popupRef.current && !popupRef.current.contains(event.target as Node) &&
+                buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
+                closePopup();
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showHistory, isClosing]);
+
     // Load history on mount
     useEffect(() => {
         const saved = localStorage.getItem('vc_history');
         if (saved) {
             try {
+                // eslint-disable-next-line
                 setHistory(JSON.parse(saved));
             } catch (e) {
                 console.error("Failed to parse history", e);
@@ -53,13 +90,42 @@ export default function FileUploader({
     // reset internal state when job completes
     useEffect(() => {
         if (currentJobStatus === 'COMPLETED') {
+            // eslint-disable-next-line
             setStatus('idle');
             setMessage('Ready');
         }
     }, [currentJobStatus]);
 
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
+    const startProcessing = async (mediaId: string, fileName: string, type: 'video' | 'audio') => {
+        try {
+            const res = await fetch('/api/process', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mediaId }),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                // Save to history
+                addToHistory({
+                    mediaId,
+                    jobId: data.jobId,
+                    fileName,
+                    date: new Date().toISOString(),
+                    type: type
+                });
+
+                onUploadComplete(mediaId, data.jobId, type);
+            } else {
+                setStatus('error');
+                setMessage('Failed to start processing.');
+            }
+        } catch (_err) {
+            setStatus('error');
+            setMessage('Failed to connect to processing API.');
+        }
+    };
+
+    const processFile = async (file: File) => {
         if (!file) return;
 
         // Duplicate Check
@@ -71,17 +137,21 @@ export default function FileUploader({
 
             if (useExisting) {
                 setLoadingFromHistory(true);
-                onUploadComplete(existing.mediaId, existing.jobId);
-                // Clear input
-                e.target.value = '';
+                // Use stored type or guess from extension if missing (legacy history items)
+                const type = existing.type || (/\.(mp3|wav|m4a|aac|flac|ogg)$/i.test(existing.fileName) ? 'audio' : 'video');
+                setMediaType(type);
+
+                onUploadComplete(existing.mediaId, existing.jobId, type);
                 // Reset flag after a brief delay
-                setTimeout(() => setLoadingFromHistory(false), 1000);
+                setTimeout(() => setLoadingFromHistory(false), 500);
                 return;
             }
         }
 
-        // Reset input value to allow re-uploading the same file if they chose No
-        e.target.value = '';
+        // Detect Media Type
+        const isAudio = file.type.startsWith('audio/') ||
+            /\.(mp3|wav|m4a|aac|flac|ogg)$/i.test(file.name);
+        setMediaType(isAudio ? 'audio' : 'video');
 
         setStatus('uploading');
         setMessage(`Uploading ${file.name}...`);
@@ -105,7 +175,7 @@ export default function FileUploader({
                     setStatus('queued');
                     setMessage('Queuing for processing...');
                     // Start the job
-                    await startProcessing(response.mediaId, file.name);
+                    await startProcessing(response.mediaId, file.name, isAudio ? 'audio' : 'video');
                 } else {
                     setStatus('error');
                     setMessage('Upload failed.');
@@ -125,33 +195,24 @@ export default function FileUploader({
         }
     };
 
-    const startProcessing = async (mediaId: string, fileName: string) => {
-        try {
-            const res = await fetch('/api/process', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mediaId }),
-            });
-            const data = await res.json();
-            if (res.ok) {
-                // Save to history
-                addToHistory({
-                    mediaId,
-                    jobId: data.jobId,
-                    fileName,
-                    date: new Date().toISOString()
-                });
+    // Expose uploadFile method via Ref
+    useImperativeHandle(ref, () => ({
+        uploadFile: (file: File) => {
+            processFile(file);
+        }
+    }));
 
-                onUploadComplete(mediaId, data.jobId);
-            } else {
-                setStatus('error');
-                setMessage('Failed to start processing.');
-            }
-        } catch (err) {
-            setStatus('error');
-            setMessage('Failed to connect to processing API.');
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            processFile(file);
+            // Reset input value
+            e.target.value = '';
         }
     };
+
+    // Drag and Drop Hook
+    const { isDragging, dragHandlers } = useDragDrop(processFile);
 
     // Determine what to display
     const isUploading = status === 'uploading';
@@ -163,7 +224,7 @@ export default function FileUploader({
             currentJobStatus !== '' &&
             !loadingFromHistory); // Don't show progress for saved videos
 
-    const displayStatus = isUploading ? 'Uploading Video...' : `Processing: ${currentJobStatus?.replace('_', ' ') || 'Initializing'}...`;
+    // const displayStatus = isUploading ? 'Uploading Media...' : `Processing: ${currentJobStatus?.replace('_', ' ') || 'Initializing'}...`;
     const displayProgress = isUploading ? uploadProgress : currentJobProgress;
 
     return (
@@ -194,9 +255,10 @@ export default function FileUploader({
                     <ProgressSteps
                         currentStatus={isUploading ? 'UPLOADING' : currentJobStatus}
                         progress={displayProgress}
+                        mediaType={mediaType}
                     />
                 ) : (
-                    <div style={{ opacity: 0.5, fontSize: '0.9rem', textAlign: 'center' }}>Ready for new video</div>
+                    <div style={{ opacity: 0.5, fontSize: '0.9rem', textAlign: 'center' }}>{message || 'Ready for new media'}</div>
                 )}
             </div>
 
@@ -205,7 +267,14 @@ export default function FileUploader({
                 {/* History Button */}
                 <div style={{ position: 'relative' }}>
                     <button
-                        onClick={() => setShowHistory(!showHistory)}
+                        ref={buttonRef}
+                        onClick={() => {
+                            if (showHistory && !isClosing) {
+                                closePopup();
+                            } else if (!showHistory) {
+                                setShowHistory(true);
+                            }
+                        }}
                         style={{
                             padding: '0.6rem',
                             background: 'white',
@@ -217,7 +286,7 @@ export default function FileUploader({
                             alignItems: 'center',
                             justifyContent: 'center'
                         }}
-                        title="My Videos"
+                        title="My Media"
                     >
                         {/* Simple History Icon */}
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -225,22 +294,28 @@ export default function FileUploader({
                         </svg>
                     </button>
 
-                    {showHistory && (
-                        <div style={{
-                            position: 'absolute',
-                            top: '110%',
-                            right: 0,
-                            width: '300px',
-                            background: 'white',
-                            border: '1px solid #ddd',
-                            borderRadius: '8px',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                            padding: '1rem',
-                            zIndex: 200
-                        }}>
-                            <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem' }}>Recent Videos</h4>
+                    {/* Popup */}
+                    {(showHistory || isClosing) && (
+                        <div
+                            ref={popupRef}
+                            style={{
+                                position: 'absolute',
+                                top: '110%',
+                                right: 0,
+                                width: '300px',
+                                background: 'white',
+                                border: '1px solid #ddd',
+                                borderRadius: '8px',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                padding: '1rem',
+                                zIndex: 200,
+                                opacity: isClosing ? 0 : 1,
+                                transition: 'opacity .5s ease-out',
+                                pointerEvents: isClosing ? 'none' : 'auto'
+                            }}>
+                            <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem' }}>Recent Media</h4>
                             {history.length === 0 ? (
-                                <p style={{ fontSize: '0.9rem', color: '#888' }}>No saved videos yet.</p>
+                                <p style={{ fontSize: '0.9rem', color: '#888' }}>No saved media yet.</p>
                             ) : (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                                     {history.map((item, i) => (
@@ -248,7 +323,9 @@ export default function FileUploader({
                                             key={i}
                                             onClick={() => {
                                                 setLoadingFromHistory(true);
-                                                onUploadComplete(item.mediaId, item.jobId);
+                                                // Use stored type or guess from extension if missing (legacy history items)
+                                                const type = item.type || (/\.(mp3|wav|m4a|aac|flac|ogg)$/i.test(item.fileName) ? 'audio' : 'video');
+                                                onUploadComplete(item.mediaId, item.jobId, type);
                                                 setShowHistory(false);
                                                 // Reset flag after a brief delay
                                                 setTimeout(() => setLoadingFromHistory(false), 1000);
@@ -280,29 +357,34 @@ export default function FileUploader({
 
                 <input
                     type="file"
-                    accept="video/*"
+                    accept="video/*,audio/*,.mkv"
                     ref={fileInputRef}
                     onChange={handleFileChange}
                     style={{ display: 'none' }}
                 />
                 <button
+                    {...dragHandlers}
                     onClick={() => fileInputRef.current?.click()}
                     disabled={!!isUploading || !!isProcessing}
                     style={{
                         padding: '0.6rem 1.2rem',
-                        background: (isUploading || isProcessing) ? '#ccc' : 'var(--primary)',
+                        background: (isUploading || isProcessing) ? '#ccc' : (isDragging ? 'var(--secondary)' : 'var(--primary)'),
                         color: 'white',
-                        border: 'none',
+                        border: isDragging ? '2px dashed white' : 'none',
                         borderRadius: '6px',
                         cursor: (isUploading || isProcessing) ? 'not-allowed' : 'pointer',
                         fontSize: '0.9rem',
                         fontWeight: '600',
-                        transition: 'all 0.2s'
+                        transition: 'all 0.2s',
+                        transform: isDragging ? 'scale(1.05)' : 'scale(1)'
                     }}
                 >
-                    {(isUploading || isProcessing) ? 'Please Wait' : 'Upload New'}
+                    {(isUploading || isProcessing) ? 'Please Wait' : (isDragging ? 'Drop File' : 'Upload New')}
                 </button>
             </div>
         </div>
     );
-}
+});
+
+FileUploader.displayName = 'FileUploader';
+export default FileUploader;

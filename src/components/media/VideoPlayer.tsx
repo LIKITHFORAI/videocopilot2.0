@@ -1,6 +1,7 @@
 'use client';
 
-import { forwardRef, useImperativeHandle, useRef, useEffect } from 'react';
+import { forwardRef, useImperativeHandle, useRef } from 'react';
+import { useDragDrop } from '@/hooks/useDragDrop';
 
 export interface VideoPlayerRef {
     seekTo: (time: number) => void;
@@ -9,10 +10,12 @@ export interface VideoPlayerRef {
 interface VideoPlayerProps {
     mediaId: string | null;
     jobStatus?: string;
+    onFileDrop?: (file: File) => void;
 }
 
-const VideoPlayer = forwardRef<VideoPlayerRef, VideoPlayerProps>(({ mediaId, jobStatus }, ref) => {
+const VideoPlayer = forwardRef<VideoPlayerRef, VideoPlayerProps>(({ mediaId, jobStatus, onFileDrop }, ref) => {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const { isDragging, dragHandlers } = useDragDrop(onFileDrop);
 
     useImperativeHandle(ref, () => ({
         seekTo: (time: number) => {
@@ -25,10 +28,27 @@ const VideoPlayer = forwardRef<VideoPlayerRef, VideoPlayerProps>(({ mediaId, job
 
     if (!mediaId) {
         return (
-            <div className="video-section">
-                <div style={{ textAlign: 'center', opacity: 0.6 }}>
-                    <p style={{ fontSize: '1.2rem', fontWeight: 600 }}>Video Player Placeholder</p>
-                    <p style={{ fontSize: '0.9rem' }}>Upload a video to start playback</p>
+            <div
+                className="video-section"
+                {...dragHandlers}
+                style={{
+                    // Only override styles when dragging
+                    ...(isDragging ? {
+                        border: '2px dashed var(--primary)',
+                        background: 'rgba(59, 130, 246, 0.1)' // Light blue overlay on top of (or replacing) gradient
+                    } : {
+                        // When not dragging, let CSS handle background and border
+                        // But we might want to ensure border matches CSS if we were overriding it
+                    })
+                }}
+            >
+                <div style={{ textAlign: 'center', opacity: 0.6, pointerEvents: 'none' }}>
+                    <p style={{ fontSize: '1.2rem', fontWeight: 600 }}>
+                        {isDragging ? 'Drop to Upload' : 'Video Player Placeholder'}
+                    </p>
+                    <p style={{ fontSize: '0.9rem' }}>
+                        {isDragging ? 'Release to start analysis' : 'Upload or Drop media to start playback'}
+                    </p>
                 </div>
             </div>
         );

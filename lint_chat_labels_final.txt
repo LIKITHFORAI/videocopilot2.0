@@ -1,0 +1,13 @@
+
+C:\Users\herei\.gemini\antigravity\scratch\video_copilot_fresh\src\components\Upload\FileUploader.tsx
+  122:18  warning  '_err' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\herei\.gemini\antigravity\scratch\video_copilot_fresh\src\components\analysis\IntelligencePanel.tsx
+   36:58  error    Unexpected any. Specify a different type                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+   54:13  error    'intervalId' is never reassigned. Use 'const' instead                                                                                                                                                                                                                 prefer-const
+   86:8   warning  React Hook useEffect has missing dependencies: 'onProgressChange' and 'onStatusChange'. Either include them or remove the dependency array. If 'onStatusChange' changes too often, find the parent component that defines it and wrap that definition in useCallback  react-hooks/exhaustive-deps
+  132:18  warning  '_e' is defined but never used                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  319:67  warning  'node' is defined but never used                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+
+Γ£û 6 problems (2 errors, 4 warnings)
+

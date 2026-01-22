@@ -1,0 +1,6 @@
+
+C:\Users\herei\.gemini\antigravity\scratch\video_copilot_fresh\src\components\WelcomeModal.tsx
+  3:20  warning  'useEffect' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 1 problem (0 errors, 1 warning)
+

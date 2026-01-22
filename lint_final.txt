@@ -1,0 +1,6 @@
+
+C:\Users\herei\.gemini\antigravity\scratch\video_copilot_fresh\src\components\Upload\FileUploader.tsx
+  90:18  warning  '_err' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 1 problem (0 errors, 1 warning)
+
