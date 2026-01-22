@@ -93,6 +93,40 @@ You are now ready to launch!
 
 ---
 
+## 🌍 Share Publicly (Free Tunnel)
+
+Want to share your app with others? Use one of these free, secure tunnel options.
+
+### ✅ Option 1: Localhost.run (Best - No Install, No Password)
+This is the easiest method because it uses the SSH tool already on your computer.
+
+1.  **Open a Terminal**:
+    Open a new terminal window (Command Prompt or PowerShell) in your project.
+
+2.  **Run the Command**:
+    Copy and paste this exact command:
+    ```powershell
+    ssh -R 80:localhost:3001 nokey@localhost.run
+    ```
+
+3.  **Get the Link**:
+    *   It will show a generic message. Look for the line starting with `https://...`
+    *   **Copy that URL**. That's your public link!
+    *   (Note: If it asks for confirmation `yes/no`, type `yes`).
+
+### ⚡ Option 2: LocalTunnel (Backup)
+Uses Node.js to create a tunnel.
+
+1.  **Run**:
+    ```bash
+    npx localtunnel --port 3001
+    ```
+2.  **Get Password**:
+    *   Run `curl ipv4.icanhazip.com` to get your public IP.
+    *   Paste that IP when you open the tunnel link.
+
+---
+
 ## 💡 How to Use Video Copilot
 
 1.  **Upload**: Click the blue "Upload New" button. Select a video file.
@@ -110,3 +144,13 @@ You are now ready to launch!
 *   **"ffmpeg is not recognized..."**: You likely didn't add the `bin` folder to your Path correctly. Go back to Phase 1, Step 4. You must restart your terminal/VS Code after changing environment variables.
 *   **Video stays black**: Refresh the page. If it persists, ensure your video file isn't corrupted.
 *   **Chat says "Offline Mode"**: Check your `.env.local` file. Ensure the API key is correct and saved.
+
+## 📚 Documentation
+
+Detailed guides and implementation notes can now be found in the `docs/` folder:
+
+*   [**Gemini Vision Setup**](docs/GEMINI_VISION_SETUP.md) - Instructions for setting up Google Gemini 1.5 Flash Vision.
+*   [**Gemini Vision Ready**](docs/GEMINI_VISION_READY.md) - Quick reference for Vision API.
+*   [**Restoration Success**](docs/RESTORATION_SUCCESS.md) - Log of the project restoration process.
+*   [**Progress Steps Implementation**](docs/PROGRESS_STEPS_IMPLEMENTATION.md) - Details on the UI progress bar.
+*   [**Implementation Summary**](docs/IMPLEMENTATION_SUMMARY.md) - Overview of features and changes.

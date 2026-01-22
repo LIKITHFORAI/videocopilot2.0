@@ -1,0 +1,11 @@
+{
+  "jobId": "86ba20db-b285-4b63-a7bb-d714c297bd4c",
+  "mediaId": "756426aa-6769-4e61-8990-dc90c2ef81f9",
+  "status": "COMPLETED",
+  "createdAt": "2026-01-21T21:51:50.863Z",
+  "progress": 100,
+  "updatedAt": "2026-01-21T21:55:29.555Z",
+  "chunkIndex": 2,
+  "totalChunks": 2,
+  "resultUrl": "/api/transcript/756426aa-6769-4e61-8990-dc90c2ef81f9"
+}

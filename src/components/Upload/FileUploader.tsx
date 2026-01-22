@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import ProgressSteps from './ProgressSteps';
 
 interface FileUploaderProps {
     onUploadComplete: (mediaId: string, jobId: string) => void;
@@ -23,6 +24,7 @@ export default function FileUploader({
     const [status, setStatus] = useState<'idle' | 'uploading' | 'queued' | 'error'>('idle');
     const [uploadProgress, setUploadProgress] = useState(0);
     const [message, setMessage] = useState('');
+    const [loadingFromHistory, setLoadingFromHistory] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // History State
@@ -68,9 +70,12 @@ export default function FileUploader({
             );
 
             if (useExisting) {
+                setLoadingFromHistory(true);
                 onUploadComplete(existing.mediaId, existing.jobId);
                 // Clear input
                 e.target.value = '';
+                // Reset flag after a brief delay
+                setTimeout(() => setLoadingFromHistory(false), 1000);
                 return;
             }
         }
@@ -155,7 +160,8 @@ export default function FileUploader({
         (!!currentJobStatus && // Force boolean
             currentJobStatus !== 'COMPLETED' &&
             currentJobStatus !== 'FAILED' &&
-            currentJobStatus !== '');
+            currentJobStatus !== '' &&
+            !loadingFromHistory); // Don't show progress for saved videos
 
     const displayStatus = isUploading ? 'Uploading Video...' : `Processing: ${currentJobStatus?.replace('_', ' ') || 'Initializing'}...`;
     const displayProgress = isUploading ? uploadProgress : currentJobProgress;
@@ -185,33 +191,12 @@ export default function FileUploader({
             {/* Central Progress Area */}
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                 {(isUploading || isProcessing) ? (
-                    <>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: '500', color: '#666' }}>
-                            <span>{displayStatus}</span>
-                            <span>{Math.round(displayProgress)}%</span>
-                        </div>
-                        <div style={{
-                            width: '100%',
-                            height: '8px',
-                            background: '#f0f0f0',
-                            borderRadius: '4px',
-                            overflow: 'hidden',
-                            position: 'relative' // needed for overflow hidden on child?
-                        }}>
-                            <div
-                                className={!isUploading ? "fancy-progress" : ""}
-                                style={{
-                                    width: `${displayProgress}%`,
-                                    height: '100%',
-                                    background: isUploading ? 'var(--primary)' : undefined, // Fancy class handles background if processing
-                                    transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                                    borderRadius: '4px'
-                                }}
-                            />
-                        </div>
-                    </>
+                    <ProgressSteps
+                        currentStatus={isUploading ? 'UPLOADING' : currentJobStatus}
+                        progress={displayProgress}
+                    />
                 ) : (
-                    <div style={{ opacity: 0.5, fontSize: '0.9rem' }}>Ready for new video</div>
+                    <div style={{ opacity: 0.5, fontSize: '0.9rem', textAlign: 'center' }}>Ready for new video</div>
                 )}
             </div>
 
@@ -262,8 +247,11 @@ export default function FileUploader({
                                         <div
                                             key={i}
                                             onClick={() => {
+                                                setLoadingFromHistory(true);
                                                 onUploadComplete(item.mediaId, item.jobId);
                                                 setShowHistory(false);
+                                                // Reset flag after a brief delay
+                                                setTimeout(() => setLoadingFromHistory(false), 1000);
                                             }}
                                             style={{
                                                 padding: '0.5rem',
