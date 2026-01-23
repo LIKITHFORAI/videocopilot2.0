@@ -11,7 +11,6 @@ interface IntelligencePanelProps {
     onSeek: (time: number) => void;
     onStatusChange?: (status: string) => void;
     onProgressChange?: (progress: number) => void;
-    mediaType?: 'video' | 'audio';
 }
 
 interface Message {
@@ -25,15 +24,10 @@ interface KeyPoint {
     timestamp?: number;
 }
 
-interface TranscriptSegment {
-    start: number;
-    text: string;
-}
-
-export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChange, onProgressChange, mediaType = 'video' }: IntelligencePanelProps) {
+export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChange, onProgressChange }: IntelligencePanelProps) {
     const [activeTab, setActiveTab] = useState<Tab>('transcript');
     const [jobStatus, setJobStatus] = useState<string>('');
-    const [transcriptData, setTranscriptData] = useState<{ segments: TranscriptSegment[], keyPoints: (string | KeyPoint)[], summary: string } | null>(null);
+    const [transcriptData, setTranscriptData] = useState<any>(null);
     const [polling, setPolling] = useState(false);
 
     // Chat state
@@ -51,7 +45,7 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
     useEffect(() => {
         if (!jobId) return;
 
-        let intervalId: NodeJS.Timeout | undefined;
+        let intervalId: NodeJS.Timeout;
 
         const checkStatus = async () => {
             try {
@@ -83,7 +77,7 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
         intervalId = setInterval(checkStatus, 2000);
 
         return () => clearInterval(intervalId);
-    }, [jobId]); // Ignoring onStatusChange/onProgressChange deps as they are stable props
+    }, [jobId]);
 
     const fetchTranscript = async (mid: string) => {
         try {
@@ -129,7 +123,7 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
             } else {
                 setMessages(prev => [...prev, { role: 'assistant', content: "Sorry, I had trouble processing that request." }]);
             }
-        } catch {
+        } catch (e) {
             setMessages(prev => [...prev, { role: 'assistant', content: "Connect error while chatting." }]);
         } finally {
             setIsChatting(false);
@@ -144,7 +138,7 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
 
         // 2. Trigger Chat Context
         // We simulate a user asking about this highlight to generate a summary
-        handleSendMessage(`Check the ${mediaType} at ${formatTime(point.timestamp || 0)} and tell me more about: "${point.text}"`);
+        handleSendMessage(`Check the video at ${formatTime(point.timestamp || 0)} and tell me more about: "${point.text}"`);
     };
 
     const formatTime = (seconds: number) => {
@@ -153,11 +147,11 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
         return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     };
 
-    const transcript: TranscriptSegment[] = transcriptData?.segments || [];
+    const transcript = transcriptData?.segments || [];
 
     const getKeyPoints = (): KeyPoint[] => {
         if (!transcriptData?.keyPoints) return [];
-        return transcriptData.keyPoints.map((kp: string | KeyPoint) => {
+        return transcriptData.keyPoints.map((kp: any) => {
             if (typeof kp === 'string') return { text: kp, timestamp: 0 };
             return kp;
         });
@@ -191,7 +185,7 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
                 <div className="content-area" style={{ flex: 1, overflow: 'hidden' }}>
                     {activeTab === 'transcript' && (
                         <div className="transcript-content" style={{ padding: '1rem', height: '100%', overflowY: 'auto' }}>
-                            {!mediaId && <p style={{ opacity: 0.6 }}>Upload a {mediaType} to see the transcript.</p>}
+                            {!mediaId && <p style={{ opacity: 0.6 }}>Upload a video to see the transcript.</p>}
 
                             {/* Loading Skeleton for Transcript */}
                             {mediaId && polling && (
@@ -208,7 +202,7 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
                             {mediaId && !polling && transcript.length === 0 && jobStatus === 'COMPLETED' && <p>No speech detected.</p>}
                             {mediaId && !polling && transcript.length > 0 && (
                                 <div>
-                                    {transcript.map((seg, i: number) => (
+                                    {transcript.map((seg: any, i: number) => (
                                         <div
                                             key={i}
                                             className="transcript-segment"
@@ -245,7 +239,7 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
                                         ))}
 
                                         <div style={{ textAlign: 'center', marginTop: '2rem', color: '#888', fontSize: '0.9rem' }}>
-                                            <p>AI is analyzing your {mediaType}...</p>
+                                            <p>AI is analyzing your video...</p>
                                         </div>
                                     </div>
                                 )}
@@ -253,7 +247,7 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
                                 {/* Summary Header */}
                                 {transcriptData && (
                                     <div className="summary-header" style={{ marginBottom: '2rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
-                                        <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: '700' }}>{mediaType === 'audio' ? 'Audio' : 'Video'} Recap</h3>
+                                        <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: '700' }}>Video Recap</h3>
                                         <p style={{ fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.5rem', color: '#444' }}>
                                             {transcriptData.summary}
                                         </p>

@@ -1,11 +1,24 @@
 import OpenAI from 'openai';
 
-const apiKey = process.env.OPENAI_API_KEY;
-const isPlaceholder = !apiKey || apiKey.includes('placeholder') || apiKey === 'sk-your-key-here';
+// Initialize Azure OpenAI for Chat/Summaries
+const azureChatEndpoint = process.env.AZURE_OPENAI_CHAT_ENDPOINT;
+const azureChatApiKey = process.env.AZURE_OPENAI_CHAT_API_KEY;
+const azureChatApiVersion = process.env.AZURE_OPENAI_CHAT_API_VERSION || '2025-01-01-preview';
+const chatDeployment = process.env.AZURE_CHAT_DEPLOYMENT || 'drcloudehr-video-copilot';
+
+const isPlaceholder = !azureChatApiKey || azureChatApiKey.includes('placeholder');
 
 let openai: OpenAI | null = null;
-if (apiKey && !isPlaceholder) {
-    openai = new OpenAI({ apiKey });
+if (azureChatEndpoint && azureChatApiKey && !isPlaceholder) {
+    openai = new OpenAI({
+        apiKey: azureChatApiKey,
+        baseURL: `${azureChatEndpoint}/openai/deployments/${chatDeployment}`,
+        defaultQuery: { 'api-version': azureChatApiVersion },
+        defaultHeaders: { 'api-key': azureChatApiKey },
+    });
+    console.log(`✅ Azure OpenAI Chat initialized: ${azureChatEndpoint}`);
+} else {
+    console.warn("Azure Chat credentials not found or invalid. Using placeholder responses.");
 }
 
 export async function generateSummary(segments: any[]) {
@@ -29,7 +42,7 @@ export async function generateSummary(segments: any[]) {
 
     try {
         const response = await openai.chat.completions.create({
-            model: "gpt-4o-mini", // Cost effective for summary
+            model: chatDeployment, // Azure deployment name (using same for both chat and summaries)
             messages: [
                 {
                     role: "system",
@@ -94,7 +107,7 @@ export async function answerQuestion(transcriptSegments: any[], question: string
 
     try {
         const response = await openai.chat.completions.create({
-            model: "gpt-4o", // Use gpt-4o for better reasoning and following complex instructions
+            model: chatDeployment, // Azure deployment name
             messages: [
                 {
                     role: "system",

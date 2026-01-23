@@ -1,0 +1,59 @@
+{
+  "mediaId": "f8946147-27a4-433c-abea-4d558a19a4b8",
+  "jobId": "dafd608b-6eec-4548-9a3c-02981e773dd4",
+  "text": "This is a dummy transcript because no OpenAI API key was provided. This is a dummy transcript because no OpenAI API key was provided.",
+  "segments": [
+    {
+      "id": 0,
+      "start": 1,
+      "end": 5,
+      "text": "This is the first dummy segment."
+    },
+    {
+      "id": 1,
+      "start": 6,
+      "end": 10,
+      "text": "Here is another segment of speech."
+    },
+    {
+      "id": 2,
+      "start": 11,
+      "end": 15,
+      "text": "And a final point made here."
+    },
+    {
+      "id": 0,
+      "start": 1310.968,
+      "end": 1314.968,
+      "text": "This is the first dummy segment."
+    },
+    {
+      "id": 1,
+      "start": 1315.968,
+      "end": 1319.968,
+      "text": "Here is another segment of speech."
+    },
+    {
+      "id": 2,
+      "start": 1320.968,
+      "end": 1324.968,
+      "text": "And a final point made here."
+    }
+  ],
+  "summary": "The video contains two identical segments, each structured with an introductory statement, a middle segment, and a concluding point.",
+  "keyPoints": [
+    {
+      "text": "Introduction to the topic",
+      "timestamp": 1
+    },
+    {
+      "text": "Another segment of speech",
+      "timestamp": 6
+    },
+    {
+      "text": "Final point made here",
+      "timestamp": 11
+    }
+  ],
+  "createdAt": "2026-01-22T22:19:04.127Z"
+}

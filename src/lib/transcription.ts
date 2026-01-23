@@ -4,15 +4,25 @@ import path from 'path';
 import OpenAI from 'openai';
 import { promisify } from 'util';
 
-// Initialize OpenAI if key is present and not a placeholder
-const apiKey = process.env.OPENAI_API_KEY;
-const isPlaceholder = !apiKey || apiKey.includes('placeholder') || apiKey === 'sk-your-key-here';
+// Initialize Azure OpenAI for Whisper transcription
+const azureWhisperEndpoint = process.env.AZURE_OPENAI_WHISPER_ENDPOINT;
+const azureWhisperApiKey = process.env.AZURE_OPENAI_WHISPER_API_KEY;
+const azureWhisperApiVersion = process.env.AZURE_OPENAI_WHISPER_API_VERSION || '2024-06-01';
+const whisperDeployment = process.env.AZURE_WHISPER_DEPLOYMENT || 'whisper-for-video-copilot';
+
+const isPlaceholder = !azureWhisperApiKey || azureWhisperApiKey.includes('placeholder');
 
 let openai: OpenAI | null = null;
-if (apiKey && !isPlaceholder) {
-    openai = new OpenAI({ apiKey });
+if (azureWhisperEndpoint && azureWhisperApiKey && !isPlaceholder) {
+    openai = new OpenAI({
+        apiKey: azureWhisperApiKey,
+        baseURL: `${azureWhisperEndpoint}/openai/deployments/${whisperDeployment}`,
+        defaultQuery: { 'api-version': azureWhisperApiVersion },
+        defaultHeaders: { 'api-key': azureWhisperApiKey },
+    });
+    console.log(`✅ Azure OpenAI Whisper initialized: ${azureWhisperEndpoint}`);
 } else {
-    console.warn("OPENAI_API_KEY not found or is placeholder. Using dummy transcription.");
+    console.warn("Azure Whisper credentials not found or invalid. Using dummy transcription.");
 }
 
 export const getAudioDurationInSeconds = async (filePath: string): Promise<number> => {
@@ -130,7 +140,7 @@ export async function transcribeChunk(filePath: string, offsetSeconds: number = 
     try {
         const response = await openai.audio.transcriptions.create({
             file: fileStream,
-            model: 'whisper-1',
+            model: whisperDeployment, // Azure deployment name
             response_format: 'verbose_json',
             timestamp_granularities: ['segment'], // get segment level timestamps
         });

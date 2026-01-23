@@ -3,13 +3,16 @@
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import ProgressSteps from './ProgressSteps';
 import { useDragDrop } from '@/hooks/useDragDrop';
+import AuthButton from '@/components/Auth/AuthButton';
+import SharePointPicker from '@/components/SharePoint/SharePointPicker';
+import { useSession } from 'next-auth/react';
 
 export interface FileUploaderRef {
     uploadFile: (file: File) => void;
 }
 
 interface FileUploaderProps {
-    onUploadComplete: (mediaId: string, jobId: string, type: 'video' | 'audio') => void;
+    onUploadComplete: (mediaId: string, jobId: string) => void;
     currentJobStatus?: string;
     currentJobProgress?: number;
 }
@@ -19,7 +22,6 @@ interface HistoryItem {
     jobId: string;
     fileName: string;
     date: string;
-    type?: 'video' | 'audio'; // Add type to history
 }
 
 const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
@@ -29,7 +31,6 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
 }, ref) => {
     const [status, setStatus] = useState<'idle' | 'uploading' | 'queued' | 'error'>('idle');
     const [uploadProgress, setUploadProgress] = useState(0);
-    const [mediaType, setMediaType] = useState<'video' | 'audio'>('video');
     const [message, setMessage] = useState('');
     const [loadingFromHistory, setLoadingFromHistory] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -37,6 +38,10 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
     // History State
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const [showHistory, setShowHistory] = useState(false);
+
+    // SharePoint State
+    const [showSharePoint, setShowSharePoint] = useState(false);
+    const { data: session } = useSession();
 
     // Popup UX State
     const [isClosing, setIsClosing] = useState(false);
@@ -96,7 +101,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
         }
     }, [currentJobStatus]);
 
-    const startProcessing = async (mediaId: string, fileName: string, type: 'video' | 'audio') => {
+    const startProcessing = async (mediaId: string, fileName: string) => {
         try {
             const res = await fetch('/api/process', {
                 method: 'POST',
@@ -110,11 +115,10 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                     mediaId,
                     jobId: data.jobId,
                     fileName,
-                    date: new Date().toISOString(),
-                    type: type
+                    date: new Date().toISOString()
                 });
 
-                onUploadComplete(mediaId, data.jobId, type);
+                onUploadComplete(mediaId, data.jobId);
             } else {
                 setStatus('error');
                 setMessage('Failed to start processing.');
@@ -137,21 +141,12 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
 
             if (useExisting) {
                 setLoadingFromHistory(true);
-                // Use stored type or guess from extension if missing (legacy history items)
-                const type = existing.type || (/\.(mp3|wav|m4a|aac|flac|ogg)$/i.test(existing.fileName) ? 'audio' : 'video');
-                setMediaType(type);
-
-                onUploadComplete(existing.mediaId, existing.jobId, type);
+                onUploadComplete(existing.mediaId, existing.jobId);
                 // Reset flag after a brief delay
                 setTimeout(() => setLoadingFromHistory(false), 500);
                 return;
             }
         }
-
-        // Detect Media Type
-        const isAudio = file.type.startsWith('audio/') ||
-            /\.(mp3|wav|m4a|aac|flac|ogg)$/i.test(file.name);
-        setMediaType(isAudio ? 'audio' : 'video');
 
         setStatus('uploading');
         setMessage(`Uploading ${file.name}...`);
@@ -175,7 +170,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                     setStatus('queued');
                     setMessage('Queuing for processing...');
                     // Start the job
-                    await startProcessing(response.mediaId, file.name, isAudio ? 'audio' : 'video');
+                    await startProcessing(response.mediaId, file.name);
                 } else {
                     setStatus('error');
                     setMessage('Upload failed.');
@@ -188,10 +183,57 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
             };
 
             xhr.send(file);
+            xhr.send(file);
         } catch (err) {
             console.error(err);
             setStatus('error');
             setMessage('Upload failed.');
+        }
+    };
+
+    const handleSharePointSelect = async (fileId: string, fileName: string, driveId: string) => {
+        setShowSharePoint(false);
+
+        // Check for duplicates
+        const existing = history.find(h => h.fileName === fileName);
+        if (existing) {
+            const useExisting = window.confirm(
+                `You analyzed "${fileName}" on ${new Date(existing.date).toLocaleDateString()}.\n\nLoad the existing analysis instead of re-processing?`
+            );
+
+            if (useExisting) {
+                setLoadingFromHistory(true);
+                onUploadComplete(existing.mediaId, existing.jobId);
+                setTimeout(() => setLoadingFromHistory(false), 500);
+                return;
+            }
+        }
+
+        setStatus('uploading');
+        setMessage(`Downloading ${fileName} from SharePoint...`);
+        setUploadProgress(10); // Fake progress to start
+
+        try {
+            const res = await fetch('/api/sharepoint/download', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fileId, driveId, fileName }),
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setUploadProgress(100);
+                setStatus('queued');
+                setMessage('Queuing for processing...');
+                await startProcessing(data.mediaId, fileName);
+            } else {
+                setStatus('error');
+                setMessage('Failed to download from SharePoint.');
+            }
+        } catch (error) {
+            console.error(error);
+            setStatus('error');
+            setMessage('Network error during SharePoint download.');
         }
     };
 
@@ -255,7 +297,6 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                     <ProgressSteps
                         currentStatus={isUploading ? 'UPLOADING' : currentJobStatus}
                         progress={displayProgress}
-                        mediaType={mediaType}
                     />
                 ) : (
                     <div style={{ opacity: 0.5, fontSize: '0.9rem', textAlign: 'center' }}>{message || 'Ready for new media'}</div>
@@ -263,7 +304,10 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
             </div>
 
             {/* Action Area */}
-            <div style={{ display: 'flex', gap: '1rem' }}>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                {/* Authentication Button */}
+                <AuthButton />
+
                 {/* History Button */}
                 <div style={{ position: 'relative' }}>
                     <button
@@ -313,7 +357,32 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                                 transition: 'opacity .5s ease-out',
                                 pointerEvents: isClosing ? 'none' : 'auto'
                             }}>
-                            <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem' }}>Recent Media</h4>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                <h4 style={{ margin: 0, fontSize: '1rem' }}>Recent Media</h4>
+                                {history.length > 0 && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (window.confirm('Clear all saved media history?')) {
+                                                setHistory([]);
+                                                localStorage.removeItem('vc_history');
+                                            }
+                                        }}
+                                        style={{
+                                            padding: '0.3rem 0.6rem',
+                                            fontSize: '0.75rem',
+                                            background: '#dc3545',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            cursor: 'pointer',
+                                            fontWeight: '600'
+                                        }}
+                                    >
+                                        Clear All
+                                    </button>
+                                )}
+                            </div>
                             {history.length === 0 ? (
                                 <p style={{ fontSize: '0.9rem', color: '#888' }}>No saved media yet.</p>
                             ) : (
@@ -321,32 +390,73 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                                     {history.map((item, i) => (
                                         <div
                                             key={i}
-                                            onClick={() => {
-                                                setLoadingFromHistory(true);
-                                                // Use stored type or guess from extension if missing (legacy history items)
-                                                const type = item.type || (/\.(mp3|wav|m4a|aac|flac|ogg)$/i.test(item.fileName) ? 'audio' : 'video');
-                                                onUploadComplete(item.mediaId, item.jobId, type);
-                                                setShowHistory(false);
-                                                // Reset flag after a brief delay
-                                                setTimeout(() => setLoadingFromHistory(false), 1000);
-                                            }}
                                             style={{
                                                 padding: '0.5rem',
                                                 border: '1px solid #eee',
                                                 borderRadius: '4px',
-                                                cursor: 'pointer',
                                                 fontSize: '0.9rem',
-                                                transition: 'background 0.2s'
+                                                transition: 'background 0.2s',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                gap: '0.5rem'
                                             }}
                                             onMouseEnter={e => e.currentTarget.style.background = '#f5f5f5'}
                                             onMouseLeave={e => e.currentTarget.style.background = 'white'}
                                         >
-                                            <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                {item.fileName}
+                                            <div
+                                                onClick={() => {
+                                                    setLoadingFromHistory(true);
+                                                    onUploadComplete(item.mediaId, item.jobId);
+                                                    setShowHistory(false);
+                                                    setTimeout(() => setLoadingFromHistory(false), 1000);
+                                                }}
+                                                style={{ flex: 1, cursor: 'pointer', overflow: 'hidden' }}
+                                            >
+                                                <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                    {item.fileName}
+                                                </div>
+                                                <div style={{ fontSize: '0.75rem', color: '#999' }}>
+                                                    {new Date(item.date).toLocaleDateString()}
+                                                </div>
                                             </div>
-                                            <div style={{ fontSize: '0.75rem', color: '#999' }}>
-                                                {new Date(item.date).toLocaleDateString()}
-                                            </div>
+
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (window.confirm(`Remove "${item.fileName}" from history?`)) {
+                                                        const newHistory = history.filter((_, index) => index !== i);
+                                                        setHistory(newHistory);
+                                                        localStorage.setItem('vc_history', JSON.stringify(newHistory));
+                                                    }
+                                                }}
+                                                style={{
+                                                    background: 'none',
+                                                    border: 'none',
+                                                    cursor: 'pointer',
+                                                    color: '#999',
+                                                    padding: '4px',
+                                                    borderRadius: '4px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center'
+                                                }}
+                                                onMouseEnter={e => {
+                                                    e.currentTarget.style.color = '#dc3545';
+                                                    e.currentTarget.style.background = '#ffe6e6';
+                                                }}
+                                                onMouseLeave={e => {
+                                                    e.currentTarget.style.color = '#999';
+                                                    e.currentTarget.style.background = 'none';
+                                                }}
+                                                title="Delete"
+                                            >
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M3 6h18"></path>
+                                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                                </svg>
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
@@ -362,6 +472,31 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                     onChange={handleFileChange}
                     style={{ display: 'none' }}
                 />
+
+                {/* SharePoint Button */}
+                {session && (
+                    <button
+                        onClick={() => setShowSharePoint(true)}
+                        disabled={!!isUploading || !!isProcessing}
+                        style={{
+                            padding: '0.6rem 1.2rem',
+                            background: 'white',
+                            color: '#0078d4',
+                            border: '1px solid #0078d4',
+                            borderRadius: '6px',
+                            cursor: (isUploading || isProcessing) ? 'not-allowed' : 'pointer',
+                            fontSize: '0.9rem',
+                            fontWeight: '600',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            transition: 'all 0.2s',
+                        }}
+                    >
+                        <span style={{ fontSize: '1.2rem' }}>☁️</span> Select from SharePoint
+                    </button>
+                )}
+
                 <button
                     {...dragHandlers}
                     onClick={() => fileInputRef.current?.click()}
@@ -382,6 +517,14 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                     {(isUploading || isProcessing) ? 'Please Wait' : (isDragging ? 'Drop File' : 'Upload New')}
                 </button>
             </div>
+
+            {/* SharePoint Picker Modal */}
+            {showSharePoint && (
+                <SharePointPicker
+                    onCancel={() => setShowSharePoint(false)}
+                    onSelect={handleSharePointSelect}
+                />
+            )}
         </div>
     );
 });

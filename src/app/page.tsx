@@ -5,25 +5,21 @@ import VideoPlayer, { VideoPlayerRef } from '../components/media/VideoPlayer';
 import IntelligencePanel from '../components/analysis/IntelligencePanel';
 import { useState, useRef } from 'react';
 
-import WelcomeModal from '../components/WelcomeModal';
-
 export default function Home() {
   const [activeMediaId, setActiveMediaId] = useState<string | null>(null);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [jobStatus, setJobStatus] = useState<string>('');
   const [jobProgress, setJobProgress] = useState<number>(0);
-  const [mediaType, setMediaType] = useState<'video' | 'audio'>('video');
 
   const videoPlayerRef = useRef<VideoPlayerRef>(null);
   const fileUploaderRef = useRef<FileUploaderRef>(null);
 
-  const handleUploadComplete = (mediaId: string, jobId: string, type: 'video' | 'audio') => {
+  const handleUploadComplete = (mediaId: string, jobId: string) => {
     setActiveMediaId(mediaId);
     setActiveJobId(jobId);
-    setMediaType(type);
     setJobStatus('QUEUED');
     setJobProgress(0);
-    console.log('Upload complete, mediaId:', mediaId, 'jobId:', jobId, 'type:', type);
+    console.log('Upload complete, mediaId:', mediaId, 'jobId:', jobId);
   };
 
   const handleSeek = (time: number) => {
@@ -36,7 +32,6 @@ export default function Home() {
 
   return (
     <div className="container">
-      <WelcomeModal />
       <FileUploader
         ref={fileUploaderRef}
         onUploadComplete={handleUploadComplete}
@@ -54,7 +49,6 @@ export default function Home() {
         <IntelligencePanel
           mediaId={activeMediaId}
           jobId={activeJobId}
-          mediaType={mediaType}
           onSeek={handleSeek}
           onStatusChange={setJobStatus}
           onProgressChange={setJobProgress}

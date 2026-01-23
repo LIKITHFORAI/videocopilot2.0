@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 
 interface Step {
     id: number;
@@ -12,40 +12,41 @@ interface Step {
 interface ProgressStepsProps {
     currentStatus?: string;
     progress?: number;
-    mediaType?: 'video' | 'audio';
 }
 
-export default function ProgressSteps({ currentStatus = '', progress = 0, mediaType = 'video' }: ProgressStepsProps) {
-    const steps = useMemo(() => {
+export default function ProgressSteps({ currentStatus = '', progress = 0 }: ProgressStepsProps) {
+    const [steps, setSteps] = useState<Step[]>([
+        { id: 1, title: 'Video Uploading', description: 'Uploading your video file', status: 'pending' },
+        { id: 2, title: 'Video Processing', description: 'Analyzing and extracting content', status: 'pending' },
+        { id: 3, title: 'Content Loading', description: 'Preparing your analysis', status: 'pending' }
+    ]);
+
+    useEffect(() => {
         // Map backend status to step progression
-        const label = mediaType === 'audio' ? 'Audio' : 'Video';
-
-        const newSteps: Step[] = [
-            { id: 1, title: `${label} Uploading`, description: `Uploading your ${mediaType} file`, status: 'pending' },
-            { id: 2, title: `${label} Processing`, description: 'Analyzing and extracting content', status: 'pending' },
-            { id: 3, title: 'Content Loading', description: 'Preparing your analysis', status: 'pending' }
-        ];
-
-        // Helper to set status
-        const setStatus = (index: number, status: 'pending' | 'active' | 'completed') => {
-            newSteps[index].status = status;
-        };
+        const newSteps = [...steps];
 
         if (currentStatus === '' || currentStatus === 'IDLE') {
-            // All pending (already initialized as pending)
+            // All pending
+            newSteps.forEach(s => s.status = 'pending');
         } else if (currentStatus === 'UPLOADING' || progress < 100) {
-            setStatus(0, 'active');
+            // Step 1 active
+            newSteps[0].status = 'active';
+            newSteps[1].status = 'pending';
+            newSteps[2].status = 'pending';
         } else if (currentStatus === 'EXTRACTING_AUDIO' || currentStatus === 'TRANSCRIBING' || currentStatus === 'ANALYZING') {
-            setStatus(0, 'completed');
-            setStatus(1, 'active');
+            // Step 1 complete, Step 2 active
+            newSteps[0].status = 'completed';
+            newSteps[1].status = 'active';
+            newSteps[2].status = 'pending';
         } else if (currentStatus === 'COMPLETED') {
-            setStatus(0, 'completed');
-            setStatus(1, 'completed');
-            setStatus(2, 'completed');
+            // All complete
+            newSteps[0].status = 'completed';
+            newSteps[1].status = 'completed';
+            newSteps[2].status = 'completed';
         }
 
-        return newSteps;
-    }, [currentStatus, progress, mediaType]);
+        setSteps(newSteps);
+    }, [currentStatus, progress]);
 
     return (
         <div style={{
