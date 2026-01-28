@@ -1,0 +1,10 @@
+{
+  "jobId": "ee6206ec-1924-48fd-8956-0ae40a71610d",
+  "mediaId": "0a9f8972-69ba-4867-95b2-60d127844770",
+  "status": "TRANSCRIBING_CHUNK",
+  "createdAt": "2026-01-26T19:47:41.765Z",
+  "progress": 73,
+  "updatedAt": "2026-01-26T19:53:29.577Z",
+  "chunkIndex": 3,
+  "totalChunks": 3
+}

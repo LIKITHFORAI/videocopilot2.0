@@ -5,7 +5,23 @@ import { randomUUID } from 'crypto';
 import * as fs from 'fs';
 import { extractAudio, splitAudio, transcribeChunk, getAudioDurationInSeconds, reencodeToLowQuality } from '@/lib/transcription';
 import { getUploadPath, getJobPath, getTranscriptPath, cleanupMedia, ensureDirs } from '@/lib/storage';
-import { generateSummary } from '@/lib/intelligence';
+import { generateSummary, extractActionItems } from '@/lib/intelligence';
+
+// Global cancellation tracker
+const cancelledJobs = new Map<string, boolean>();
+
+export function cancelJob(jobId: string) {
+    cancelledJobs.set(jobId, true);
+    console.log(`🛑 Job ${jobId} marked for cancellation`);
+}
+
+export function isJobCancelled(jobId: string): boolean {
+    return cancelledJobs.get(jobId) === true;
+}
+
+export function clearJobCancellation(jobId: string) {
+    cancelledJobs.delete(jobId);
+}
 
 // In-memory job status tracker for MVP (since fs writes might be slow for status polling if high freq)
 // But we used file-based persistence in the stub. Let's stick to file-based for persistence across restarts.
@@ -29,6 +45,14 @@ async function processMedia(jobId: string, mediaId: string) {
         await updateJob(jobId, { status: 'PREPARING', progress: 5 });
         const uploadDir = getUploadPath(mediaId);
 
+        // Check for cancellation
+        if (isJobCancelled(jobId)) {
+            console.log(`⚠️ Job ${jobId} was cancelled during PREPARING`);
+            await updateJob(jobId, { status: 'CANCELLED' });
+            clearJobCancellation(jobId);
+            return;
+        }
+
         // Find the uploaded video file
         const files = await fs.promises.readdir(uploadDir);
         // Assuming video file is the largest or just the first non-dir
@@ -44,6 +68,14 @@ async function processMedia(jobId: string, mediaId: string) {
         const audioMasterPath = join(uploadDir, 'audio_master.mp3');
         const compressedVideoPath = join(uploadDir, 'video_360p.mp4');
 
+        // Check cancellation before audio extraction
+        if (isJobCancelled(jobId)) {
+            console.log(`⚠️ Job ${jobId} was cancelled before EXTRACTING_AUDIO`);
+            await updateJob(jobId, { status: 'CANCELLED' });
+            clearJobCancellation(jobId);
+            return;
+        }
+
         // 1. EXTRACT AUDIO
         if (!isAudio) {
             await updateJob(jobId, { status: 'EXTRACTING_AUDIO', progress: 10 });
@@ -51,6 +83,14 @@ async function processMedia(jobId: string, mediaId: string) {
             await extractAudio(inputPath, audioMasterPath);
 
             // 1.5 RE-ENCODE VIDEO TO 360P (save storage while keeping visual context)
+            // Check cancellation before re-encoding
+            if (isJobCancelled(jobId)) {
+                console.log(`⚠️ Job ${jobId} was cancelled after audio extraction`);
+                await updateJob(jobId, { status: 'CANCELLED' });
+                clearJobCancellation(jobId);
+                return;
+            }
+
             await updateJob(jobId, { status: 'COMPRESSING_VIDEO', progress: 20 });
             console.log(`Job ${jobId}: Re-encoding video to 360p...`);
             await reencodeToLowQuality(inputPath, compressedVideoPath);
@@ -69,6 +109,14 @@ async function processMedia(jobId: string, mediaId: string) {
             }
         }
 
+        // Check cancellation before chunking
+        if (isJobCancelled(jobId)) {
+            console.log(`⚠️ Job ${jobId} was cancelled before CHUNKING`);
+            await updateJob(jobId, { status: 'CANCELLED' });
+            clearJobCancellation(jobId);
+            return;
+        }
+
         // 2. CHUNKING
         await updateJob(jobId, { status: 'CHUNKING', progress: 30 });
         console.log(`Job ${jobId}: Chunking audio...`);
@@ -84,6 +132,14 @@ async function processMedia(jobId: string, mediaId: string) {
         let currentOffset = 0;
 
         for (let i = 0; i < chunkFiles.length; i++) {
+            // Check cancellation at the start of each chunk
+            if (isJobCancelled(jobId)) {
+                console.log(`⚠️ Job ${jobId} was cancelled during transcription (chunk ${i + 1}/${chunkFiles.length})`);
+                await updateJob(jobId, { status: 'CANCELLED' });
+                clearJobCancellation(jobId);
+                return;
+            }
+
             const chunkPath = chunkFiles[i];
             const progress = 40 + Math.floor((i / chunkFiles.length) * 50); // 40 -> 90
             await updateJob(jobId, { status: 'TRANSCRIBING_CHUNK', chunkIndex: i + 1, totalChunks: chunkFiles.length, progress });
@@ -113,9 +169,14 @@ async function processMedia(jobId: string, mediaId: string) {
             currentOffset += duration;
         }
 
-        // 4. MERGING, SUMMARIZING & SAVING
+        // 4. MERGING, SUMMARIZING & GENERATING ACTION ITEMS (IN PARALLEL)
         await updateJob(jobId, { status: 'SUMMARIZING', progress: 92 });
-        const summaryData = await generateSummary(allSegments);
+
+        // Run both AI generation tasks in parallel
+        const [summaryData, actionItems] = await Promise.all([
+            generateSummary(allSegments, videoFile),
+            extractActionItems(allSegments)
+        ]);
 
         await updateJob(jobId, { status: 'MERGING', progress: 95 });
         const transcript = {
@@ -123,6 +184,7 @@ async function processMedia(jobId: string, mediaId: string) {
             jobId,
             text: fullText.trim(),
             segments: allSegments,
+            title: summaryData.title,
             summary: summaryData.summary,
             keyPoints: summaryData.keyPoints,
             createdAt: new Date().toISOString()
@@ -130,6 +192,14 @@ async function processMedia(jobId: string, mediaId: string) {
 
         const transcriptPath = getTranscriptPath(mediaId);
         await writeFile(transcriptPath, JSON.stringify(transcript, null, 2));
+
+        // Cache action items immediately
+        const actionItemsDir = join(process.cwd(), 'data', 'action-items');
+        const actionItemsCachePath = join(actionItemsDir, `${mediaId}.json`);
+        if (!fs.existsSync(actionItemsDir)) {
+            await fs.promises.mkdir(actionItemsDir, { recursive: true });
+        }
+        await writeFile(actionItemsCachePath, JSON.stringify(actionItems, null, 2));
 
         // 5. CLEANUP
         await updateJob(jobId, { status: 'CLEANUP', progress: 98 });

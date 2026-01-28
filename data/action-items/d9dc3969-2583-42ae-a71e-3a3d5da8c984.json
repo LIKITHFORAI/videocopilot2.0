@@ -1,0 +1,74 @@
+[
+  {
+    "id": "action-1769550810206-0",
+    "category": "Reports",
+    "action_item": "Reports - Ensure all demographic fields are completed for accurate reporting.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Fields include sexual orientation, client identity, birth sex, country of origin, ethnicity, race, language, and homeless status.",
+    "timestamp": 0
+  },
+  {
+    "id": "action-1769550810206-1",
+    "category": "Requirements",
+    "action_item": "Requirements - Document the need for a different sliding fee scale based on grant requirements.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "The sliding fee scale should accommodate patients below the federal poverty level.",
+    "timestamp": 414
+  },
+  {
+    "id": "action-1769550810206-2",
+    "category": "Requirements",
+    "action_item": "Requirements - Send eligibility forms to the team for review.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Forms should include proof of address, proof of income, and ID for clients.",
+    "timestamp": 510
+  },
+  {
+    "id": "action-1769550810206-3",
+    "category": "Client Portal",
+    "action_item": "Client Portal - Investigate customization options for patient intake forms in the client portal.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Check if additional questions can be triggered based on the program.",
+    "timestamp": 606
+  },
+  {
+    "id": "action-1769550810206-4",
+    "category": "Data Migration",
+    "action_item": "Data Migration - Explore the possibility of integrating client eligibility data into the new EHR system.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "This will reduce manual entry and improve reporting capabilities.",
+    "timestamp": 714
+  },
+  {
+    "id": "action-1769550810206-5",
+    "category": "Interface",
+    "action_item": "Interface - Discuss the need for a system interface to streamline data uploads.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Current process involves multiple uploads which is inefficient.",
+    "timestamp": 860
+  },
+  {
+    "id": "action-1769550810206-6",
+    "category": "Reports",
+    "action_item": "Reports - Ensure the new EHR can generate reports on mandatory fields required by the county.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "This includes ethnicity, race, gender, and other relevant data.",
+    "timestamp": 745
+  },
+  {
+    "id": "action-1769550810206-7",
+    "category": "DrFirst/EPCS",
+    "action_item": "DrFirst/EPCS - Confirm language capabilities for the patient portal to accommodate non-English speaking clients.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Ensure at least the basic languages are available at go-live.",
+    "timestamp": 899
+  }
+]

@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import AuthProvider from '@/components/Auth/AuthProvider';
+import AuthContext from '@/contexts/AuthContext';
 
 export const metadata: Metadata = {
-  title: 'Video Copilot',
-  description: 'Conversational AI for Videos',
+  title: 'DrCloudEHR VIBE',
+  description: 'AI-Powered Video Intelligence for Healthcare',
 };
 
 export default function RootLayout({
@@ -14,8 +14,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+      </head>
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthContext>{children}</AuthContext>
       </body>
     </html>
   );

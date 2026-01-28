@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
-import ProgressSteps from './ProgressSteps';
+import MinimalProgressBar from './MinimalProgressBar';
 import { useDragDrop } from '@/hooks/useDragDrop';
 import AuthButton from '@/components/Auth/AuthButton';
-import SharePointPicker from '@/components/SharePoint/SharePointPicker';
-import { useSession } from 'next-auth/react';
+
+import { useMsal } from '@azure/msal-react';
 
 export interface FileUploaderRef {
     uploadFile: (file: File) => void;
@@ -15,6 +15,7 @@ interface FileUploaderProps {
     onUploadComplete: (mediaId: string, jobId: string) => void;
     currentJobStatus?: string;
     currentJobProgress?: number;
+    onCancel?: () => void;
 }
 
 interface HistoryItem {
@@ -22,26 +23,32 @@ interface HistoryItem {
     jobId: string;
     fileName: string;
     date: string;
+    userEmail?: string; // Track who uploaded
 }
 
 const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
     onUploadComplete,
     currentJobStatus,
     currentJobProgress = 0,
+    onCancel
 }, ref) => {
+    const { instance, accounts } = useMsal();
     const [status, setStatus] = useState<'idle' | 'uploading' | 'queued' | 'error'>('idle');
     const [uploadProgress, setUploadProgress] = useState(0);
     const [message, setMessage] = useState('');
     const [loadingFromHistory, setLoadingFromHistory] = useState(false);
+    const [activeJobId, setActiveJobId] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const xhrRef = useRef<XMLHttpRequest | null>(null);
 
     // History State
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const [showHistory, setShowHistory] = useState(false);
 
-    // SharePoint State
-    const [showSharePoint, setShowSharePoint] = useState(false);
-    const { data: session } = useSession();
+    // Upload State
+    const [showUploadModal, setShowUploadModal] = useState(false); // Used for Dropdown now
+    const [sharePointLoading, setSharePointLoading] = useState(false);
+    const uploadContainerRef = useRef<HTMLDivElement>(null);
 
     // Popup UX State
     const [isClosing, setIsClosing] = useState(false);
@@ -59,10 +66,17 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
     // Click Outside Listener
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
+            // Close History Popup
             if (showHistory && !isClosing &&
                 popupRef.current && !popupRef.current.contains(event.target as Node) &&
                 buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
                 closePopup();
+            }
+
+            // Close Upload Dropdown
+            if (showUploadModal &&
+                uploadContainerRef.current && !uploadContainerRef.current.contains(event.target as Node)) {
+                setShowUploadModal(false);
             }
         };
 
@@ -70,7 +84,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [showHistory, isClosing]);
+    }, [showHistory, isClosing, showUploadModal]);
 
     // Load history on mount
     useEffect(() => {
@@ -101,6 +115,46 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
         }
     }, [currentJobStatus]);
 
+    const handleCancel = async () => {
+        // 1. Cancel Upload
+        if (status === 'uploading') {
+            if (xhrRef.current) {
+                xhrRef.current.abort();
+                xhrRef.current = null;
+            }
+            setStatus('idle');
+            setMessage('Cancelled');
+            setUploadProgress(0);
+            if (onCancel) onCancel();
+            return;
+        }
+
+        // 2. Cancel Processing
+        if (activeJobId || (currentJobStatus && currentJobStatus !== 'COMPLETED' && currentJobStatus !== 'FAILED')) {
+            // Prefer internal activeJobId, fallback to what might be passed (though we don't get ID from props usually)
+            const jId = activeJobId;
+            if (jId) {
+                try {
+                    await fetch(`/api/job/${jId}`, { method: 'DELETE' });
+
+                    // Remove from History using the jobId
+                    const newHistory = history.filter(h => h.jobId !== jId);
+                    setHistory(newHistory);
+                    localStorage.setItem('vc_history', JSON.stringify(newHistory));
+
+                } catch (e) {
+                    console.error("Failed to delete job", e);
+                }
+            }
+
+            // Reset State
+            setStatus('idle');
+            setMessage('Cancelled');
+            setActiveJobId(null);
+            if (onCancel) onCancel();
+        }
+    };
+
     const startProcessing = async (mediaId: string, fileName: string) => {
         try {
             const res = await fetch('/api/process', {
@@ -110,14 +164,17 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
             });
             const data = await res.json();
             if (res.ok) {
-                // Save to history
+                // Save to history with user tracking
+                const userEmail = accounts[0]?.username || 'anonymous';
                 addToHistory({
                     mediaId,
                     jobId: data.jobId,
                     fileName,
-                    date: new Date().toISOString()
+                    date: new Date().toISOString(),
+                    userEmail  // Track who uploaded
                 });
 
+                setActiveJobId(data.jobId);
                 onUploadComplete(mediaId, data.jobId);
             } else {
                 setStatus('error');
@@ -154,6 +211,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
 
         try {
             const xhr = new XMLHttpRequest();
+            xhrRef.current = xhr;
             xhr.open('POST', '/api/upload', true);
             xhr.setRequestHeader('X-Original-Filename', file.name);
 
@@ -183,7 +241,6 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
             };
 
             xhr.send(file);
-            xhr.send(file);
         } catch (err) {
             console.error(err);
             setStatus('error');
@@ -191,49 +248,103 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
         }
     };
 
-    const handleSharePointSelect = async (fileId: string, fileName: string, driveId: string) => {
-        setShowSharePoint(false);
 
-        // Check for duplicates
-        const existing = history.find(h => h.fileName === fileName);
-        if (existing) {
-            const useExisting = window.confirm(
-                `You analyzed "${fileName}" on ${new Date(existing.date).toLocaleDateString()}.\n\nLoad the existing analysis instead of re-processing?`
-            );
 
-            if (useExisting) {
-                setLoadingFromHistory(true);
-                onUploadComplete(existing.mediaId, existing.jobId);
-                setTimeout(() => setLoadingFromHistory(false), 500);
-                return;
-            }
+    const openSharePointPicker = async () => {
+        if (!accounts[0]) {
+            alert('Please sign in with Microsoft first');
+            return;
         }
 
-        setStatus('uploading');
-        setMessage(`Downloading ${fileName} from SharePoint...`);
-        setUploadProgress(10); // Fake progress to start
+        setSharePointLoading(true);
 
         try {
-            const res = await fetch('/api/sharepoint/download', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fileId, driveId, fileName }),
+            // Get access token silently
+            const response = await instance.acquireTokenSilent({
+                scopes: ["Files.Read.All", "Sites.Read.All"],
+                account: accounts[0]
             });
 
-            if (res.ok) {
-                const data = await res.json();
-                setUploadProgress(100);
-                setStatus('queued');
-                setMessage('Queuing for processing...');
-                await startProcessing(data.mediaId, fileName);
-            } else {
-                setStatus('error');
-                setMessage('Failed to download from SharePoint.');
+            // Configure File Picker
+            const pickerOptions = {
+                sdk: "8.0",
+                entry: {
+                    oneDrive: { files: {} }
+                },
+                authentication: {
+                    accessToken: response.accessToken
+                },
+                messaging: {
+                    origin: window.location.origin,
+                    channelId: `video-copilot-${Date.now()}`
+                },
+                typesAndSources: {
+                    mode: "files",
+                    filters: [".mp4", ".avi", ".mov", ".mkv", ".webm"]
+                }
+            };
+
+            // Open File Picker in popup
+            const form = document.createElement('form');
+            form.action = 'https://ensoftekinc-my.sharepoint.com/_layouts/15/FilePicker.aspx';
+            form.method = 'POST';
+            form.target = 'sharepoint-picker';
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'params';
+            input.value = JSON.stringify(pickerOptions);
+            form.appendChild(input);
+
+            document.body.appendChild(form);
+
+            const popup = window.open('', 'sharepoint-picker', 'width=800,height=600,menubar=no,toolbar=no');
+            if (!popup) {
+                throw new Error('Popup blocked. Please allow popups for this site.');
             }
-        } catch (error) {
-            console.error(error);
+
+            form.submit();
+            document.body.removeChild(form);
+
+            // Listen for file selection
+            const handleMessage = async (event: MessageEvent) => {
+                if (event.data.type === 'selection' && event.data.items && event.data.items.length > 0) {
+                    const fileInfo = event.data.items[0];
+
+                    try {
+                        // Download file from Microsoft Graph
+                        const fileResponse = await fetch(
+                            `https://graph.microsoft.com/v1.0/me/drive/items/${fileInfo.id}/content`,
+                            { headers: { Authorization: `Bearer ${response.accessToken}` } }
+                        );
+
+                        if (!fileResponse.ok) {
+                            throw new Error('Failed to download file from SharePoint');
+                        }
+
+                        const blob = await fileResponse.blob();
+                        const file = new File([blob], fileInfo.name, { type: blob.type || 'video/mp4' });
+
+                        processFile(file);
+                        popup?.close();
+                    } catch (err) {
+                        console.error('File download error:', err);
+                        setStatus('error');
+                        setMessage('Failed to download file from SharePoint');
+                    }
+
+                    window.removeEventListener('message', handleMessage);
+                }
+            };
+
+            window.addEventListener('message', handleMessage);
+
+        } catch (err: any) {
+            console.error('SharePoint picker error:', err);
             setStatus('error');
-            setMessage('Network error during SharePoint download.');
+            setMessage(err.message || 'Failed to open SharePoint picker');
+        } finally {
+            setSharePointLoading(false);
         }
     };
 
@@ -259,271 +370,418 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
     // Determine what to display
     const isUploading = status === 'uploading';
     const isProcessing =
-        status === 'queued' ||
-        (!!currentJobStatus && // Force boolean
-            currentJobStatus !== 'COMPLETED' &&
-            currentJobStatus !== 'FAILED' &&
-            currentJobStatus !== '' &&
-            !loadingFromHistory); // Don't show progress for saved videos
+        !loadingFromHistory && ( // Block processing UI when loading from history
+            status === 'queued' ||
+            (!!currentJobStatus &&
+                currentJobStatus !== 'COMPLETED' &&
+                currentJobStatus !== 'FAILED' &&
+                currentJobStatus !== '')
+        );
 
-    // const displayStatus = isUploading ? 'Uploading Media...' : `Processing: ${currentJobStatus?.replace('_', ' ') || 'Initializing'}...`;
-    const displayProgress = isUploading ? uploadProgress : currentJobProgress;
+
+    // Calculate continuous progress across both stages
+    // Upload: 0-20%, Processing: 20-100%
+    const displayProgress = isUploading
+        ? (uploadProgress * 0.20) // Map upload 0-100% to 0-20%
+        : (20 + (currentJobProgress * 0.80)); // Map processing 0-100% to 20-100%
+
 
     return (
-        <div className="header" style={{
-            background: 'white',
-            borderBottom: '1px solid var(--border)',
-            padding: '1rem 2rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '2rem',
-            position: 'sticky',
-            top: 0,
-            zIndex: 100,
-            boxShadow: '0 2px 4px rgba(0,0,0,0.03)'
-        }}>
-            {/* Logo / Title Area */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', minWidth: '200px' }}>
-                <div style={{
-                    width: '32px', height: '32px', background: 'var(--primary)', borderRadius: '6px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold'
-                }}>VC</div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: 0 }}>Video Copilot</h3>
-            </div>
-
-            {/* Central Progress Area */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                {(isUploading || isProcessing) ? (
-                    <ProgressSteps
-                        currentStatus={isUploading ? 'UPLOADING' : currentJobStatus}
-                        progress={displayProgress}
-                    />
-                ) : (
-                    <div style={{ opacity: 0.5, fontSize: '0.9rem', textAlign: 'center' }}>{message || 'Ready for new media'}</div>
-                )}
-            </div>
-
-            {/* Action Area */}
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                {/* Authentication Button */}
-                <AuthButton />
-
-                {/* History Button */}
-                <div style={{ position: 'relative' }}>
-                    <button
-                        ref={buttonRef}
-                        onClick={() => {
-                            if (showHistory && !isClosing) {
-                                closePopup();
-                            } else if (!showHistory) {
-                                setShowHistory(true);
-                            }
-                        }}
+        <div style={{ position: 'sticky', top: 0, zIndex: 100 }}>
+            <div className="header" style={{
+                background: '#1e293b',
+                color: 'white',
+                borderBottom: '1px solid #334155',
+                padding: '0.4rem 1.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1.5rem',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                height: '60px',
+                position: 'relative'
+            }}>
+                {/* Logo / Title Area */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: '250px' }}>
+                    {/* DrCloudEHR Logo */}
+                    <img
+                        src="/drcloud-logo.png"
+                        alt="DrCloudEHR"
                         style={{
-                            padding: '0.6rem',
-                            background: 'white',
-                            color: '#555',
-                            border: '1px solid #ddd',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
+                            height: '32px',
+                            width: 'auto'
                         }}
-                        title="My Media"
-                    >
-                        {/* Simple History Icon */}
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M12 20v-6M6 20V10M18 20V4" />
-                        </svg>
-                    </button>
+                    />
+                    {/* Brand Name */}
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                        <span style={{
+                            fontSize: '1.3rem',
+                            fontWeight: '600',
+                            fontFamily: '"Noto Sans", sans-serif',
+                            color: 'white',
+                            letterSpacing: '0.5px'
+                        }}>
+                            DrCloudEHR
+                        </span>
+                        <span style={{
+                            fontSize: '2rem',
+                            fontWeight: '600',
+                            fontFamily: '"Bebas Neue", sans-serif',
+                            color: '#a0b1ffe8',
+                            fontStyle: 'Bold'
+                        }}>
+                            FocusNotes
+                        </span>
+                    </div>
+                </div>
 
-                    {/* Popup */}
-                    {(showHistory || isClosing) && (
-                        <div
-                            ref={popupRef}
+                {/* Central Status Area */}
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.4rem', justifyContent: 'center' }}>
+                    <div style={{ opacity: 0.7, fontSize: '0.85rem', textAlign: 'center' }}>
+                        {(isUploading || isProcessing) ? 'Processing...' : (message || 'Ready for new media')}
+                    </div>
+                </div>
+
+                {/* Action Area */}
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    {/* 1. UPLOAD Button (First) */}
+                    <div style={{ position: 'relative' }} ref={uploadContainerRef}>
+                        <button
+                            {...dragHandlers}
+                            onClick={() => {
+                                if (isUploading || isProcessing) {
+                                    handleCancel();
+                                } else {
+                                    setShowUploadModal(!showUploadModal);
+                                }
+                            }}
+                            disabled={sharePointLoading}
                             style={{
+                                height: '36px',
+                                padding: '0 1.25rem',
+                                background: (isUploading || isProcessing) ? '#dc2626' : (sharePointLoading ? '#94a3b8' : '#3b82f6'),
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '5px',
+                                cursor: sharePointLoading ? 'not-allowed' : 'pointer',
+                                fontSize: '0.8rem',
+                                fontWeight: '600',
+                                transition: 'background 0.2s',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px',
+                                display: 'flex',
+                                alignItems: 'center'
+                            }}
+                            onMouseEnter={(e) => {
+                                if (isUploading || isProcessing) {
+                                    e.currentTarget.style.background = '#b91c1c';
+                                } else if (!sharePointLoading) {
+                                    e.currentTarget.style.background = '#2563eb';
+                                }
+                            }}
+                            onMouseLeave={(e) => {
+                                if (isUploading || isProcessing) {
+                                    e.currentTarget.style.background = '#dc2626';
+                                } else if (!sharePointLoading) {
+                                    e.currentTarget.style.background = '#3b82f6';
+                                }
+                            }}
+                        >
+                            {(isUploading || isProcessing) ? 'CANCEL' : (sharePointLoading ? 'Opening...' : 'UPLOAD')}
+                        </button>
+
+                        {/* Upload Dropdown */}
+                        {showUploadModal && (
+                            <div style={{
                                 position: 'absolute',
                                 top: '110%',
-                                right: 0,
-                                width: '300px',
+                                left: 0,
+                                width: '200px',
                                 background: 'white',
                                 border: '1px solid #ddd',
                                 borderRadius: '8px',
                                 boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                                padding: '1rem',
+                                padding: '0.5rem',
                                 zIndex: 200,
-                                opacity: isClosing ? 0 : 1,
-                                transition: 'opacity .5s ease-out',
-                                pointerEvents: isClosing ? 'none' : 'auto'
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '0.25rem'
                             }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                                <h4 style={{ margin: 0, fontSize: '1rem' }}>Recent Media</h4>
-                                {history.length > 0 && (
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            if (window.confirm('Clear all saved media history?')) {
-                                                setHistory([]);
-                                                localStorage.removeItem('vc_history');
-                                            }
-                                        }}
-                                        style={{
-                                            padding: '0.3rem 0.6rem',
-                                            fontSize: '0.75rem',
-                                            background: '#dc3545',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '4px',
-                                            cursor: 'pointer',
-                                            fontWeight: '600'
-                                        }}
-                                    >
-                                        Clear All
-                                    </button>
-                                )}
+                                <button
+                                    onClick={() => {
+                                        fileInputRef.current?.click();
+                                        setShowUploadModal(false);
+                                    }}
+                                    style={{
+                                        padding: '0.75rem 1rem',
+                                        border: 'none',
+                                        background: 'transparent',
+                                        textAlign: 'left',
+                                        cursor: 'pointer',
+                                        borderRadius: '4px',
+                                        fontSize: '0.9rem',
+                                        color: '#1e293b',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.75rem',
+                                        fontWeight: '500'
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                >
+                                    💻 Computer
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setShowUploadModal(false);
+                                        openSharePointPicker();
+                                    }}
+                                    style={{
+                                        padding: '0.75rem 1rem',
+                                        border: 'none',
+                                        background: 'transparent',
+                                        textAlign: 'left',
+                                        cursor: 'pointer',
+                                        borderRadius: '4px',
+                                        fontSize: '0.9rem',
+                                        color: '#1e293b',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.75rem',
+                                        fontWeight: '500'
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                >
+                                    ☁️ SharePoint
+                                </button>
                             </div>
-                            {history.length === 0 ? (
-                                <p style={{ fontSize: '0.9rem', color: '#888' }}>No saved media yet.</p>
-                            ) : (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                    {history.map((item, i) => (
-                                        <div
-                                            key={i}
-                                            style={{
-                                                padding: '0.5rem',
-                                                border: '1px solid #eee',
-                                                borderRadius: '4px',
-                                                fontSize: '0.9rem',
-                                                transition: 'background 0.2s',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'space-between',
-                                                gap: '0.5rem'
-                                            }}
-                                            onMouseEnter={e => e.currentTarget.style.background = '#f5f5f5'}
-                                            onMouseLeave={e => e.currentTarget.style.background = 'white'}
-                                        >
-                                            <div
-                                                onClick={() => {
-                                                    setLoadingFromHistory(true);
-                                                    onUploadComplete(item.mediaId, item.jobId);
-                                                    setShowHistory(false);
-                                                    setTimeout(() => setLoadingFromHistory(false), 1000);
-                                                }}
-                                                style={{ flex: 1, cursor: 'pointer', overflow: 'hidden' }}
-                                            >
-                                                <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                    {item.fileName}
-                                                </div>
-                                                <div style={{ fontSize: '0.75rem', color: '#999' }}>
-                                                    {new Date(item.date).toLocaleDateString()}
-                                                </div>
-                                            </div>
+                        )}
+                    </div>
 
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    if (window.confirm(`Remove "${item.fileName}" from history?`)) {
-                                                        const newHistory = history.filter((_, index) => index !== i);
-                                                        setHistory(newHistory);
-                                                        localStorage.setItem('vc_history', JSON.stringify(newHistory));
-                                                    }
-                                                }}
+                    {/* 2. Recent Media Icon Button (Second) */}
+                    <div style={{ position: 'relative' }}>
+                        <button
+                            ref={buttonRef}
+                            onClick={() => {
+                                if (showHistory && !isClosing) {
+                                    closePopup();
+                                } else if (!showHistory) {
+                                    setShowHistory(true);
+                                }
+                            }}
+                            style={{
+                                width: '36px',
+                                height: '36px',
+                                background: '#3b82f6',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '5px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                transition: 'background 0.2s'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = '#2563eb';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = '#3b82f6';
+                            }}
+                            title="Recent Media"
+                        >
+                            {/* Folder with Clock Icon (Scaled) */}
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                                <circle cx="12" cy="13" r="3"></circle>
+                                <path d="M12 10v3l1.5 1.5"></path>
+                            </svg>
+                        </button>
+
+                        {/* Popup */}
+                        {(showHistory || isClosing) && (
+                            <div
+                                ref={popupRef}
+                                style={{
+                                    position: 'absolute',
+                                    top: '110%',
+                                    right: 0,
+                                    width: '300px',
+                                    background: 'white',
+                                    border: '1px solid #ddd',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                    padding: '1rem',
+                                    zIndex: 200,
+                                    opacity: isClosing ? 0 : 1,
+                                    transition: 'opacity .5s ease-out',
+                                    pointerEvents: isClosing ? 'none' : 'auto'
+                                }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                    <h4 style={{ margin: 0, fontSize: '1rem' }}>Recent Media</h4>
+                                    {history.length > 0 && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (window.confirm('Clear all saved media history?')) {
+                                                    setHistory([]);
+                                                    localStorage.removeItem('vc_history');
+                                                }
+                                            }}
+                                            style={{
+                                                padding: '0.3rem 0.6rem',
+                                                fontSize: '0.75rem',
+                                                background: '#dc3545',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer',
+                                                fontWeight: '600'
+                                            }}
+                                        >
+                                            Clear All
+                                        </button>
+                                    )}
+                                </div>
+                                {history.length === 0 ? (
+                                    <p style={{ fontSize: '0.9rem', color: '#888' }}>No saved media yet.</p>
+                                ) : (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                        {history.map((item, i) => (
+                                            <div
+                                                key={i}
                                                 style={{
-                                                    background: 'none',
-                                                    border: 'none',
-                                                    cursor: 'pointer',
-                                                    color: '#999',
-                                                    padding: '4px',
+                                                    padding: '0.5rem',
+                                                    border: '1px solid #eee',
                                                     borderRadius: '4px',
+                                                    fontSize: '0.9rem',
+                                                    transition: 'background 0.2s',
                                                     display: 'flex',
                                                     alignItems: 'center',
-                                                    justifyContent: 'center'
+                                                    justifyContent: 'space-between',
+                                                    gap: '0.5rem'
                                                 }}
-                                                onMouseEnter={e => {
-                                                    e.currentTarget.style.color = '#dc3545';
-                                                    e.currentTarget.style.background = '#ffe6e6';
-                                                }}
-                                                onMouseLeave={e => {
-                                                    e.currentTarget.style.color = '#999';
-                                                    e.currentTarget.style.background = 'none';
-                                                }}
-                                                title="Delete"
+                                                onMouseEnter={e => e.currentTarget.style.background = '#f5f5f5'}
+                                                onMouseLeave={e => e.currentTarget.style.background = 'white'}
                                             >
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                    <path d="M3 6h18"></path>
-                                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    )}
+                                                <div
+                                                    onClick={() => {
+                                                        setLoadingFromHistory(true);
+                                                        setStatus('idle');
+                                                        onUploadComplete(item.mediaId, item.jobId);
+                                                        setShowHistory(false);
+                                                        setTimeout(() => setLoadingFromHistory(false), 500);
+                                                    }}
+                                                    style={{ flex: 1, cursor: 'pointer', overflow: 'hidden' }}
+                                                >
+                                                    <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1f2937' }}>
+                                                        {item.fileName}
+                                                    </div>
+                                                    <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                                                        {new Date(item.date).toLocaleDateString()}
+                                                    </div>
+                                                </div>
+
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (window.confirm(`Remove "${item.fileName}" from history?`)) {
+                                                            const newHistory = history.filter((_, index) => index !== i);
+                                                            setHistory(newHistory);
+                                                            localStorage.setItem('vc_history', JSON.stringify(newHistory));
+                                                        }
+                                                    }}
+                                                    style={{
+                                                        background: 'none',
+                                                        border: 'none',
+                                                        cursor: 'pointer',
+                                                        color: '#999',
+                                                        padding: '4px',
+                                                        borderRadius: '4px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center'
+                                                    }}
+                                                    onMouseEnter={e => {
+                                                        e.currentTarget.style.color = '#dc3545';
+                                                        e.currentTarget.style.background = '#ffe6e6';
+                                                    }}
+                                                    onMouseLeave={e => {
+                                                        e.currentTarget.style.color = '#999';
+                                                        e.currentTarget.style.background = 'none';
+                                                    }}
+                                                    title="Delete"
+                                                >
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <path d="M3 6h18"></path>
+                                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    <input
+                        type="file"
+                        accept="video/*,audio/*,.mkv"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        style={{ display: 'none' }}
+                    />
+
+                    {/* 3. LOGIN Button (Third) */}
+                    <AuthButton />
                 </div>
 
-                <input
-                    type="file"
-                    accept="video/*,audio/*,.mkv"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    style={{ display: 'none' }}
-                />
-
-                {/* SharePoint Button */}
-                {session && (
-                    <button
-                        onClick={() => setShowSharePoint(true)}
-                        disabled={!!isUploading || !!isProcessing}
-                        style={{
-                            padding: '0.6rem 1.2rem',
-                            background: 'white',
-                            color: '#0078d4',
-                            border: '1px solid #0078d4',
-                            borderRadius: '6px',
-                            cursor: (isUploading || isProcessing) ? 'not-allowed' : 'pointer',
-                            fontSize: '0.9rem',
-                            fontWeight: '600',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            transition: 'all 0.2s',
-                        }}
-                    >
-                        <span style={{ fontSize: '1.2rem' }}>☁️</span> Select from SharePoint
-                    </button>
+                {/* Progress Bar - Absolutely positioned at bottom of header */}
+                {(isUploading || isProcessing) && (
+                    <div style={{
+                        position: 'absolute',
+                        bottom: -1,
+                        left: 0,
+                        right: 0,
+                        height: '6px',
+                        backgroundColor: '#E5E7EB',
+                        overflow: 'hidden'
+                    }}>
+                        <div style={{
+                            position: 'absolute',
+                            left: 0,
+                            top: 0,
+                            height: '100%',
+                            width: `${Math.min(displayProgress, 100)}%`,
+                            backgroundColor: '#3b82f6',
+                            transition: 'width 2s ease-in-out'
+                        }} />
+                    </div>
                 )}
-
-                <button
-                    {...dragHandlers}
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={!!isUploading || !!isProcessing}
-                    style={{
-                        padding: '0.6rem 1.2rem',
-                        background: (isUploading || isProcessing) ? '#ccc' : (isDragging ? 'var(--secondary)' : 'var(--primary)'),
-                        color: 'white',
-                        border: isDragging ? '2px dashed white' : 'none',
-                        borderRadius: '6px',
-                        cursor: (isUploading || isProcessing) ? 'not-allowed' : 'pointer',
-                        fontSize: '0.9rem',
-                        fontWeight: '600',
-                        transition: 'all 0.2s',
-                        transform: isDragging ? 'scale(1.05)' : 'scale(1)'
-                    }}
-                >
-                    {(isUploading || isProcessing) ? 'Please Wait' : (isDragging ? 'Drop File' : 'Upload New')}
-                </button>
             </div>
 
-            {/* SharePoint Picker Modal */}
-            {showSharePoint && (
-                <SharePointPicker
-                    onCancel={() => setShowSharePoint(false)}
-                    onSelect={handleSharePointSelect}
-                />
+            {/* Helper Text - Outside header, directly below */}
+            {(isUploading || isProcessing) && (
+                <div style={{
+                    width: '100%',
+                    backgroundColor: 'white',
+                    paddingTop: '0.5rem',
+                    paddingBottom: '0.5rem',
+                    fontSize: '12px',
+                    color: '#9ca3af',
+                    textAlign: 'center',
+                    fontWeight: '500'
+                }}>
+                    {
+                        isUploading ? 'Uploading File' :
+                            (currentJobStatus === 'QUEUED' || currentJobStatus === 'PREPARING' || currentJobStatus === 'EXTRACTING_AUDIO' ||
+                                currentJobStatus === 'COMPRESSING_VIDEO' || currentJobStatus === 'CHUNKING' || currentJobStatus === 'TRANSCRIBING' ||
+                                currentJobStatus === 'TRANSCRIBING_CHUNK') ? 'Processing File' :
+                                'Generating Content'
+                    }
+                </div>
             )}
         </div>
     );

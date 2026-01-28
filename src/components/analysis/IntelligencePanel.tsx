@@ -43,7 +43,17 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
     }, [messages]);
 
     useEffect(() => {
-        if (!jobId) return;
+        if (!jobId) {
+            // Reset when no job is active
+            setTranscriptData(null);
+            setMessages([]);
+            setJobStatus('');
+            return;
+        }
+
+        // Reset state for new job
+        setTranscriptData(null);
+        setMessages([]);
 
         let intervalId: NodeJS.Timeout;
 
@@ -247,7 +257,9 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
                                 {/* Summary Header */}
                                 {transcriptData && (
                                     <div className="summary-header" style={{ marginBottom: '2rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
-                                        <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: '700' }}>Video Recap</h3>
+                                        <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: '700' }}>
+                                            {transcriptData.title || "Video Recap"}
+                                        </h3>
                                         <p style={{ fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.5rem', color: '#444' }}>
                                             {transcriptData.summary}
                                         </p>

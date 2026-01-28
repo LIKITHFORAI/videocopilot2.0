@@ -1,0 +1,65 @@
+[
+  {
+    "id": "action-1769457836582-0",
+    "category": "Reports",
+    "action_item": "Reports - Ensure all demographic fields are complete for accurate reporting.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Focus on fields related to sexual orientation, client identity, birth sex, country of origin, ethnicity, race, language, homeless status, and veteran status.",
+    "timestamp": 0
+  },
+  {
+    "id": "action-1769457836582-1",
+    "category": "Requirements",
+    "action_item": "Requirements - Document the need for a sliding fee scale based on grant specifications.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Ensure that the sliding fee scale aligns with the Ryan White HIV grant requirements.",
+    "timestamp": 414
+  },
+  {
+    "id": "action-1769457836582-2",
+    "category": "Client Portal",
+    "action_item": "Client Portal - Investigate customization options for client intake forms in the patient portal.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Check with Chris about the ability to trigger additional questions based on the program.",
+    "timestamp": 606
+  },
+  {
+    "id": "action-1769457836582-3",
+    "category": "Data Migration",
+    "action_item": "Data Migration - Assess the feasibility of migrating eligibility information into the new EHR.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Consider integrating forms that are currently scanned into NextGen to streamline data entry.",
+    "timestamp": 704
+  },
+  {
+    "id": "action-1769457836582-4",
+    "category": "Interface",
+    "action_item": "Interface - Explore the possibility of creating a system interface to reduce manual data uploads.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Aim to automate data entry from clients to minimize reentry of information.",
+    "timestamp": 856
+  },
+  {
+    "id": "action-1769457836582-5",
+    "category": "Reports",
+    "action_item": "Reports - Ensure the ability to run reports on newly added fields in the EHR.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Identify mandatory fields required by the county for reporting.",
+    "timestamp": 841
+  },
+  {
+    "id": "action-1769457836582-6",
+    "category": "Payers",
+    "action_item": "Payers - Confirm language capabilities for the patient portal to accommodate non-English speaking clients.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Ensure the portal can support at least the seven languages specified in the RFP.",
+    "timestamp": 904
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "action-1769555291133-0",
+    "category": "Appointment Types",
+    "action_item": "Appointment Types - Work with DoctorCloud team to define specific appointment types for STI, including express testing.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Appointment types must be detailed beyond general categories to facilitate reporting.",
+    "timestamp": 200
+  },
+  {
+    "id": "action-1769555291133-1",
+    "category": "Reports",
+    "action_item": "Reports - Send a list of required data points for reports to the team.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Ensure all necessary data points for reporting are captured.",
+    "timestamp": 1484
+  },
+  {
+    "id": "action-1769555291133-2",
+    "category": "Service Codes",
+    "action_item": "Service Codes - Clarify functionality of payments and service codes with DoctorCloud team.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Determine how payments are logged and if they can be locked to specific services.",
+    "timestamp": 844
+  },
+  {
+    "id": "action-1769555291133-3",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Confirm if multiple sliding fee scales can be accommodated in the system.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Ensure the system can handle different sliding fee scales for various programs.",
+    "timestamp": 1330
+  },
+  {
+    "id": "action-1769555291133-4",
+    "category": "Data Migration",
+    "action_item": "Data Migration - Provide a list of 'My Phrases' used in the current system for migration to the new system.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "These phrases are essential for maintaining workflow efficiency in the new system.",
+    "timestamp": 2010
+  }
+]

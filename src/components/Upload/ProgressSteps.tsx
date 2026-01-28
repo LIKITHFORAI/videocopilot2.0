@@ -28,16 +28,33 @@ export default function ProgressSteps({ currentStatus = '', progress = 0 }: Prog
         if (currentStatus === '' || currentStatus === 'IDLE') {
             // All pending
             newSteps.forEach(s => s.status = 'pending');
-        } else if (currentStatus === 'UPLOADING' || progress < 100) {
-            // Step 1 active
+        } else if (currentStatus === 'UPLOADING') {
+            // Step 1: Video Uploading - active during upload only
             newSteps[0].status = 'active';
             newSteps[1].status = 'pending';
             newSteps[2].status = 'pending';
-        } else if (currentStatus === 'EXTRACTING_AUDIO' || currentStatus === 'TRANSCRIBING' || currentStatus === 'ANALYZING') {
-            // Step 1 complete, Step 2 active
+        } else if (
+            currentStatus === 'QUEUED' ||
+            currentStatus === 'PREPARING' ||
+            currentStatus === 'EXTRACTING_AUDIO' ||
+            currentStatus === 'COMPRESSING_VIDEO' ||
+            currentStatus === 'CHUNKING' ||
+            currentStatus === 'TRANSCRIBING' ||
+            currentStatus === 'TRANSCRIBING_CHUNK'
+        ) {
+            // Step 2: Video Processing - active during transcription and analysis
             newSteps[0].status = 'completed';
             newSteps[1].status = 'active';
             newSteps[2].status = 'pending';
+        } else if (
+            currentStatus === 'SUMMARIZING' ||
+            currentStatus === 'MERGING' ||
+            currentStatus === 'CLEANUP'
+        ) {
+            // Step 3: Content Loading - active during final processing
+            newSteps[0].status = 'completed';
+            newSteps[1].status = 'completed';
+            newSteps[2].status = 'active';
         } else if (currentStatus === 'COMPLETED') {
             // All complete
             newSteps[0].status = 'completed';
@@ -54,9 +71,11 @@ export default function ProgressSteps({ currentStatus = '', progress = 0 }: Prog
             alignItems: 'center',
             justifyContent: 'center',
             padding: '0',
-            maxWidth: '600px',
+            maxWidth: '450px', // Reduced max width
             margin: '0 auto',
-            height: '60px'
+            height: '40px', // Fixed small height
+            transform: 'scale(0.85)', // Slight scale down to fit nicely
+            transformOrigin: 'center'
         }}>
             {steps.map((step, index) => (
                 <div key={step.id} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
@@ -65,13 +84,13 @@ export default function ProgressSteps({ currentStatus = '', progress = 0 }: Prog
                         flex: 1,
                         background: 'white',
                         border: step.status === 'active' ? '2px solid #6366f1' : '1px solid #e5e7eb',
-                        borderRadius: '8px',
-                        padding: '0.5rem 0.75rem',
+                        borderRadius: '6px',
+                        padding: '0.25rem 0.5rem',
                         textAlign: 'center',
                         position: 'relative',
                         boxShadow: step.status === 'active' ? '0 2px 8px rgba(99, 102, 241, 0.15)' : '0 1px 3px rgba(0,0,0,0.05)',
                         transition: 'all 0.3s ease',
-                        minHeight: '50px',
+                        minHeight: '36px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center'
@@ -79,11 +98,11 @@ export default function ProgressSteps({ currentStatus = '', progress = 0 }: Prog
                         {/* Step Circle */}
                         <div style={{
                             position: 'absolute',
-                            top: '-12px',
+                            top: '-8px',
                             left: '50%',
                             transform: 'translateX(-50%)',
-                            width: '28px',
-                            height: '28px',
+                            width: '20px',
+                            height: '20px',
                             borderRadius: '50%',
                             background: step.status === 'completed' ? '#6366f1' :
                                 step.status === 'active' ? '#6366f1' : '#e5e7eb',

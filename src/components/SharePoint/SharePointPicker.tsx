@@ -1,149 +1,145 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useMsal } from "@azure/msal-react";
+import { useState } from "react";
 
-interface DriveItem {
-    id: string;
-    name: string;
-    folder?: { childCount: number };
-    file?: { mimeType: string };
-    size?: number;
-    lastModifiedDateTime: string;
-    parentReference?: { id: string, driveId: string };
-}
+export default function SharePointPicker({ onFileSelected }: {
+    onFileSelected: (file: File) => void
+}) {
+    const { instance, accounts } = useMsal();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-interface SharePointPickerProps {
-    onCancel: () => void;
-    onSelect: (fileId: string, fileName: string, driveId: string) => void;
-}
+    const openPicker = async () => {
+        if (!accounts[0]) {
+            setError('Please sign in with Microsoft first');
+            return;
+        }
 
-export default function SharePointPicker({ onCancel, onSelect }: SharePointPickerProps) {
-    const { data: session } = useSession();
-    const [items, setItems] = useState<DriveItem[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [currentFolder, setCurrentFolder] = useState<string>('root');
-    const [breadcrumbs, setBreadcrumbs] = useState<{ id: string, name: string }[]>([{ id: 'root', name: 'Home' }]);
-
-    useEffect(() => {
-        fetchItems(currentFolder);
-    }, [currentFolder]);
-
-    const fetchItems = async (folderId: string) => {
         setLoading(true);
+        setError(null);
+
         try {
-            const res = await fetch(`/api/sharepoint/list?folderId=${folderId}`);
-            if (!res.ok) throw new Error('Failed to fetch files');
-            const data = await res.json();
-            setItems(data.value);
-        } catch (error) {
-            console.error(error);
+            // Get access token silently
+            const response = await instance.acquireTokenSilent({
+                scopes: ["Files.Read.All", "Sites.Read.All"],
+                account: accounts[0]
+            });
+
+            // Configure File Picker
+            const pickerOptions = {
+                sdk: "8.0",
+                entry: {
+                    oneDrive: { files: {} }
+                },
+                authentication: {
+                    accessToken: response.accessToken
+                },
+                messaging: {
+                    origin: window.location.origin,
+                    channelId: `video-copilot-${Date.now()}`
+                },
+                typesAndSources: {
+                    mode: "files",
+                    filters: [".mp4", ".avi", ".mov", ".mkv", ".webm"]
+                }
+            };
+
+            // Open File Picker in popup
+            const form = document.createElement('form');
+            form.action = 'https://ensoftekinc-my.sharepoint.com/_layouts/15/FilePicker.aspx';
+            form.method = 'POST';
+            form.target = 'sharepoint-picker';
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'params';
+            input.value = JSON.stringify(pickerOptions);
+            form.appendChild(input);
+
+            document.body.appendChild(form);
+
+            const popup = window.open('', 'sharepoint-picker', 'width=800,height=600,menubar=no,toolbar=no');
+            if (!popup) {
+                throw new Error('Popup blocked. Please allow popups for this site.');
+            }
+
+            form.submit();
+            document.body.removeChild(form);
+
+            // Listen for file selection
+            const handleMessage = async (event: MessageEvent) => {
+                if (event.data.type === 'selection' && event.data.items && event.data.items.length > 0) {
+                    const fileInfo = event.data.items[0];
+
+                    try {
+                        // Download file from Microsoft Graph
+                        const fileResponse = await fetch(
+                            `https://graph.microsoft.com/v1.0/me/drive/items/${fileInfo.id}/content`,
+                            { headers: { Authorization: `Bearer ${response.accessToken}` } }
+                        );
+
+                        if (!fileResponse.ok) {
+                            throw new Error('Failed to download file from SharePoint');
+                        }
+
+                        const blob = await fileResponse.blob();
+                        const file = new File([blob], fileInfo.name, { type: blob.type || 'video/mp4' });
+
+                        onFileSelected(file);
+                        popup?.close();
+                    } catch (err) {
+                        console.error('File download error:', err);
+                        setError('Failed to download file');
+                    }
+
+                    window.removeEventListener('message', handleMessage);
+                }
+            };
+
+            window.addEventListener('message', handleMessage);
+
+        } catch (err: any) {
+            console.error('SharePoint picker error:', err);
+            setError(err.message || 'Failed to open SharePoint picker');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleNavigate = (folderId: string, folderName: string) => {
-        setCurrentFolder(folderId);
-        setBreadcrumbs([...breadcrumbs, { id: folderId, name: folderName }]);
-    };
-
-    const handleBreadcrumbClick = (index: number) => {
-        const newBreadcrumbs = breadcrumbs.slice(0, index + 1);
-        setBreadcrumbs(newBreadcrumbs);
-        setCurrentFolder(newBreadcrumbs[newBreadcrumbs.length - 1].id);
-    };
-
-    const handleFileSelect = (item: DriveItem) => {
-        if (item.file && item.parentReference) {
-            onSelect(item.id, item.name, item.parentReference.driveId);
-        }
-    };
-
     return (
-        <div style={{
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            background: 'rgba(0,0,0,0.5)', zIndex: 1000,
-            display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}>
-            <div style={{
-                width: '800px', height: '600px', background: 'white',
-                borderRadius: '8px', display: 'flex', flexDirection: 'column',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
-            }}>
-                {/* Header */}
-                <div style={{
-                    padding: '1rem', borderBottom: '1px solid #eee',
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-                }}>
-                    <h3 style={{ margin: 0 }}>Select from SharePoint/OneDrive</h3>
-                    <button onClick={onCancel} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
-                </div>
-
-                {/* Breadcrumbs */}
-                <div style={{ padding: '0.5rem 1rem', background: '#f9f9f9', borderBottom: '1px solid #eee', display: 'flex', gap: '0.5rem' }}>
-                    {breadcrumbs.map((crumb, index) => (
-                        <span key={crumb.id} style={{ display: 'flex', alignItems: 'center' }}>
-                            <span
-                                onClick={() => handleBreadcrumbClick(index)}
-                                style={{
-                                    cursor: 'pointer',
-                                    color: index === breadcrumbs.length - 1 ? '#333' : '#0078d4',
-                                    fontWeight: index === breadcrumbs.length - 1 ? '600' : '400'
-                                }}
-                            >
-                                {crumb.name}
-                            </span>
-                            {index < breadcrumbs.length - 1 && <span style={{ margin: '0 0.5rem', color: '#999' }}>/</span>}
-                        </span>
-                    ))}
-                </div>
-
-                {/* File List */}
-                <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
-                    {loading ? (
-                        <div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>Loading files...</div>
-                    ) : (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '1rem' }}>
-                            {items.map(item => (
-                                <div
-                                    key={item.id}
-                                    onClick={() => item.folder ? handleNavigate(item.id, item.name) : handleFileSelect(item)}
-                                    style={{
-                                        border: '1px solid #eee', borderRadius: '4px', padding: '1rem',
-                                        cursor: 'pointer', textAlign: 'center',
-                                        background: item.folder ? '#f0faff' : 'white',
-                                        transition: 'all 0.2s',
-                                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem'
-                                    }}
-                                    onMouseEnter={e => e.currentTarget.style.borderColor = '#0078d4'}
-                                    onMouseLeave={e => e.currentTarget.style.borderColor = '#eee'}
-                                >
-                                    <div style={{ fontSize: '2rem' }}>
-                                        {item.folder ? '📁' : (item.file?.mimeType.includes('video') ? '🎥' : '📄')}
-                                    </div>
-                                    <div style={{
-                                        fontSize: '0.9rem', wordBreak: 'break-word', overflow: 'hidden',
-                                        display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'
-                                    }}>
-                                        {item.name}
-                                    </div>
-                                    {item.file && (
-                                        <div style={{ fontSize: '0.7rem', color: '#666' }}>
-                                            {(item.size! / (1024 * 1024)).toFixed(1)} MB
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                            {items.length === 0 && (
-                                <div style={{ gridColumn: '1/-1', textAlign: 'center', color: '#999', padding: '2rem' }}>
-                                    This folder is empty
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-            </div>
+        <div>
+            <button
+                onClick={openPicker}
+                disabled={loading || !accounts[0]}
+                style={{
+                    padding: '0.75rem 1.5rem',
+                    background: loading || !accounts[0] ? '#ccc' : '#107C10',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: loading || !accounts[0] ? 'not-allowed' : 'pointer',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    transition: 'background 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                    if (!loading && accounts[0]) e.currentTarget.style.background = '#0e6b0e';
+                }}
+                onMouseLeave={(e) => {
+                    if (!loading && accounts[0]) e.currentTarget.style.background = '#107C10';
+                }}
+                title={!accounts[0] ? 'Please sign in first' : ''}
+            >
+                <svg width="20" height="20" viewBox="0 0 48 48" fill="none">
+                    <path d="M42.8 18.032H28.032V3.2H19.968v14.832H5.2v8.064h14.768v14.832h8.064V26.096H42.8z" fill="white" />
+                </svg>
+                {loading ? 'Opening SharePoint...' : 'Import from SharePoint'}
+            </button>
+            {error && <p style={{ color: '#dc3545', marginTop: '0.5rem', fontSize: '0.9rem' }}>{error}</p>}
         </div>
     );
 }

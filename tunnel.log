@@ -19,3 +19,12 @@
 2026-01-23T20:10:29Z INF ICMP proxy will use 2601:1c0:5f87:6850::6126 in zone Wi-Fi as source for IPv6
 2026-01-23T20:10:29Z INF Starting metrics server on 127.0.0.1:20241/metrics
 2026-01-23T20:10:29Z INF Registered tunnel connection connIndex=0 connection=6a25814d-1ccf-42be-8deb-ded4a4756b0c event=0 ip=198.41.200.23 location=pdx02 protocol=quic
+2026-01-23T20:34:43Z ERR  error="stream 773 canceled by remote with error code 0" connIndex=0 event=1 ingressRule=0 originService=http://localhost:3000
+2026-01-23T20:34:43Z ERR Request failed error="stream 773 canceled by remote with error code 0" connIndex=0 dest=https://andrew-article-superb-viewers.trycloudflare.com/api/media/9e9576ac-e26b-4758-9aed-46e167145383/stream event=0 ip=198.41.200.23 type=http
+2026-01-23T20:43:10Z ERR  error="stream 1309 canceled by remote with error code 0" connIndex=0 event=1 ingressRule=0 originService=http://localhost:3000
+2026-01-23T20:43:10Z ERR Request failed error="stream 1309 canceled by remote with error code 0" connIndex=0 dest=https://andrew-article-superb-viewers.trycloudflare.com/api/media/9e9576ac-e26b-4758-9aed-46e167145383/stream event=0 ip=198.41.200.23 type=http
+2026-01-24T02:40:09Z INF Initiating graceful shutdown due to signal terminated ...
+2026-01-24T02:40:09Z ERR failed to run the datagram handler error="context canceled" connIndex=0 event=0 ip=198.41.200.23
+2026-01-24T02:40:09Z ERR failed to serve tunnel connection error="accept stream listener encountered a failure while serving" connIndex=0 event=0 ip=198.41.200.23
+2026-01-24T02:40:09Z ERR Serve tunnel error error="accept stream listener encountered a failure while serving" connIndex=0 event=0 ip=198.41.200.23
+2026-01-24T02:40:09Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.23

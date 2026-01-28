@@ -58,7 +58,9 @@ a {
   padding: 1rem;
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: var(--panel-bg);
+  background: #1e293b;
+  /* Dark Navy */
+  color: white;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -68,14 +70,32 @@ a {
 
 .main-layout {
   display: grid;
-  grid-template-columns: 1fr 550px;
-  grid-template-rows: 100%;
-  /* Force grid to stay within flex container */
-  gap: 2rem;
+  grid-template-columns: 260px 1fr 420px;
+  gap: 1.5rem;
   flex: 1;
   min-height: 0;
-  /* Important for flex children to allow shrink */
   padding-bottom: 1rem;
+}
+
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-height: 0;
+  justify-content: flex-start;
+  /* Align video to top */
+}
+
+.middle-column {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.right-column {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .video-section {
@@ -87,6 +107,10 @@ a {
   border: 1px solid var(--border);
   position: relative;
   overflow: hidden;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  /* Make it square-ish like the diagram */
+  min-height: 200px;
 }
 
 .dark .video-section {
@@ -97,8 +121,34 @@ a {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.intelligence-panel .panel-card {
+  background: #ffffff;
+}
+
+.dark .intelligence-panel .panel-card {
+  background: linear-gradient(135deg, #500724 0%, #3b0519 100%);
+}
+
+.action-items-panel {
+  display: flex;
+  flex-direction: column;
   height: 100%;
   min-height: 0;
+}
+
+.action-items-panel .panel-card {
+  background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+  background: #f1f5f9;
+  /* Light grey background for action items container */
+  border: none;
+}
+
+.dark .action-items-panel .panel-card {
+  background: linear-gradient(135deg, #431407 0%, #2a0a04 100%);
 }
 
 .panel-card {

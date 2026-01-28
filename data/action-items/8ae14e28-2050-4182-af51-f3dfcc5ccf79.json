@@ -1,0 +1,65 @@
+[
+  {
+    "id": "action-1769468134667-0",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Personalize the application settings for improved user experience.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Focus on settings under User Appearance tab to enhance efficiency.",
+    "timestamp": 37
+  },
+  {
+    "id": "action-1769468134667-1",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Change the default landing page to calendar or inbox.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "This change will save clicks every time the user logs in.",
+    "timestamp": 71
+  },
+  {
+    "id": "action-1769468134667-2",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Uncheck the legacy search box for improved patient record search.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "This allows for more precise searches combining first name, last name, and gender.",
+    "timestamp": 90
+  },
+  {
+    "id": "action-1769468134667-3",
+    "category": "Security",
+    "action_item": "Security - Change the main login password.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Ensure the new password is saved correctly.",
+    "timestamp": 110
+  },
+  {
+    "id": "action-1769468134667-4",
+    "category": "Security",
+    "action_item": "Security - Change the eSignature ID for document signing.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Follow the two-step process for security validation.",
+    "timestamp": 149
+  },
+  {
+    "id": "action-1769468134667-5",
+    "category": "Security",
+    "action_item": "Security - Update the visual signature for documents.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Validate identity before drawing a new signature.",
+    "timestamp": 197
+  },
+  {
+    "id": "action-1769468134667-6",
+    "category": "Reports",
+    "action_item": "Reports - Customize clinical document templates using CCDA format.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Select and order sections like allergies, medications, and lab results.",
+    "timestamp": 249
+  }
+]

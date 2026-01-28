@@ -21,7 +21,7 @@ if (azureChatEndpoint && azureChatApiKey && !isPlaceholder) {
     console.warn("Azure Chat credentials not found or invalid. Using placeholder responses.");
 }
 
-export async function generateSummary(segments: any[]) {
+export async function generateSummary(segments: any[], filename?: string) {
     if (!openai) {
         return {
             summary: "This is a placeholder summary. Please provide a valid OpenAI API key to generate a real AI summary.",
@@ -46,7 +46,16 @@ export async function generateSummary(segments: any[]) {
             messages: [
                 {
                     role: "system",
-                    content: `You are a video analysis assistant. Analyze the provided transcript (with timestamps) and respond with a JSON object containing:
+                    content: `You are a video analysis assistant. Analyze the provided transcript (with timestamps) and respond with a JSON object.
+                    
+                    TASK 1: Generate a Title
+                    - You will be provided with a "Filename".
+                    - IF the filename is clear and descriptive (e.g., "Patient_Billing_Workflow_Review.mp4" or "Q3 Sales Kickoff"), USE IT as the base for the title. Clean it up (replace underscores with spaces, capitalize).
+                    - IF the filename is cryptic or generic (e.g., "video1234.mp4", "zoom_recording_001", "meeting-28491"), IGNORE IT and generate a title based on the transcript content.
+                    - CRITICAL: The final title MUST end with the word "Recap".
+                    - The title should be concise (3-8 words).
+
+                    TASK 2: Generate Summary & Key Points
                     - "summary": A concise 2-3 sentence summary of the video content.
                     - "keyPoints": An array of 3-5 key highlights. Each highlight must be an object with:
                         - "text": The highlight description (string).
@@ -54,6 +63,7 @@ export async function generateSummary(segments: any[]) {
                     
                     Example response format:
                     {
+                        "title": "Patient Billing Workflow Recap",
                         "summary": "This video discusses...",
                         "keyPoints": [
                             { "text": "Introduction to the topic", "timestamp": 0 },
@@ -63,7 +73,7 @@ export async function generateSummary(segments: any[]) {
                 },
                 {
                     role: "user",
-                    content: `Please analyze this transcript:\n\n${context}`
+                    content: `Filename: ${filename || 'Unknown'}\n\nPlease analyze this transcript:\n\n${context}`
                 }
             ],
             response_format: { type: "json_object" },
@@ -80,6 +90,7 @@ export async function generateSummary(segments: any[]) {
             : [];
 
         return {
+            title: content.title || "Video Recap",
             summary: content.summary || "No summary generated.",
             keyPoints
         };
@@ -177,5 +188,98 @@ export async function answerQuestion(transcriptSegments: any[], question: string
     } catch (e) {
         console.error("Chat error:", e);
         return { answer: "Error processing your request.", citations: [] };
+    }
+}
+
+export async function extractActionItems(segments: any[], meetingDate?: string) {
+    if (!openai) {
+        return [];
+    }
+
+    // Prepare context with timestamps
+    const context = segments
+        .map(s => `[${Math.floor(s.start)}s] ${s.text}`)
+        .join('\n')
+        .substring(0, 30000);
+
+    try {
+        const response = await openai.chat.completions.create({
+            model: chatDeployment,
+            messages: [
+                {
+                    role: "system",
+                    content: `Role: You are a specialized Project Management Assistant for an EHR (Electronic Health Record) Implementation firm. Your goal is to convert messy meeting transcripts into clean, structured action items.
+
+Primary Categories (Use these if applicable):
+
+If the task falls under these themes, you MUST use these exact prefixes:
+
+- Client Portal -
+- Reports -
+- Requirements -
+- Appointment Types -
+- Service Codes -
+- Payers -
+- Users & Roles -
+- DrFirst/EPCS -
+- Interface -
+- Data Migration -
+
+AI Categorization Rule:
+
+If a task does not fit the list above, analyze the context and generate a concise 1-2 word heading followed by a hyphen (e.g., Workflow -, Hardware -, Security -).
+
+Data Extraction Rules:
+
+- Action Item: Combine the [Heading] - [Professional Task Description].
+- Responsible Party: Identify the specific person. If no name is mentioned, assign to "DoctorCloud Technical Team" (for technical tasks) or "HHS Program Team" (for clinical/staff tasks).
+- Due Date: Use YYYY-MM-DD format if a date is mentioned. If a timeframe is mentioned (e.g., "by Friday"), calculate the date based on the meeting date${meetingDate ? ` (${meetingDate})` : ''}. Otherwise, use "N/A".
+- Note: Capture mentions of "NextGen," "DoctorCloud," or specific technical blockers.
+- Timestamp: The time in seconds where this action item was discussed in the transcript.
+
+Output Requirement: Return a JSON object with an "action_items" array. Each item must have:
+{
+  "action_items": [
+    {
+      "action_item": "Heading - Detailed professional task description",
+      "responsible_party": "Name or Team",
+      "due_date": "YYYY-MM-DD or N/A",
+      "notes": "Technical context or specific instructions",
+      "timestamp": 0
+    }
+  ]
+}`
+                },
+                {
+                    role: "user",
+                    content: `Analyze the following transcript and extract action items:\n\n${context}`
+                }
+            ],
+            response_format: { type: "json_object" },
+            temperature: 0.3
+        });
+
+        const content = JSON.parse(response.choices[0].message.content || '{"action_items":[]}');
+        const actionItems = Array.isArray(content.action_items) ? content.action_items : [];
+
+        // Add unique IDs and extract category
+        return actionItems.map((item: any, index: number) => {
+            const actionText = item.action_item || '';
+            const categoryMatch = actionText.match(/^([^-]+)-/);
+            const category = categoryMatch ? categoryMatch[1].trim() : 'General';
+
+            return {
+                id: `action-${Date.now()}-${index}`,
+                category,
+                action_item: actionText,
+                responsible_party: item.responsible_party || 'Unassigned',
+                due_date: item.due_date || 'N/A',
+                notes: item.notes || '',
+                timestamp: item.timestamp || 0
+            };
+        });
+    } catch (e: any) {
+        console.error("Action items extraction error:", e);
+        return [];
     }
 }
