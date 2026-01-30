@@ -3,6 +3,7 @@
 import FileUploader, { FileUploaderRef } from '../components/Upload/FileUploader';
 import VideoPlayer, { VideoPlayerRef } from '../components/media/VideoPlayer';
 import IntelligencePanel from '../components/analysis/IntelligencePanel';
+import TranscriptPanel from '../components/analysis/TranscriptPanel';
 import ActionItemsPanel from '../components/analysis/ActionItemsPanel';
 import AuthGate from '../components/Auth/AuthGate';
 import { useState, useRef } from 'react';
@@ -66,6 +67,12 @@ export default function Home() {
             mediaId={activeMediaId}
             jobStatus={jobStatus}
             onFileDrop={handleFileDrop}
+          />
+          <TranscriptPanel
+            mediaId={activeMediaId}
+            jobId={activeJobId}
+            jobStatus={jobStatus}
+            onSeek={handleSeek}
           />
         </div>
 

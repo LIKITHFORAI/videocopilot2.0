@@ -3,8 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 
-type Tab = 'transcript' | 'chat';
-
 interface IntelligencePanelProps {
     mediaId: string | null;
     jobId: string | null;
@@ -25,7 +23,6 @@ interface KeyPoint {
 }
 
 export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChange, onProgressChange }: IntelligencePanelProps) {
-    const [activeTab, setActiveTab] = useState<Tab>('transcript');
     const [jobStatus, setJobStatus] = useState<string>('');
     const [transcriptData, setTranscriptData] = useState<any>(null);
     const [polling, setPolling] = useState(false);
@@ -157,8 +154,6 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
         return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     };
 
-    const transcript = transcriptData?.segments || [];
-
     const getKeyPoints = (): KeyPoint[] => {
         if (!transcriptData?.keyPoints) return [];
         return transcriptData.keyPoints.map((kp: any) => {
@@ -187,47 +182,16 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
         <div className="intelligence-panel">
             <div className="panel-card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 
-                <div className="tabs">
-                    <div className={`tab ${activeTab === 'transcript' ? 'active' : ''}`} onClick={() => setActiveTab('transcript')}>Transcript</div>
-                    <div className={`tab ${activeTab === 'chat' ? 'active' : ''}`} onClick={() => setActiveTab('chat')}>Chat</div>
-                </div>
+                <div style={{
+                    fontSize: '1.3rem',
+                    fontWeight: '700',
+                    padding: '1.5rem',
+                    borderBottom: '1px solid var(--border)',
+                    margin: 0
+                }}>Chat</div>
 
                 <div className="content-area" style={{ flex: 1, overflow: 'hidden' }}>
-                    {activeTab === 'transcript' && (
-                        <div className="transcript-content" style={{ padding: '1rem', height: '100%', overflowY: 'auto' }}>
-                            {!mediaId && <p style={{ opacity: 0.6 }}>Upload a video to see the transcript.</p>}
-
-                            {/* Loading Skeleton for Transcript */}
-                            {mediaId && polling && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '0.5rem' }}>
-                                    {[...Array(12)].map((_, i) => (
-                                        <div key={i} style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                                            <div className="skeleton" style={{ width: '45px', height: '16px' }}></div>
-                                            <div className="skeleton" style={{ flex: 1, height: '16px', maxWidth: `${Math.random() * 30 + 60}%` }}></div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            {mediaId && !polling && transcript.length === 0 && jobStatus === 'COMPLETED' && <p>No speech detected.</p>}
-                            {mediaId && !polling && transcript.length > 0 && (
-                                <div>
-                                    {transcript.map((seg: any, i: number) => (
-                                        <div
-                                            key={i}
-                                            className="transcript-segment"
-                                            onClick={() => onSeek(seg.start)}
-                                        >
-                                            <span className="timestamp">{formatTime(seg.start)}</span>
-                                            <span className="text">{seg.text}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {activeTab === 'chat' && (
+                    {(
                         <div className="chat-container" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                             <div className="messages" style={{ flex: 1, padding: '1.5rem', overflowY: 'auto' }}>
                                 {/* Loading Skeleton for Summary & Highlights */}
@@ -380,7 +344,10 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
                                     onClick={() => handleSendMessage()}
                                     disabled={!mediaId || polling || isChatting || !input.trim()}
                                 >
-                                    Send
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '18px', height: '18px' }}>
+                                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                    </svg>
                                 </button>
                             </div>
                         </div>

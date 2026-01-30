@@ -1,4 +1,4 @@
-'use client';
+ack'use client';
 
 import { useEffect, useState } from 'react';
 
@@ -37,12 +37,11 @@ export default function ProgressSteps({ currentStatus = '', progress = 0 }: Prog
             currentStatus === 'QUEUED' ||
             currentStatus === 'PREPARING' ||
             currentStatus === 'EXTRACTING_AUDIO' ||
-            currentStatus === 'COMPRESSING_VIDEO' ||
             currentStatus === 'CHUNKING' ||
             currentStatus === 'TRANSCRIBING' ||
             currentStatus === 'TRANSCRIBING_CHUNK'
         ) {
-            // Step 2: Video Processing - active during transcription and analysis
+            // Step 2: Video Processing - active during transcription, OCR, and analysis
             newSteps[0].status = 'completed';
             newSteps[1].status = 'active';
             newSteps[2].status = 'pending';

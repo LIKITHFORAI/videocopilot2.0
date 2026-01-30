@@ -1,0 +1,56 @@
+[
+  {
+    "id": "action-1769717992813-0",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Personalize the application settings for a better user experience.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Focus on landing page customization and inbox cleanup.",
+    "timestamp": 31
+  },
+  {
+    "id": "action-1769717992813-1",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Uncheck the legacy search box to enhance patient record searches.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "This allows for more precise searches using multiple parameters.",
+    "timestamp": 86
+  },
+  {
+    "id": "action-1769717992813-2",
+    "category": "Security",
+    "action_item": "Security - Change the main login password for enhanced security.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Follow the straightforward process to update the password.",
+    "timestamp": 110
+  },
+  {
+    "id": "action-1769717992813-3",
+    "category": "Security",
+    "action_item": "Security - Update the eSignature ID for document signing.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Requires validation of current ID before creating a new one.",
+    "timestamp": 149
+  },
+  {
+    "id": "action-1769717992813-4",
+    "category": "Security",
+    "action_item": "Security - Update the visual signature for documents.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Validation needed using eSignature ID before drawing a new signature.",
+    "timestamp": 197
+  },
+  {
+    "id": "action-1769717992813-5",
+    "category": "Reports",
+    "action_item": "Reports - Customize clinical document templates using CCDA standards.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Select and order sections of patient charts for summaries.",
+    "timestamp": 249
+  }
+]

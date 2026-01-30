@@ -1,0 +1,9 @@
+{
+  "jobId": "85ff6c3a-6a09-4986-8a57-92bdb9ad0a5d",
+  "mediaId": "c11d4b3a-8859-40e0-b6b5-855151b8be",
+  "status": "FAILED",
+  "createdAt": "2026-01-30T00:51:32.468Z",
+  "progress": 5,
+  "updatedAt": "2026-01-30T00:51:32.494Z",
+  "error": "ENOENT: no such file or directory, scandir 'C:\\Users\\herei\\.gemini\\antigravity\\scratch\\video_copilot_fresh\\data\\uploads\\c11d4b3a-8859-40e0-b6b5-855151b8be'"
+}

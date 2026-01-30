@@ -1,0 +1,47 @@
+[
+  {
+    "id": "action-1769729954648-0",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Personalize the application settings to improve user experience and efficiency.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Focus on changing the landing page to calendar or inbox, and upgrading patient search functionality.",
+    "timestamp": 70
+  },
+  {
+    "id": "action-1769729954649-1",
+    "category": "Security",
+    "action_item": "Security - Change the main login password for enhanced security.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Follow the straightforward process to change the password from the main settings tab.",
+    "timestamp": 110
+  },
+  {
+    "id": "action-1769729954649-2",
+    "category": "Security",
+    "action_item": "Security - Update the eSignature ID for document signing.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Ensure to validate the current eSignature ID before creating a new one.",
+    "timestamp": 149
+  },
+  {
+    "id": "action-1769729954649-3",
+    "category": "Security",
+    "action_item": "Security - Update the visual signature used in documents.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Validate the eSignature ID to access the signature drawing interface.",
+    "timestamp": 205
+  },
+  {
+    "id": "action-1769729954649-4",
+    "category": "Reports",
+    "action_item": "Reports - Customize the CCDA templates for clinical summaries.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Select the desired sections and arrange them in the preferred order for patient referrals.",
+    "timestamp": 249
+  }
+]

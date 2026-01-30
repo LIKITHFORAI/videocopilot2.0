@@ -1,0 +1,32 @@
+{
+  "mediaId": "c11d4b3a-8792-4e0e-b6b5-855151b859be",
+  "jobId": "79805e9d-fd69-4da0-9243-3fbc1894263f",
+  "text": "You",
+  "segments": [
+    {
+      "id": 0,
+      "seek": 0,
+      "start": 0,
+      "end": 2,
+      "text": " You",
+      "tokens": [
+        50364,
+        509,
+        50464
+      ],
+      "temperature": 0.20000000298023224,
+      "avg_logprob": -0.8003768920898438,
+      "compression_ratio": 0.27272728085517883,
+      "no_speech_prob": 0.788773238658905
+    }
+  ],
+  "title": "Video Overview Recap",
+  "summary": "This video appears to be an introductory segment, but lacks detailed content. It may serve as a brief overview or prompt for further discussion.",
+  "keyPoints": [
+    {
+      "text": "Introduction to the video",
+      "timestamp": 0
+    }
+  ],
+  "createdAt": "2026-01-30T00:53:27.484Z"
+}

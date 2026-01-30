@@ -1,0 +1,56 @@
+[
+  {
+    "id": "action-1769584399192-0",
+    "category": "Requirements",
+    "action_item": "Requirements - Document how group therapy sessions are recorded in NextGen.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Clarify the process for documenting group therapy sessions and whether they should be entered into NextGen.",
+    "timestamp": 596
+  },
+  {
+    "id": "action-1769584399192-1",
+    "category": "Requirements",
+    "action_item": "Requirements - Provide a spreadsheet template for documenting group attendance.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Send a sample spreadsheet to capture attendance and participation for psychoeducational groups.",
+    "timestamp": 754
+  },
+  {
+    "id": "action-1769584399192-2",
+    "category": "DrFirst/EPCS",
+    "action_item": "DrFirst/EPCS - Review the process for documenting family therapy sessions in NextGen.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Ensure clarity on how family sessions are documented and billed in NextGen.",
+    "timestamp": 834
+  },
+  {
+    "id": "action-1769584399192-3",
+    "category": "Interface",
+    "action_item": "Interface - Demonstrate how group sessions are managed in Dr. Cloud.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Show the functionality for adding clients to group sessions and documenting their attendance.",
+    "timestamp": 1324
+  },
+  {
+    "id": "action-1769584399192-4",
+    "category": "Reports",
+    "action_item": "Reports - Create a productivity report to track group attendance and registration.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Develop a report that shows the number of registered clients versus attendees for group sessions.",
+    "timestamp": 1877
+  },
+  {
+    "id": "action-1769584399192-5",
+    "category": "Requirements",
+    "action_item": "Requirements - Investigate the possibility of documenting non-client attendees in group sessions.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Find a way to track community partners or other non-clients who attend group sessions.",
+    "timestamp": 2087
+  }
+]

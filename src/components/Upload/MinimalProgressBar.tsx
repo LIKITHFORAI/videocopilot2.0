@@ -66,7 +66,7 @@ export default function MinimalProgressBar({ currentStatus = '', progress = 0 }:
             {/* Helper Text - Centered below bar */}
             <div style={{
                 width: '100%',
-                backgroundColor: 'white',
+                backgroundColor: 'transparent',
                 paddingTop: '0.5rem',
                 paddingBottom: '0.5rem',
                 fontSize: '12px',

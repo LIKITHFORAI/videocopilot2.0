@@ -1,0 +1,11 @@
+{
+  "jobId": "b259061d-1bc4-4b28-8128-31206ca36295",
+  "mediaId": "8d9e5c9c-b91a-4222-b032-73a1b5e31315",
+  "status": "COMPLETED",
+  "createdAt": "2026-01-28T07:08:04.354Z",
+  "progress": 100,
+  "updatedAt": "2026-01-28T07:13:19.239Z",
+  "chunkIndex": 3,
+  "totalChunks": 3,
+  "resultUrl": "/api/transcript/8d9e5c9c-b91a-4222-b032-73a1b5e31315"
+}

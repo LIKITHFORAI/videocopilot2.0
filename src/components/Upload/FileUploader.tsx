@@ -766,7 +766,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
             {(isUploading || isProcessing) && (
                 <div style={{
                     width: '100%',
-                    backgroundColor: 'white',
+                    backgroundColor: 'transparent',
                     paddingTop: '0.5rem',
                     paddingBottom: '0.5rem',
                     fontSize: '12px',

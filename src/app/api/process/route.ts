@@ -55,7 +55,6 @@ async function processMedia(jobId: string, mediaId: string) {
 
         // Find the uploaded video file
         const files = await fs.promises.readdir(uploadDir);
-        // Assuming video file is the largest or just the first non-dir
         const validExtensions = ['.mp4', '.mov', '.avi', '.mkv', '.mp3', '.wav', '.m4a'];
         const videoFile = files.find(f => validExtensions.some(ext => f.toLowerCase().endsWith(ext)));
 
@@ -66,7 +65,6 @@ async function processMedia(jobId: string, mediaId: string) {
         const inputPath = join(uploadDir, videoFile);
         const isAudio = ['.mp3', '.wav', '.m4a'].some(ext => videoFile.toLowerCase().endsWith(ext));
         const audioMasterPath = join(uploadDir, 'audio_master.mp3');
-        const compressedVideoPath = join(uploadDir, 'video_360p.mp4');
 
         // Check cancellation before audio extraction
         if (isJobCancelled(jobId)) {
@@ -81,32 +79,30 @@ async function processMedia(jobId: string, mediaId: string) {
             await updateJob(jobId, { status: 'EXTRACTING_AUDIO', progress: 10 });
             console.log(`Job ${jobId}: Extracting audio...`);
             await extractAudio(inputPath, audioMasterPath);
-
-            // 1.5 RE-ENCODE VIDEO TO 360P (save storage while keeping visual context)
-            // Check cancellation before re-encoding
-            if (isJobCancelled(jobId)) {
-                console.log(`⚠️ Job ${jobId} was cancelled after audio extraction`);
-                await updateJob(jobId, { status: 'CANCELLED' });
-                clearJobCancellation(jobId);
-                return;
-            }
-
-            await updateJob(jobId, { status: 'COMPRESSING_VIDEO', progress: 20 });
-            console.log(`Job ${jobId}: Re-encoding video to 360p...`);
-            await reencodeToLowQuality(inputPath, compressedVideoPath);
-
-            // Delete the original high-res video to save space
-            console.log(`Job ${jobId}: Deleting original video to save storage...`);
-            await fs.promises.unlink(inputPath);
-            console.log(`Job ${jobId}: Original video deleted, keeping 360p version`);
         } else {
-            // If it's already audio, just use it or copy it to master if needed
-            // For simplicity, we might just use inputPath as master if it is mp3, else convert
+            // If it's already audio, copy to master
             if (videoFile.toLowerCase().endsWith('.mp3')) {
                 await fs.promises.copyFile(inputPath, audioMasterPath);
             } else {
                 await extractAudio(inputPath, audioMasterPath);
             }
+        }
+
+        // Check cancellation before video compression
+        if (isJobCancelled(jobId)) {
+            console.log(`⚠️ Job ${jobId} was cancelled before COMPRESSING_VIDEO`);
+            await updateJob(jobId, { status: 'CANCELLED' });
+            clearJobCancellation(jobId);
+            return;
+        }
+
+        // 1.5. COMPRESS VIDEO (if it's a video file)
+        if (!isAudio) {
+            await updateJob(jobId, { status: 'COMPRESSING_VIDEO', progress: 15 });
+            console.log(`Job ${jobId}: Compressing video to 360p...`);
+            const video360pPath = join(uploadDir, 'video_360p.mp4');
+            await reencodeToLowQuality(inputPath, video360pPath);
+            console.log(`Job ${jobId}: Video compression complete`);
         }
 
         // Check cancellation before chunking
@@ -118,13 +114,13 @@ async function processMedia(jobId: string, mediaId: string) {
         }
 
         // 2. CHUNKING
-        await updateJob(jobId, { status: 'CHUNKING', progress: 30 });
+        await updateJob(jobId, { status: 'CHUNKING', progress: 22 });
         console.log(`Job ${jobId}: Chunking audio...`);
         const chunksDir = join(uploadDir, 'chunks');
         const chunkFiles = await splitAudio(audioMasterPath, chunksDir);
 
         // 3. TRANSCRIBING
-        await updateJob(jobId, { status: 'TRANSCRIBING', progress: 40 });
+        await updateJob(jobId, { status: 'TRANSCRIBING', progress: 32 });
         console.log(`Job ${jobId}: Transcribing ${chunkFiles.length} chunks...`);
 
         let allSegments: any[] = [];
@@ -141,23 +137,8 @@ async function processMedia(jobId: string, mediaId: string) {
             }
 
             const chunkPath = chunkFiles[i];
-            const progress = 40 + Math.floor((i / chunkFiles.length) * 50); // 40 -> 90
+            const progress = 32 + Math.floor((i / chunkFiles.length) * 58); // 32 -> 90
             await updateJob(jobId, { status: 'TRANSCRIBING_CHUNK', chunkIndex: i + 1, totalChunks: chunkFiles.length, progress });
-
-            // Get duration of this chunk to correctly offset the next
-            // (Or we could rely on the file name or reliable splitting, but measuring is safer)
-            // Actually, we can just use the cumulative durations from Whisper segments, 
-            // BUT Whisper timestamps are relative to the start of the audio file.
-            // If we split by time (e.g. 1300s), we know the offset.
-
-            // NOTE: splitAudio uses `segment_time`, but actual cut points might vary slightly on keyframes? 
-            // -c copy on audio is usually frame accurate.
-            // Let's use ffprobe to get precise duration of the chunk we just processed to add to offset for next.
-            // OR simpler: `transcribeChunk` takes an offset.
-            // We need to know the start time of this chunk.
-
-            // Better approach: Get duration of previous chunk.
-            // First chunk offset = 0.
 
             console.log(`Job ${jobId}: Processing chunk ${i + 1}/${chunkFiles.length} (offset ${currentOffset}s)`);
 
@@ -169,7 +150,7 @@ async function processMedia(jobId: string, mediaId: string) {
             currentOffset += duration;
         }
 
-        // 4. MERGING, SUMMARIZING & GENERATING ACTION ITEMS (IN PARALLEL)
+        // 4. SUMMARIZING & GENERATING ACTION ITEMS (IN PARALLEL)
         await updateJob(jobId, { status: 'SUMMARIZING', progress: 92 });
 
         // Run both AI generation tasks in parallel

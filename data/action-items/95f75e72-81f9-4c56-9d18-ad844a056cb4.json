@@ -1,0 +1,47 @@
+[
+  {
+    "id": "action-1769713398746-0",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Personalize the application settings for improved user experience.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Focus on landing page customization, inbox cleanup, and enabling accessibility features.",
+    "timestamp": 32
+  },
+  {
+    "id": "action-1769713398746-1",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Change the main login password for enhanced security.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Follow the process outlined to ensure the password is updated correctly.",
+    "timestamp": 110
+  },
+  {
+    "id": "action-1769713398746-2",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Update the eSignature ID for secure document signing.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Ensure to validate current ID before creating a new one.",
+    "timestamp": 149
+  },
+  {
+    "id": "action-1769713398746-3",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Change the visual signature used in documents.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Validate eSignature ID before drawing a new signature.",
+    "timestamp": 197
+  },
+  {
+    "id": "action-1769713398746-4",
+    "category": "Reports",
+    "action_item": "Reports - Customize clinical data templates for standardized documents.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Select and order sections like allergies, medications, and lab results for CCDA summaries.",
+    "timestamp": 249
+  }
+]

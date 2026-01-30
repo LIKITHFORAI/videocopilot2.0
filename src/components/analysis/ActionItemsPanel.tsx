@@ -47,6 +47,7 @@ export default function ActionItemsPanel({ mediaId, jobId, jobStatus, onSeek }: 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [videoTitle, setVideoTitle] = useState<string>('');
+    const [videoSummary, setVideoSummary] = useState<string>('');
 
     useEffect(() => {
         if (!mediaId) {
@@ -84,16 +85,18 @@ export default function ActionItemsPanel({ mediaId, jobId, jobStatus, onSeek }: 
                     console.error('Action items API error:', res.status, res.statusText);
                 }
 
-                // Fetch transcript to get video title
+                // Fetch transcript to get video title and summary
                 try {
                     const transcriptRes = await fetch(`/api/transcript/${mediaId}`);
                     if (transcriptRes.ok) {
                         const transcriptData = await transcriptRes.json();
-                        setVideoTitle(transcriptData.title || 'ActionItems');
+                        setVideoTitle(transcriptData.title || 'Meeting Recording');
+                        setVideoSummary(transcriptData.summary || '');
                     }
                 } catch (err) {
                     console.error('Error fetching transcript:', err);
-                    setVideoTitle('ActionItems');
+                    setVideoTitle('Meeting Recording');
+                    setVideoSummary('');
                 }
             } catch (err) {
                 console.error('Error fetching action items:', err);
@@ -114,6 +117,51 @@ export default function ActionItemsPanel({ mediaId, jobId, jobStatus, onSeek }: 
         } catch {
             return dateStr;
         }
+    };
+
+    const formatTime = (seconds: number) => {
+        const min = Math.floor(seconds / 60);
+        const sec = Math.floor(seconds % 60);
+        return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+    };
+
+    const handleEmailDraft = (item: ActionItem) => {
+        // Remove category prefix from action item
+        const cleanActionItem = item.action_item.replace(new RegExp(`^${item.category}\\s*-\\s*`, 'i'), '');
+
+        // Build email subject
+        const subject = `Action Required: ${item.category} - ${cleanActionItem}`;
+
+        // Build email body with meeting context
+        const summarySnippet = videoSummary
+            ? videoSummary.substring(0, 300) + (videoSummary.length > 300 ? '...' : '')
+            : 'See video for full context.';
+
+        const body = `Hi ${item.responsible_party},
+
+Action Item from Meeting: ${videoTitle}
+
+TASK:
+${cleanActionItem}
+
+CATEGORY: ${item.category}
+DUE DATE: ${item.due_date}
+VIDEO TIMESTAMP: ${formatTime(item.timestamp)}
+
+MEETING CONTEXT:
+${summarySnippet}${item.notes ? `
+
+ADDITIONAL NOTES:
+${item.notes}` : ''}
+
+---
+This email was generated from Video Copilot. Please review and add any additional details before sending.`;
+
+        // Build Outlook Web compose URL with proper encoding
+        const outlookWebUrl = `https://outlook.office.com/mail/deeplink/compose?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+        // Open Outlook Web in new tab
+        window.open(outlookWebUrl, '_blank');
     };
 
     const handleExportToExcel = () => {
@@ -280,6 +328,7 @@ export default function ActionItemsPanel({ mediaId, jobId, jobStatus, onSeek }: 
                             {actionItems.map((item) => (
                                 <div
                                     key={item.id}
+                                    onClick={() => handleEmailDraft(item)}
                                     style={{
                                         padding: '1rem',
                                         background: 'white',
@@ -287,6 +336,7 @@ export default function ActionItemsPanel({ mediaId, jobId, jobStatus, onSeek }: 
                                         borderRadius: '12px',
                                         boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
                                         transition: 'all 0.2s',
+                                        cursor: 'pointer',
                                     }}
                                     onMouseEnter={(e) => {
                                         e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
@@ -352,7 +402,10 @@ export default function ActionItemsPanel({ mediaId, jobId, jobStatus, onSeek }: 
 
                                         {/* Jump Button - Outline Style */}
                                         <button
-                                            onClick={() => onSeek(item.timestamp)}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onSeek(item.timestamp);
+                                            }}
                                             style={{
                                                 padding: '0.3rem 0.8rem',
                                                 background: 'white',

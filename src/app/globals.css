@@ -1,10 +1,10 @@
 :root {
-  --background: #ffffff;
+  --background: #4f629a;
   --foreground: #171717;
   --primary: #0070f3;
   --secondary: #eaeaea;
   --border: #e5e5e5;
-  --panel-bg: #f5f7fa;
+  --panel-bg: #c8d4e9;
   --success: #28a745;
   --error: #dc3545;
 }
@@ -70,7 +70,7 @@ a {
 
 .main-layout {
   display: grid;
-  grid-template-columns: 260px 1fr 420px;
+  grid-template-columns: 450px 1fr 420px;
   gap: 1.5rem;
   flex: 1;
   min-height: 0;
@@ -108,9 +108,10 @@ a {
   position: relative;
   overflow: hidden;
   width: 100%;
-  aspect-ratio: 1 / 1;
-  /* Make it square-ish like the diagram */
-  min-height: 200px;
+  aspect-ratio: 16 / 9;
+  /* Widescreen aspect ratio to remove letterboxing */
+  height: 253px;
+  /* Fixed height for consistency between empty and loaded states */
 }
 
 .dark .video-section {
@@ -142,13 +143,33 @@ a {
 
 .action-items-panel .panel-card {
   background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
-  background: #f1f5f9;
+  background: #fffaea;
   /* Light grey background for action items container */
   border: none;
 }
 
 .dark .action-items-panel .panel-card {
   background: linear-gradient(135deg, #431407 0%, #2a0a04 100%);
+}
+
+.transcript-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.transcript-panel .panel-card {
+  background: #ffffff !important;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dark .transcript-panel .panel-card {
+  background: linear-gradient(135deg, #500724 0%, #3b0519 100%);
 }
 
 .panel-card {
@@ -183,7 +204,7 @@ a {
 }
 
 .transcript-panel {
-  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  background: linear-gradient(135deg, #4f629a 0%, #4f629a 100%);
   flex: 1;
 }
 
@@ -362,7 +383,7 @@ a {
 .chat-input-area button {
   padding: 0 1.25rem;
   background: var(--primary);
-  color: white;
+  color: rgb(33, 34, 101);
   border: none;
   border-radius: 8px;
   font-weight: bold;
@@ -465,4 +486,71 @@ a {
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 6px;
+}
+
+/* Chat Input Area Styling */
+/* Chat Input Area Styling */
+.chat-input-area {
+  padding: 1.5rem;
+  border-top: 1px solid var(--border);
+  background: #ededed;
+  display: flex;
+  align-items: center;
+}
+
+.chat-input-area input {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #ffffff;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  outline: none;
+  flex: 1;
+  /* Make input take available space */
+}
+
+.chat-input-area input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.chat-input-area button {
+  margin-left: 0.5rem;
+  padding: 0.8rem;
+  /* Reduced padding for icon */
+  background: var(--primary);
+  color: white;
+  /* Changed back to white for better contrast with primary color */
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-input-area button:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.chat-input-area button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.dark .chat-input-area {
+  background: #1e293b;
+  border-top-color: #334155;
+}
+
+.dark .chat-input-area input {
+  background: #0f172a;
+  border-color: #334155;
+  color: white;
 }
