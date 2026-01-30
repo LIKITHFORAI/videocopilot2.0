@@ -5,10 +5,10 @@ import { getUploadPath } from '@/lib/storage';
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { mediaId: string } }
+    context: { params: Promise<{ mediaId: string }> }
 ) {
     try {
-        const mediaId = params.mediaId;
+        const { mediaId } = await context.params;
         const uploadDir = getUploadPath(mediaId);
         const ocrPath = join(uploadDir, 'ocr_results.json');
 

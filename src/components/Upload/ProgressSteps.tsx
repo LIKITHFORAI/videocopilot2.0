@@ -1,6 +1,7 @@
-ack'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
+import { theme } from '@/lib/theme';
 
 interface Step {
     id: number;
@@ -82,12 +83,12 @@ export default function ProgressSteps({ currentStatus = '', progress = 0 }: Prog
                     <div style={{
                         flex: 1,
                         background: 'white',
-                        border: step.status === 'active' ? '2px solid #6366f1' : '1px solid #e5e7eb',
+                        border: step.status === 'active' ? `2px solid ${theme.colors.status.active}` : `1px solid ${theme.colors.border.default}`,
                         borderRadius: '6px',
                         padding: '0.25rem 0.5rem',
                         textAlign: 'center',
                         position: 'relative',
-                        boxShadow: step.status === 'active' ? '0 2px 8px rgba(99, 102, 241, 0.15)' : '0 1px 3px rgba(0,0,0,0.05)',
+                        boxShadow: step.status === 'active' ? `0 2px 8px ${theme.colors.status.active}26` : '0 1px 3px rgba(0,0,0,0.05)',
                         transition: 'all 0.3s ease',
                         minHeight: '36px',
                         display: 'flex',
@@ -103,8 +104,8 @@ export default function ProgressSteps({ currentStatus = '', progress = 0 }: Prog
                             width: '20px',
                             height: '20px',
                             borderRadius: '50%',
-                            background: step.status === 'completed' ? '#6366f1' :
-                                step.status === 'active' ? '#6366f1' : '#e5e7eb',
+                            background: step.status === 'completed' ? theme.colors.status.active :
+                                step.status === 'active' ? theme.colors.status.active : theme.colors.progressBar.bg,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -142,7 +143,7 @@ export default function ProgressSteps({ currentStatus = '', progress = 0 }: Prog
                             ) : (
                                 // Step number for pending
                                 <span style={{
-                                    color: '#9ca3af',
+                                    color: theme.colors.text.light,
                                     fontWeight: '600',
                                     fontSize: '0.75rem'
                                 }}>{step.id}</span>
@@ -155,8 +156,8 @@ export default function ProgressSteps({ currentStatus = '', progress = 0 }: Prog
                                 fontSize: '0.85rem',
                                 fontWeight: '600',
                                 margin: 0,
-                                color: step.status === 'active' ? '#6366f1' :
-                                    step.status === 'completed' ? '#1f2937' : '#9ca3af'
+                                color: step.status === 'active' ? theme.colors.status.active :
+                                    step.status === 'completed' ? theme.colors.text.primary : theme.colors.text.light
                             }}>
                                 {step.title}
                             </h3>
@@ -169,8 +170,8 @@ export default function ProgressSteps({ currentStatus = '', progress = 0 }: Prog
                             width: '40px',
                             height: '2px',
                             background: steps[index + 1].status === 'completed' || steps[index + 1].status === 'active'
-                                ? '#6366f1'
-                                : '#e5e7eb',
+                                ? theme.colors.status.active
+                                : theme.colors.border.default,
                             margin: '0 -1px',
                             zIndex: 1,
                             transition: 'background 0.3s ease'

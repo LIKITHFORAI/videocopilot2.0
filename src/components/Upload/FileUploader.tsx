@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 're
 import MinimalProgressBar from './MinimalProgressBar';
 import { useDragDrop } from '@/hooks/useDragDrop';
 import AuthButton from '@/components/Auth/AuthButton';
+import { theme } from '@/lib/theme';
 
 import { useMsal } from '@azure/msal-react';
 
@@ -389,9 +390,9 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
     return (
         <div style={{ position: 'sticky', top: 0, zIndex: 100 }}>
             <div className="header" style={{
-                background: '#1e293b',
+                background: theme.colors.upload.uploadBox,
                 color: 'white',
-                borderBottom: '1px solid #334155',
+                borderBottom: `1px solid ${theme.colors.upload.uploadBoxBorder}`,
                 padding: '0.4rem 1.5rem',
                 display: 'flex',
                 alignItems: 'center',
@@ -458,7 +459,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                             style={{
                                 height: '36px',
                                 padding: '0 1.25rem',
-                                background: (isUploading || isProcessing) ? '#dc2626' : (sharePointLoading ? '#94a3b8' : '#3b82f6'),
+                                background: (isUploading || isProcessing) ? theme.colors.status.error : (sharePointLoading ? theme.colors.text.light : theme.colors.progressBar.fill),
                                 color: 'white',
                                 border: 'none',
                                 borderRadius: '5px',
@@ -473,16 +474,16 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                             }}
                             onMouseEnter={(e) => {
                                 if (isUploading || isProcessing) {
-                                    e.currentTarget.style.background = '#b91c1c';
+                                    e.currentTarget.style.background = '#b91c1c'; // Keep distinct hover for error state if need be, or add to theme
                                 } else if (!sharePointLoading) {
-                                    e.currentTarget.style.background = '#2563eb';
+                                    e.currentTarget.style.background = theme.colors.primaryHover;
                                 }
                             }}
                             onMouseLeave={(e) => {
                                 if (isUploading || isProcessing) {
-                                    e.currentTarget.style.background = '#dc2626';
+                                    e.currentTarget.style.background = theme.colors.status.error;
                                 } else if (!sharePointLoading) {
-                                    e.currentTarget.style.background = '#3b82f6';
+                                    e.currentTarget.style.background = theme.colors.progressBar.fill;
                                 }
                             }}
                         >
@@ -519,13 +520,13 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                                         cursor: 'pointer',
                                         borderRadius: '4px',
                                         fontSize: '0.9rem',
-                                        color: '#1e293b',
+                                        color: theme.colors.text.primary,
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: '0.75rem',
                                         fontWeight: '500'
                                     }}
-                                    onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
+                                    onMouseEnter={e => e.currentTarget.style.background = theme.colors.upload.hoverBg}
                                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                 >
                                     💻 Computer
@@ -543,13 +544,13 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                                         cursor: 'pointer',
                                         borderRadius: '4px',
                                         fontSize: '0.9rem',
-                                        color: '#1e293b',
+                                        color: theme.colors.text.primary,
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: '0.75rem',
                                         fontWeight: '500'
                                     }}
-                                    onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
+                                    onMouseEnter={e => e.currentTarget.style.background = theme.colors.upload.hoverBg}
                                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                 >
                                     ☁️ SharePoint
@@ -572,7 +573,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                             style={{
                                 width: '36px',
                                 height: '36px',
-                                background: '#3b82f6',
+                                background: theme.colors.progressBar.fill,
                                 color: 'white',
                                 border: 'none',
                                 borderRadius: '5px',
@@ -583,10 +584,10 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                                 transition: 'background 0.2s'
                             }}
                             onMouseEnter={(e) => {
-                                e.currentTarget.style.background = '#2563eb';
+                                e.currentTarget.style.background = theme.colors.primaryHover;
                             }}
                             onMouseLeave={(e) => {
-                                e.currentTarget.style.background = '#3b82f6';
+                                e.currentTarget.style.background = theme.colors.progressBar.fill;
                             }}
                             title="Recent Media"
                         >
@@ -746,7 +747,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                         left: 0,
                         right: 0,
                         height: '6px',
-                        backgroundColor: '#E5E7EB',
+                        backgroundColor: theme.colors.progressBar.bg,
                         overflow: 'hidden'
                     }}>
                         <div style={{
@@ -755,7 +756,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                             top: 0,
                             height: '100%',
                             width: `${Math.min(displayProgress, 100)}%`,
-                            backgroundColor: '#3b82f6',
+                            backgroundColor: theme.colors.progressBar.fill,
                             transition: 'width 2s ease-in-out'
                         }} />
                     </div>
@@ -770,7 +771,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                     paddingTop: '0.5rem',
                     paddingBottom: '0.5rem',
                     fontSize: '12px',
-                    color: '#9ca3af',
+                    color: theme.colors.text.light,
                     textAlign: 'center',
                     fontWeight: '500'
                 }}>

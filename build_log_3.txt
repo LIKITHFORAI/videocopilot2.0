@@ -1,0 +1,36 @@
+
+> video-copilot@0.1.0 build
+> next build
+
+ΓÜá Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\herei\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\herei\.gemini\antigravity\scratch\video_copilot_fresh\package-lock.json
+
+Γû▓ Next.js 16.1.4 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 3.6s
+  Running TypeScript ...
+Failed to compile.
+
+.next/dev/types/validator.ts:117:31
+Type error: Type 'typeof import("C:/Users/herei/.gemini/antigravity/scratch/video_copilot_fresh/src/app/api/ocr/[mediaId]/route")' does not satisfy the constraint 'RouteHandlerConfig<"/api/ocr/[mediaId]">'.
+  Types of property 'GET' are incompatible.
+    Type '(req: NextRequest, { params }: { params: { mediaId: string; }; }) => Promise<NextResponse<any>>' is not assignable to type '(request: NextRequest, context: { params: Promise<{ mediaId: string; }>; }) => void | Response | Promise<void | Response>'.
+      Types of parameters '__1' and 'context' are incompatible.
+        Type '{ params: Promise<{ mediaId: string; }>; }' is not assignable to type '{ params: { mediaId: string; }; }'.
+          Types of property 'params' are incompatible.
+            Property 'mediaId' is missing in type 'Promise<{ mediaId: string; }>' but required in type '{ mediaId: string; }'.
+
+  115 |   type __IsExpected<Specific extends RouteHandlerConfig<"/api/ocr/[mediaId]">> = Specific
+  116 |   const handler = {} as typeof import("../../../src/app/api/ocr/[mediaId]/route.js")
+> 117 |   type __Check = __IsExpected<typeof handler>
+      |                               ^
+  118 |   // @ts-ignore
+  119 |   type __Unused = __Check
+  120 | }
+Next.js build worker exited with code: 1 and signal: null

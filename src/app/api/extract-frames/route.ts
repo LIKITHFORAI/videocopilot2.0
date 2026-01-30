@@ -22,58 +22,54 @@ export async function POST(req: NextRequest) {
         const framesDir = path.join(process.cwd(), 'data', 'uploads', mediaId, 'frames');
         await fs.mkdir(framesDir, { recursive: true });
 
-        // Extract frames
-        const frames: string[] = [];
-        let frameCount = 0;
+        // Helper to run ffmpeg
+        const extractVideoFrames = (): Promise<void> => {
+            return new Promise((resolve, reject) => {
+                ffmpeg(videoPath)
+                    .on('end', () => resolve())
+                    .on('error', (err) => reject(err))
+                    .screenshots({
+                        count: maxFrames,
+                        folder: framesDir,
+                        filename: 'frame-%03d.jpg',
+                        size: '640x360'
+                    });
+            });
+        };
 
-        return new Promise((resolve, reject) => {
-            ffmpeg(videoPath)
-                .on('end', async () => {
-                    // Read all extracted frames
-                    const frameFiles = await fs.readdir(framesDir);
-                    const sortedFrames = frameFiles
-                        .filter(f => f.endsWith('.jpg'))
-                        .sort()
-                        .slice(0, maxFrames);
+        // Run extraction
+        await extractVideoFrames();
 
-                    // Convert frames to base64
-                    const frameData = await Promise.all(
-                        sortedFrames.map(async (filename, index) => {
-                            const framePath = path.join(framesDir, filename);
-                            const buffer = await fs.readFile(framePath);
-                            const base64 = buffer.toString('base64');
-                            const timestamp = index * intervalSeconds;
+        // Read all extracted frames
+        const frameFiles = await fs.readdir(framesDir);
+        const sortedFrames = frameFiles
+            .filter(f => f.endsWith('.jpg'))
+            .sort()
+            .slice(0, maxFrames);
 
-                            return {
-                                filename,
-                                timestamp,
-                                timestampFormatted: formatTimestamp(timestamp),
-                                data: `data:image/jpeg;base64,${base64}`
-                            };
-                        })
-                    );
+        // Convert frames to base64
+        const frameData = await Promise.all(
+            sortedFrames.map(async (filename, index) => {
+                const framePath = path.join(framesDir, filename);
+                const buffer = await fs.readFile(framePath);
+                const base64 = buffer.toString('base64');
+                const timestamp = index * intervalSeconds;
 
-                    resolve(NextResponse.json({
-                        success: true,
-                        mediaId,
-                        frameCount: frameData.length,
-                        intervalSeconds,
-                        frames: frameData
-                    }));
-                })
-                .on('error', (err) => {
-                    console.error('FFmpeg error:', err);
-                    reject(NextResponse.json({
-                        error: 'Frame extraction failed',
-                        details: err.message
-                    }, { status: 500 }));
-                })
-                .screenshots({
-                    count: maxFrames,
-                    folder: framesDir,
-                    filename: 'frame-%03d.jpg',
-                    size: '640x360'
-                });
+                return {
+                    filename,
+                    timestamp,
+                    timestampFormatted: formatTimestamp(timestamp),
+                    data: `data:image/jpeg;base64,${base64}`
+                };
+            })
+        );
+
+        return NextResponse.json({
+            success: true,
+            mediaId,
+            frameCount: frameData.length,
+            intervalSeconds,
+            frames: frameData
         });
 
     } catch (error: any) {

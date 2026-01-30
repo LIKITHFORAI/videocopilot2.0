@@ -2,15 +2,37 @@
 
 import { useMsal } from "@azure/msal-react";
 import { loginRequest } from "@/lib/msalConfig";
+import { useState, useEffect } from 'react';
 
 export default function AuthGate() {
     const { instance } = useMsal();
+    const [bypassAuth, setBypassAuth] = useState(false);
+
+    // Load bypass state from localStorage on mount
+    useEffect(() => {
+        const saved = localStorage.getItem('devBypassAuth');
+        if (saved === 'true') {
+            setBypassAuth(true);
+            // Trigger a reload to bypass the auth gate
+            window.location.reload();
+        }
+    }, []);
 
     const handleLogin = async () => {
         try {
             await instance.loginPopup(loginRequest);
         } catch (error) {
             console.error('Login failed:', error);
+        }
+    };
+
+    const handleBypassToggle = () => {
+        const newValue = !bypassAuth;
+        setBypassAuth(newValue);
+        localStorage.setItem('devBypassAuth', String(newValue));
+        if (newValue) {
+            // Reload to bypass auth
+            window.location.reload();
         }
     };
 
@@ -31,42 +53,52 @@ export default function AuthGate() {
                 textAlign: 'center',
                 boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
             }}>
-                {/* Logo/Icon */}
+                {/* Logo/Brand Area - Centered and Larger */}
                 <div style={{
-                    width: '80px',
-                    height: '80px',
-                    background: 'var(--primary)',
-                    borderRadius: '16px',
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: 'white',
-                    fontSize: '2rem',
-                    fontWeight: 'bold',
-                    margin: '0 auto 1.5rem',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                    gap: '1.25rem',
+                    marginBottom: '2.5rem'
                 }}>
-                    VC
+                    {/* DrCloudEHR Logo - Larger */}
+                    <img
+                        src="/drcloud-logo.png"
+                        alt="DrCloudEHR"
+                        style={{
+                            height: '72px',
+                            width: 'auto'
+                        }}
+                    />
+
+                    {/* Brand Names - Stacked Vertically */}
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '0.25rem'
+                    }}>
+                        <span style={{
+                            fontSize: '1.8rem',
+                            fontWeight: '600',
+                            fontFamily: '"Noto Sans", sans-serif',
+                            color: '#1e293b',
+                            letterSpacing: '0.5px'
+                        }}>
+                            DrCloudEHR
+                        </span>
+                        <span style={{
+                            fontSize: '2.6rem',
+                            fontWeight: '600',
+                            fontFamily: '"Bebas Neue", sans-serif',
+                            color: '#667eea',
+                            lineHeight: '1'
+                        }}>
+                            FocusNotes
+                        </span>
+                    </div>
                 </div>
-
-                {/* Heading */}
-                <h1 style={{
-                    fontSize: '2rem',
-                    fontWeight: '700',
-                    color: '#1e293b',
-                    marginBottom: '0.5rem'
-                }}>
-                    Welcome to Video Copilot
-                </h1>
-
-                <p style={{
-                    fontSize: '1.1rem',
-                    color: '#64748b',
-                    marginBottom: '2rem',
-                    lineHeight: '1.6'
-                }}>
-                    Sign in with your Microsoft account to analyze videos, extract insights, and access your SharePoint files.
-                </p>
 
                 {/* Sign-in Button */}
                 <button
@@ -100,6 +132,36 @@ export default function AuthGate() {
                     </svg>
                     Sign in with Microsoft
                 </button>
+
+                {/* Dev Bypass Toggle */}
+                <div style={{
+                    marginBottom: '1.5rem',
+                    padding: '0.75rem',
+                    background: '#fff3cd',
+                    borderRadius: '8px',
+                    border: '1px solid #ffc107'
+                }}>
+                    <label style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        cursor: 'pointer',
+                        fontSize: '0.85rem',
+                        color: '#856404'
+                    }}>
+                        <input
+                            type="checkbox"
+                            checked={bypassAuth}
+                            onChange={handleBypassToggle}
+                            style={{
+                                width: '16px',
+                                height: '16px',
+                                cursor: 'pointer'
+                            }}
+                        />
+                        <span style={{ fontWeight: '600' }}>🔧 Dev Mode: Bypass authentication for testing</span>
+                    </label>
+                </div>
 
                 {/* Features List */}
                 <div style={{

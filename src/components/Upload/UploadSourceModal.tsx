@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import SharePointPicker from '../SharePoint/SharePointPicker';
+import { theme } from '@/lib/theme';
 
 interface UploadSourceModalProps {
     onClose: () => void;
@@ -55,10 +56,10 @@ export default function UploadSourceModal({ onClose, onLocalUpload, onFileSelect
             >
                 {/* Header */}
                 <div style={{ marginBottom: '1.5rem' }}>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b', margin: 0 }}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: theme.colors.text.primary, margin: 0 }}>
                         Choose Upload Source
                     </h2>
-                    <p style={{ fontSize: '0.9rem', color: '#64748b', marginTop: '0.5rem' }}>
+                    <p style={{ fontSize: '0.9rem', color: theme.colors.text.secondary, marginTop: '0.5rem' }}>
                         Select where you want to upload your video from
                     </p>
                 </div>
@@ -70,8 +71,8 @@ export default function UploadSourceModal({ onClose, onLocalUpload, onFileSelect
                         onClick={handleLocalClick}
                         style={{
                             padding: '1.5rem',
-                            background: '#f8fafc',
-                            border: '2px solid #e2e8f0',
+                            background: theme.colors.upload.modalBg,
+                            border: `2px solid ${theme.colors.border.default}`,
                             borderRadius: '8px',
                             cursor: 'pointer',
                             textAlign: 'left',
@@ -81,12 +82,12 @@ export default function UploadSourceModal({ onClose, onLocalUpload, onFileSelect
                             gap: '1rem'
                         }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = 'var(--primary)';
-                            e.currentTarget.style.background = '#f1f5f9';
+                            e.currentTarget.style.borderColor = theme.colors.primary;
+                            e.currentTarget.style.background = theme.colors.upload.hoverBg;
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = '#e2e8f0';
-                            e.currentTarget.style.background = '#f8fafc';
+                            e.currentTarget.style.borderColor = theme.colors.border.default;
+                            e.currentTarget.style.background = theme.colors.upload.modalBg;
                         }}
                     >
                         <div style={{
@@ -96,17 +97,17 @@ export default function UploadSourceModal({ onClose, onLocalUpload, onFileSelect
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            background: 'var(--primary)',
+                            background: theme.colors.primary,
                             borderRadius: '8px',
                             color: 'white'
                         }}>
                             💻
                         </div>
                         <div style={{ flex: 1 }}>
-                            <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1e293b', margin: 0 }}>
+                            <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: theme.colors.text.primary, margin: 0 }}>
                                 Upload from Computer
                             </h3>
-                            <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '0.25rem 0 0 0' }}>
+                            <p style={{ fontSize: '0.85rem', color: theme.colors.text.secondary, margin: '0.25rem 0 0 0' }}>
                                 Browse and select a video file from your local device
                             </p>
                         </div>
@@ -117,8 +118,8 @@ export default function UploadSourceModal({ onClose, onLocalUpload, onFileSelect
                         onClick={() => setShowSharePointPicker(true)}
                         style={{
                             padding: '1.5rem',
-                            background: '#f8fafc',
-                            border: '2px solid #e2e8f0',
+                            background: theme.colors.upload.modalBg,
+                            border: `2px solid ${theme.colors.border.default}`,
                             borderRadius: '8px',
                             cursor: 'pointer',
                             textAlign: 'left',
@@ -128,12 +129,12 @@ export default function UploadSourceModal({ onClose, onLocalUpload, onFileSelect
                             gap: '1rem'
                         }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = '#107C10';
-                            e.currentTarget.style.background = '#f1f5f9';
+                            e.currentTarget.style.borderColor = theme.colors.status.success;
+                            e.currentTarget.style.background = theme.colors.upload.hoverBg;
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = '#e2e8f0';
-                            e.currentTarget.style.background = '#f8fafc';
+                            e.currentTarget.style.borderColor = theme.colors.border.default;
+                            e.currentTarget.style.background = theme.colors.upload.modalBg;
                         }}
                     >
                         <div style={{
@@ -143,17 +144,17 @@ export default function UploadSourceModal({ onClose, onLocalUpload, onFileSelect
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            background: '#107C10',
+                            background: theme.colors.status.success,
                             borderRadius: '8px',
                             color: 'white'
                         }}>
                             ☁️
                         </div>
                         <div style={{ flex: 1 }}>
-                            <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1e293b', margin: 0 }}>
+                            <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: theme.colors.text.primary, margin: 0 }}>
                                 Import from SharePoint
                             </h3>
-                            <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '0.25rem 0 0 0' }}>
+                            <p style={{ fontSize: '0.85rem', color: theme.colors.text.secondary, margin: '0.25rem 0 0 0' }}>
                                 Access videos from your OneDrive or SharePoint sites
                             </p>
                         </div>
@@ -168,15 +169,15 @@ export default function UploadSourceModal({ onClose, onLocalUpload, onFileSelect
                         width: '100%',
                         padding: '0.75rem',
                         background: 'transparent',
-                        border: '1px solid #e2e8f0',
+                        border: `1px solid ${theme.colors.border.default}`,
                         borderRadius: '6px',
                         cursor: 'pointer',
                         fontSize: '0.9rem',
                         fontWeight: '600',
-                        color: '#64748b',
+                        color: theme.colors.text.secondary,
                         transition: 'all 0.2s'
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
+                    onMouseEnter={(e) => e.currentTarget.style.background = theme.colors.upload.modalBg}
                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                 >
                     Cancel

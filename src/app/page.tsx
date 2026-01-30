@@ -21,8 +21,9 @@ export default function Home() {
 
   // Gate entire app behind authentication (unless bypass is enabled)
   const isAuthBypassed = process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true';
+  const isDevBypassed = typeof window !== 'undefined' && localStorage.getItem('devBypassAuth') === 'true';
 
-  if (!isAuthBypassed && accounts.length === 0) {
+  if (!isAuthBypassed && !isDevBypassed && accounts.length === 0) {
     return <AuthGate />;
   }
 

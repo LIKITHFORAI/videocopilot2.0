@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { theme } from '@/lib/theme';
 
 interface MinimalProgressBarProps {
     currentStatus?: string;
@@ -47,7 +48,7 @@ export default function MinimalProgressBar({ currentStatus = '', progress = 0 }:
             <div style={{
                 width: '100%',
                 height: '2px',
-                backgroundColor: '#E5E7EB',
+                backgroundColor: theme.colors.progressBar.bg,
                 position: 'relative',
                 overflow: 'hidden'
             }}>
@@ -58,7 +59,7 @@ export default function MinimalProgressBar({ currentStatus = '', progress = 0 }:
                     top: 0,
                     height: '100%',
                     width: `${Math.min(progress, 100)}%`,
-                    backgroundColor: '#3b82f6',
+                    backgroundColor: theme.colors.progressBar.fill,
                     transition: 'width 2s ease-in-out'
                 }} />
             </div>
@@ -70,7 +71,7 @@ export default function MinimalProgressBar({ currentStatus = '', progress = 0 }:
                 paddingTop: '0.5rem',
                 paddingBottom: '0.5rem',
                 fontSize: '12px',
-                color: '#9ca3af',
+                color: theme.colors.text.light,
                 textAlign: 'center',
                 fontWeight: '500'
             }}>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
+import { getCategoryColor, theme } from '@/lib/theme';
 
 interface ActionItemsPanelProps {
     mediaId: string | null;
@@ -19,28 +20,6 @@ interface ActionItem {
     notes?: string;
     timestamp: number;
 }
-
-const categoryColors: Record<string, string> = {
-    'Decisions & Approvals': '#FDE68A', // Yellow/Gold
-    'Follow-ups & Coordination': '#A7F3D0', // Green
-    'Implementation / Execution': '#FED7AA', // Orange
-    'Reviews & Validation': '#BFDBFE', // Blue
-    'Client Portal': '#DDD6FE', // Purple
-    'Reports': '#FBCFE8', // Pink
-    'Requirements': '#FECACA', // Red
-    'Appointment Types': '#A7F3D0',
-    'Service Codes': '#FDE68A',
-    'Payers': '#DDD6FE',
-    'Users & Roles': '#BFDBFE',
-    'DrFirst/EPCS': '#FED7AA',
-    'Interface': '#FBCFE8',
-    'Data Migration': '#FECACA',
-    'Dependencies & Blockers': '#FECACA', // Added specific entry
-};
-
-const getCategoryColor = (category: string): string => {
-    return categoryColors[category] || '#F3F4F6';
-};
 
 export default function ActionItemsPanel({ mediaId, jobId, jobStatus, onSeek }: ActionItemsPanelProps) {
     const [actionItems, setActionItems] = useState<ActionItem[]>([]);
@@ -252,9 +231,9 @@ This email was generated from Video Copilot. Please review and add any additiona
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     padding: '1.5rem',
-                    borderBottom: '1px solid var(--border)'
+                    borderBottom: `1px solid ${theme.colors.border.default}`
                 }}>
-                    <h2 style={{ fontSize: '1.3rem', fontWeight: '700', margin: 0 }}>
+                    <h2 style={{ fontSize: '1.3rem', fontWeight: '700', margin: 0, color: theme.colors.text.primary }}>
                         Action Items
                     </h2>
 
@@ -264,7 +243,7 @@ This email was generated from Video Copilot. Please review and add any additiona
                             onClick={handleExportToExcel}
                             title="Export to Excel"
                             style={{
-                                background: '#10b981',
+                                background: theme.colors.status.success,
                                 color: 'white',
                                 border: 'none',
                                 borderRadius: '6px',
@@ -277,8 +256,8 @@ This email was generated from Video Copilot. Please review and add any additiona
                                 fontWeight: '600',
                                 transition: 'background 0.2s'
                             }}
-                            onMouseEnter={(e) => e.currentTarget.style.background = '#059669'}
-                            onMouseLeave={(e) => e.currentTarget.style.background = '#10b981'}
+                            onMouseEnter={(e) => e.currentTarget.style.background = '#059669'} // Keep darker shade for hover or add to theme
+                            onMouseLeave={(e) => e.currentTarget.style.background = theme.colors.status.success}
                         >
                             {/* Excel Icon */}
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -295,7 +274,7 @@ This email was generated from Video Copilot. Please review and add any additiona
 
                 <div className="action-items-content" style={{ flex: 1, padding: '1.5rem', overflowY: 'auto' }}>
                     {!mediaId && (
-                        <div style={{ textAlign: 'center', opacity: 0.6, marginTop: '3rem' }}>
+                        <div style={{ textAlign: 'center', opacity: 0.6, marginTop: '3rem', color: theme.colors.text.secondary }}>
                             <p>Upload a video to extract action items.</p>
                         </div>
                     )}
@@ -309,13 +288,13 @@ This email was generated from Video Copilot. Please review and add any additiona
                     )}
 
                     {mediaId && error && actionItems.length === 0 && (
-                        <div style={{ textAlign: 'center', color: '#dc3545', marginTop: '3rem' }}>
+                        <div style={{ textAlign: 'center', color: theme.colors.status.error, marginTop: '3rem' }}>
                             <p>{error}</p>
                         </div>
                     )}
 
                     {mediaId && !loading && !error && actionItems.length === 0 && (
-                        <div style={{ textAlign: 'center', opacity: 0.6, marginTop: '3rem' }}>
+                        <div style={{ textAlign: 'center', opacity: 0.6, marginTop: '3rem', color: theme.colors.text.secondary }}>
                             <p>No action items detected in this video.</p>
                             <p style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>
                                 Action items will appear here automatically.
@@ -332,7 +311,7 @@ This email was generated from Video Copilot. Please review and add any additiona
                                     style={{
                                         padding: '1rem',
                                         background: 'white',
-                                        border: '1px solid #e2e8f0',
+                                        border: `1px solid ${theme.colors.border.default}`,
                                         borderRadius: '12px',
                                         boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
                                         transition: 'all 0.2s',
@@ -354,7 +333,7 @@ This email was generated from Video Copilot. Please review and add any additiona
                                         fontSize: '0.75rem',
                                         fontWeight: '600',
                                         marginBottom: '0.75rem',
-                                        color: '#1f2937'
+                                        color: theme.colors.text.primary
                                     }}>
                                         {item.category}
                                     </div>
@@ -365,7 +344,7 @@ This email was generated from Video Copilot. Please review and add any additiona
                                         margin: '0 0 0.75rem 0',
                                         fontWeight: '500',
                                         lineHeight: '1.5',
-                                        color: '#1f2937'
+                                        color: theme.colors.text.primary
                                     }}>
                                         {/* Remove category prefix from text if it exists (e.g., "Reports - Ensure..." -> "Ensure...") */}
                                         {item.action_item.replace(new RegExp(`^${item.category}\\s*-\\s*`, 'i'), '')}
@@ -377,7 +356,7 @@ This email was generated from Video Copilot. Please review and add any additiona
                                         alignItems: 'center',
                                         gap: '0.5rem',
                                         fontSize: '0.85rem',
-                                        color: '#6b7280',
+                                        color: theme.colors.text.secondary,
                                         marginBottom: '0.5rem'
                                     }}>
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -394,9 +373,9 @@ This email was generated from Video Copilot. Please review and add any additiona
                                         justifyContent: 'space-between',
                                         marginTop: '0.75rem',
                                         paddingTop: '0.75rem',
-                                        borderTop: '1px solid #f3f4f6'
+                                        borderTop: `1px solid ${theme.colors.border.light}`
                                     }}>
-                                        <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>
+                                        <span style={{ fontSize: '0.85rem', color: theme.colors.text.secondary }}>
                                             {formatDate(item.due_date)}
                                         </span>
 
@@ -409,8 +388,8 @@ This email was generated from Video Copilot. Please review and add any additiona
                                             style={{
                                                 padding: '0.3rem 0.8rem',
                                                 background: 'white',
-                                                color: '#3b82f6',
-                                                border: '1px solid #3b82f6',
+                                                color: theme.colors.primary,
+                                                border: `1px solid ${theme.colors.primary}`,
                                                 borderRadius: '6px',
                                                 fontSize: '0.8rem',
                                                 fontWeight: '600',
@@ -421,12 +400,12 @@ This email was generated from Video Copilot. Please review and add any additiona
                                                 transition: 'all 0.2s'
                                             }}
                                             onMouseEnter={(e) => {
-                                                e.currentTarget.style.background = '#3b82f6';
+                                                e.currentTarget.style.background = theme.colors.primary;
                                                 e.currentTarget.style.color = 'white';
                                             }}
                                             onMouseLeave={(e) => {
                                                 e.currentTarget.style.background = 'white';
-                                                e.currentTarget.style.color = '#3b82f6';
+                                                e.currentTarget.style.color = theme.colors.primary;
                                             }}
                                         >
                                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -441,10 +420,10 @@ This email was generated from Video Copilot. Please review and add any additiona
                                         <div style={{
                                             marginTop: '0.75rem',
                                             padding: '0.5rem',
-                                            background: '#f9fafb',
+                                            background: '#f9fafb', // Keep or replace with a theme subtle bg if available
                                             borderRadius: '6px',
                                             fontSize: '0.8rem',
-                                            color: '#6b7280',
+                                            color: theme.colors.text.secondary,
                                             fontStyle: 'italic'
                                         }}>
                                             Note: {item.notes}
