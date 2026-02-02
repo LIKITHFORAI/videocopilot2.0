@@ -8,8 +8,10 @@ import { randomUUID } from 'crypto';
 // Configure route for large file uploads
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-// Increase body size limit (50MB)
-export const maxDuration = 60; // 60 seconds max execution time
+// Increase timeout to 5 minutes for large video uploads
+export const maxDuration = 300; // 300 seconds = 5 minutes
+// Disable body parser - we handle streaming ourselves
+export const bodyParser = false;
 
 export async function POST(req: NextRequest) {
     try {
