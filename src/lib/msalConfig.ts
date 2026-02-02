@@ -10,7 +10,7 @@ export const msalConfig: Configuration = {
             : 'http://localhost:3000/auth-redirect.html',
     },
     cache: {
-        cacheLocation: "localStorage",
+        cacheLocation: "sessionStorage",
     }
 };
 
