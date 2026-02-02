@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { getApiPath } from '@/lib/apiPath';
 
 interface IntelligencePanelProps {
     mediaId: string | null;
@@ -15,6 +16,7 @@ interface Message {
     role: 'user' | 'assistant';
     content: string;
     citations?: { start: number; end: number; label: string }[];
+    followUps?: string[];
 }
 
 interface KeyPoint {
@@ -56,7 +58,7 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
 
         const checkStatus = async () => {
             try {
-                const res = await fetch(`/api/job/${jobId}`);
+                const res = await fetch(getApiPath(`/api/job/${jobId}`));
                 if (res.ok) {
                     const data = await res.json();
                     setJobStatus(data.status);
@@ -88,7 +90,7 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
 
     const fetchTranscript = async (mid: string) => {
         try {
-            const res = await fetch(`/api/transcript/${mid}`);
+            const res = await fetch(getApiPath(`/api/transcript/${mid}`));
             if (res.ok) {
                 const data = await res.json();
                 setTranscriptData(data);
@@ -114,7 +116,7 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
         setIsChatting(true);
 
         try {
-            const res = await fetch('/api/chat', {
+            const res = await fetch(getApiPath('/api/chat'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -126,7 +128,12 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
 
             if (res.ok) {
                 const data = await res.json();
-                setMessages(prev => [...prev, { role: 'assistant', content: data.answer, citations: data.citations }]);
+                setMessages(prev => [...prev, {
+                    role: 'assistant',
+                    content: data.answer,
+                    citations: data.citations,
+                    followUps: data.followUps
+                }]);
             } else {
                 setMessages(prev => [...prev, { role: 'assistant', content: "Sorry, I had trouble processing that request." }]);
             }
@@ -323,6 +330,45 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
                                                 </div>
                                             ) : (
                                                 <p>{m.content}</p>
+                                            )}
+                                            {/* Render Follow-up Questions */}
+                                            {m.role === 'assistant' && m.followUps && m.followUps.length > 0 && (
+                                                <div style={{
+                                                    marginTop: '1rem',
+                                                    display: 'flex',
+                                                    flexWrap: 'wrap',
+                                                    gap: '0.5rem'
+                                                }}>
+                                                    {m.followUps.map((q, idx) => (
+                                                        <button
+                                                            key={idx}
+                                                            onClick={() => handleSendMessage(q)}
+                                                            style={{
+                                                                background: '#f8fafc',
+                                                                border: '1px solid #e2e8f0',
+                                                                borderRadius: '20px',
+                                                                padding: '0.5rem 1rem',
+                                                                fontSize: '0.85rem',
+                                                                color: '#475569',
+                                                                cursor: 'pointer',
+                                                                transition: 'all 0.2s',
+                                                                textAlign: 'left'
+                                                            }}
+                                                            onMouseEnter={(e) => {
+                                                                e.currentTarget.style.background = '#f1f5f9';
+                                                                e.currentTarget.style.borderColor = '#cbd5e1';
+                                                                e.currentTarget.style.color = '#1e293b';
+                                                            }}
+                                                            onMouseLeave={(e) => {
+                                                                e.currentTarget.style.background = '#f8fafc';
+                                                                e.currentTarget.style.borderColor = '#e2e8f0';
+                                                                e.currentTarget.style.color = '#475569';
+                                                            }}
+                                                        >
+                                                            {q}
+                                                        </button>
+                                                    ))}
+                                                </div>
                                             )}
                                         </div>
                                     </div>

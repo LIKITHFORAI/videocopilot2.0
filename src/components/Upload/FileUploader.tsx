@@ -5,6 +5,7 @@ import MinimalProgressBar from './MinimalProgressBar';
 import { useDragDrop } from '@/hooks/useDragDrop';
 import AuthButton from '@/components/Auth/AuthButton';
 import { theme } from '@/lib/theme';
+import { getApiPath } from '@/lib/apiPath';
 
 import { useMsal } from '@azure/msal-react';
 
@@ -136,7 +137,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
             const jId = activeJobId;
             if (jId) {
                 try {
-                    await fetch(`/api/job/${jId}`, { method: 'DELETE' });
+                    await fetch(getApiPath(`/api/job/${jId}`), { method: 'DELETE' });
 
                     // Remove from History using the jobId
                     const newHistory = history.filter(h => h.jobId !== jId);
@@ -158,7 +159,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
 
     const startProcessing = async (mediaId: string, fileName: string) => {
         try {
-            const res = await fetch('/api/process', {
+            const res = await fetch(getApiPath('/api/process'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ mediaId }),
@@ -213,7 +214,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
         try {
             const xhr = new XMLHttpRequest();
             xhrRef.current = xhr;
-            xhr.open('POST', '/api/upload', true);
+            xhr.open('POST', getApiPath('/api/upload'), true);
             xhr.setRequestHeader('X-Original-Filename', file.name);
 
             xhr.upload.onprogress = (event) => {
@@ -388,7 +389,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
 
 
     return (
-        <div style={{ position: 'sticky', top: 0, zIndex: 100 }}>
+        <div style={{ position: 'relative', zIndex: 10 }}>
             <div className="header" style={{
                 background: theme.colors.upload.uploadBox,
                 color: 'white',
@@ -404,6 +405,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                 {/* Logo / Title Area */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: '250px' }}>
                     {/* DrCloudEHR Logo */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src="/drcloud-logo.png"
                         alt="DrCloudEHR"
@@ -428,7 +430,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                             fontWeight: '600',
                             fontFamily: '"Bebas Neue", sans-serif',
                             color: '#a0b1ffe8',
-                            fontStyle: 'Bold'
+                            fontStyle: 'normal'
                         }}>
                             FocusNotes
                         </span>
