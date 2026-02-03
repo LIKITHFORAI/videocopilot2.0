@@ -434,6 +434,35 @@ curl -I http://localhost:3000/demo-tool
 
 ---
 
+## 📦 Dataset Deployment (Data Transfer)
+
+**Instructions for Deployer:**
+
+You will receive a **`data.zip`** file containing the pre-populated videos and database. This allows the app to start with 17+ videos already indexed and playable.
+
+### 1. Where to Unzip
+Extract the `data.zip` file directly into the **root** of the application folder.
+
+- **Linux:** `/var/www/video-copilot/`
+- **Windows:** `C:\path\to\video-copilot\`
+
+### 2. Verify Structure
+After unzipping, ensure the `data` folder contains:
+
+```
+video-copilot/
+├── data/
+│   ├── transcripts.db      (The Search Database)
+│   ├── uploads/            (Folder containing MP4 files - REQUIRED for playback)
+│   └── transcripts/        (JSON backups)
+```
+
+**⚠️ CRITICAL:**
+- If you only have `.db` but no `uploads/`, **videos will not play**.
+- Ensure permissions allow the app to read/write to this folder (`chown -R $USER:$USER data/` on Linux).
+
+---
+
 ## 🗄️ Vector Database Update (PENDING)
 
 **⚠️ IMPORTANT INSTRUCTION FOR DEPLOYER:**
