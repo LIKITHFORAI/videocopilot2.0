@@ -456,7 +456,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                     {/* DrCloudEHR Logo */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                        src="/drcloud-logo.png"
+                        src={getApiPath('/drcloud-logo.png')}
                         alt="DrCloudEHR"
                         style={{
                             height: '32px',

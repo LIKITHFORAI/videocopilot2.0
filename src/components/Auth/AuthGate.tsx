@@ -3,6 +3,7 @@
 import { useMsal } from "@azure/msal-react";
 import { loginRequest } from "@/lib/msalConfig";
 import { useState, useEffect } from 'react';
+import { getApiPath } from '@/lib/apiPath';
 
 export default function AuthGate() {
     const { instance } = useMsal();
@@ -64,7 +65,7 @@ export default function AuthGate() {
                 }}>
                     {/* DrCloudEHR Logo - Larger */}
                     <img
-                        src="/drcloud-logo.png"
+                        src={getApiPath('/drcloud-logo.png')}
                         alt="DrCloudEHR"
                         style={{
                             height: '72px',
