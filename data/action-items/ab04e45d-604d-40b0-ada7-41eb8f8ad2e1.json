@@ -1,74 +1,74 @@
 [
   {
-    "id": "action-1770141901995-0",
-    "category": "Requirements",
-    "action_item": "Requirements - Walk through the NextGen system for dental data entry.",
+    "id": "action-1770151659346-0",
+    "category": "Topics",
+    "action_item": "Topics - Walk through the NextGen system for dental data entry.",
     "responsible_party": "Paola",
     "due_date": "N/A",
-    "notes": "Focus on how to input demographic information and address pain points related to dental work.",
+    "notes": "Focus on where to input patient information and address pain points related to dental work.",
     "timestamp": 38
   },
   {
-    "id": "action-1770141901995-1",
+    "id": "action-1770151659346-1",
     "category": "Requirements",
     "action_item": "Requirements - Address the wait list functionality in NextGen.",
-    "responsible_party": "Paola",
+    "responsible_party": "DoctorCloud Technical Team",
     "due_date": "N/A",
-    "notes": "Discuss how wait list patients are handled and if they should be considered in NextGen.",
-    "timestamp": 150
+    "notes": "Determine if wait list patients should be considered as patients in NextGen.",
+    "timestamp": 199
   },
   {
-    "id": "action-1770141901995-2",
+    "id": "action-1770151659346-2",
     "category": "Requirements",
     "action_item": "Requirements - Show where to input family size and income information in NextGen.",
     "responsible_party": "Paola",
     "due_date": "N/A",
     "notes": "Demonstrate the sliding fee schedule verification process.",
-    "timestamp": 561
+    "timestamp": 550
   },
   {
-    "id": "action-1770141901995-3",
-    "category": "Requirements",
-    "action_item": "Requirements - Confirm the integration of Medicaid information in NextGen.",
-    "responsible_party": "Paola",
-    "due_date": "N/A",
-    "notes": "Ensure that Medicaid data entry is clearly demonstrated.",
-    "timestamp": 982
-  },
-  {
-    "id": "action-1770141901995-4",
-    "category": "Reports",
-    "action_item": "Reports - Explore the possibility of tracking referrals and services in Dr. Cloud.",
+    "id": "action-1770151659346-3",
+    "category": "Interface",
+    "action_item": "Interface - Explore the integration of document management with external systems.",
     "responsible_party": "DoctorCloud Technical Team",
     "due_date": "N/A",
-    "notes": "Discuss how to integrate tracking for services provided by external partners.",
-    "timestamp": 1223
-  },
-  {
-    "id": "action-1770141901995-5",
-    "category": "Client Portal",
-    "action_item": "Client Portal - Investigate the capability of sending appointment alerts to patients on the wait list.",
-    "responsible_party": "DoctorCloud Technical Team",
-    "due_date": "N/A",
-    "notes": "Determine if there is a way to notify patients of available appointments.",
-    "timestamp": 1462
-  },
-  {
-    "id": "action-1770141901995-6",
-    "category": "Requirements",
-    "action_item": "Requirements - Review the document management capabilities of NextGen.",
-    "responsible_party": "DoctorCloud Technical Team",
-    "due_date": "N/A",
-    "notes": "Assess how documents can be shared outside of NextGen and if improvements are needed.",
+    "notes": "Investigate how to share documents from NextGen without manual copying.",
     "timestamp": 2115
   },
   {
-    "id": "action-1770141901995-7",
-    "category": "Requirements",
-    "action_item": "Requirements - Check if patient surveys can be integrated into the patient portal.",
+    "id": "action-1770151659346-4",
+    "category": "Key Question",
+    "action_item": "Key Question - Determine if DrCloud can track referrals and services provided by external partners.",
     "responsible_party": "DoctorCloud Technical Team",
     "due_date": "N/A",
-    "notes": "Explore options for collecting patient feedback through the portal.",
-    "timestamp": 1893
+    "notes": "Assess the current capabilities and potential solutions for tracking referrals.",
+    "timestamp": 1206
+  },
+  {
+    "id": "action-1770151659346-5",
+    "category": "Reports",
+    "action_item": "Reports - Investigate the capability to send alerts to patients on the wait list for available appointments.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Explore how to implement a notification system for patients regarding appointment availability.",
+    "timestamp": 1462
+  },
+  {
+    "id": "action-1770151659346-6",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Review the sliding fee scale modifications in NextGen.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Clarify if modifications were made to the sliding fee scale feature in NextGen.",
+    "timestamp": 776
+  },
+  {
+    "id": "action-1770151659346-7",
+    "category": "Service Codes",
+    "action_item": "Service Codes - Look into the patient survey capabilities within DrCloud.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Determine if the current package includes functionality for patient surveys.",
+    "timestamp": 1889
   }
 ]

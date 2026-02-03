@@ -1,0 +1,47 @@
+=== DATABASE VERIFICATION ===
+
+Total Videos in Database: 5
+
+VIDEO 1:
+  Title: MCH Home Visiting Workflow Recap
+  ID: 605f353d-d6b5-40ac-959b-d17eb74b7d20
+  Upload Date: 1770146302
+  Transcript: Γ£à EXISTS (1035 segments, 75m 3s)
+  Action Items: Γ£à 7 items
+  Search Chunks: 96 chunks indexed
+
+VIDEO 2:
+  Title: Phase II Immunization Workflow Recap
+  ID: 4cbeb83e-3859-4742-bc64-12c387925f00
+  Upload Date: 1770145699
+  Transcript: Γ£à EXISTS (1211 segments, 78m 8s)
+  Action Items: Γ£à 6 items
+  Search Chunks: 99 chunks indexed
+
+VIDEO 3:
+  Title: Phase II School Based Health Recap
+  ID: d84d6ab7-a38b-445b-a6f9-4adbb1ffc78b
+  Upload Date: 1770144925
+  Transcript: Γ£à EXISTS (555 segments, 63m 38s)
+  Action Items: Γ£à 6 items
+  Search Chunks: 83 chunks indexed
+
+VIDEO 4:
+  Title: Phase II Behavioral Health Outpatient Child Recap
+  ID: 790c17b9-4779-49e5-9081-6f0d90aa99d5
+  Upload Date: 1770142544
+  Transcript: Γ£à EXISTS (1265 segments, 239m 52s)
+  Action Items: ΓÜá∩╕Å EMPTY
+  Search Chunks: 424 chunks indexed
+
+VIDEO 5:
+  Title: Phase II Dental Public Health Recap
+  ID: ab04e45d-604d-40b0-ada7-41eb8f8ad2e1
+  Upload Date: 1770141902
+  Transcript: Γ£à EXISTS (621 segments, 70m 34s)
+  Action Items: Γ£à 8 items
+  Search Chunks: 95 chunks indexed
+
+=== SUMMARY ===
+Total Videos: 5
+Database File: C:\Users\herei\.gemini\antigravity\scratch\video_copilot_fresh\data\transcripts.db

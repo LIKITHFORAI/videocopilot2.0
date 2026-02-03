@@ -52,6 +52,9 @@ export const theme = {
             'Interface': '#FBCFE8',
             'Data Migration': '#FECACA',
             'Dependencies & Blockers': '#FECACA',
+            'Topics': '#C7D2FE', // Indigo-200
+            'Key Question': '#FEF08A', // Yellow-200  
+            'Reaction': '#FCBFBD', // Rose-200
             // Fallback color
             default: '#F3F4F6',
         }

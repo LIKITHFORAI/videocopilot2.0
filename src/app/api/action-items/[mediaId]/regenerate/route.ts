@@ -7,17 +7,17 @@ const DATA_DIR = path.join(process.cwd(), 'data');
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ mediaId: string }> }
 ) {
-    const { id: videoId } = params;
+    const { mediaId } = await params;
 
-    if (!videoId) {
-        return new Response('Video ID required', { status: 400 });
+    if (!mediaId) {
+        return new Response('Media ID required', { status: 400 });
     }
 
     try {
         // Read transcript
-        const transcriptPath = path.join(DATA_DIR, 'transcripts', `${videoId}.json`);
+        const transcriptPath = path.join(DATA_DIR, 'transcripts', `${mediaId}.json`);
         if (!fs.existsSync(transcriptPath)) {
             return new Response('Transcript not found', { status: 404 });
         }
@@ -25,7 +25,7 @@ export async function POST(
         const transcriptData = JSON.parse(fs.readFileSync(transcriptPath, 'utf-8'));
 
         // Regenerate action items
-        console.log(`Regenerating action items for video ${videoId}...`);
+        console.log(`Regenerating action items for video ${mediaId}...`);
         const actionItems = await extractActionItems(transcriptData.segments, transcriptData.title);
 
         // Save to action-items folder
@@ -34,10 +34,10 @@ export async function POST(
             fs.mkdirSync(actionItemsDir, { recursive: true });
         }
 
-        const actionItemsPath = path.join(actionItemsDir, `${videoId}.json`);
+        const actionItemsPath = path.join(actionItemsDir, `${mediaId}.json`);
         fs.writeFileSync(actionItemsPath, JSON.stringify(actionItems, null, 2));
 
-        console.log(`✅ Regenerated ${actionItems.length} action items for video ${videoId}`);
+        console.log(`✅ Regenerated ${actionItems.length} action items for video ${mediaId}`);
 
         return Response.json(actionItems);
     } catch (error) {

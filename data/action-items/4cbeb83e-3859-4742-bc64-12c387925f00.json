@@ -1,1 +1,56 @@
-[]
+[
+  {
+    "id": "action-1770151425285-0",
+    "category": "Workflow",
+    "action_item": "Workflow - Share screen to walk through the intake process in NextGen",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Focus on where information is entered and any discrepancies in field usage.",
+    "timestamp": 205
+  },
+  {
+    "id": "action-1770151425285-1",
+    "category": "Requirements",
+    "action_item": "Requirements - Confirm eligibility criteria for vaccine services",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Eligibility includes being uninsured, underinsured, or a Medicaid recipient.",
+    "timestamp": 469
+  },
+  {
+    "id": "action-1770151425285-2",
+    "category": "Data Migration",
+    "action_item": "Data Migration - Ensure documentation of eligibility is transferred to NextGen",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Eligibility verification is currently done on paper and later entered into NextGen.",
+    "timestamp": 491
+  },
+  {
+    "id": "action-1770151425285-3",
+    "category": "Reports",
+    "action_item": "Reports - Set up reporting requirements for state VFC program reviews",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Reports include documentation of patient eligibility and billing details.",
+    "timestamp": 2210
+  },
+  {
+    "id": "action-1770151425285-4",
+    "category": "Interface",
+    "action_item": "Interface - Query Immunet records for vaccination history",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Ensure the feature to compare NextGen data with Immunet is functioning.",
+    "timestamp": 2340
+  },
+  {
+    "id": "action-1770151425285-5",
+    "category": "Reports",
+    "action_item": "Reports - Open a ticket for NextGen updates regarding vaccine schedules",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Address discrepancies in vaccine administration schedules.",
+    "timestamp": 1350
+  }
+]

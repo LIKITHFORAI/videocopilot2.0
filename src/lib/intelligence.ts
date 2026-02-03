@@ -33,12 +33,12 @@ export async function generateSummary(segments: any[], filename?: string) {
         };
     }
 
-    // Limit context to prevent token overflow, but prioritize evenly distributed segments or just header
-    // For now, just taking the first 30k chars of formatted text
+    // Limit context to prevent token overflow
+    // Azure GPT-4 supports 128K tokens (~96K chars), using 100K to be safe
     const context = segments
         .map(s => `[${Math.floor(s.start)}s] ${s.text}`)
         .join('\n')
-        .substring(0, 30000);
+        .substring(0, 100000);
 
     try {
         const response = await openai.chat.completions.create({
@@ -232,10 +232,11 @@ export async function extractActionItems(segments: any[], meetingDate?: string) 
     }
 
     // Prepare context with timestamps
+    // Azure GPT-4 supports 128K tokens (~96K chars), using 100K to be safe
     const context = segments
         .map(s => `[${Math.floor(s.start)}s] ${s.text}`)
         .join('\n')
-        .substring(0, 30000);
+        .substring(0, 100000);
 
     try {
         const response = await openai.chat.completions.create({
@@ -259,6 +260,9 @@ If the task falls under these themes, you MUST use these exact prefixes:
 - DrFirst/EPCS -
 - Interface -
 - Data Migration -
+- Topics - (Use for main discussion topics or agenda items mentioned in the meeting)
+- Key Question - (Use for important questions raised that need answers or decisions)
+- Reaction - (Use for significant feedback, concerns, or responses from stakeholders)
 
 AI Categorization Rule:
 

@@ -264,7 +264,7 @@ This email was generated from Video Copilot. Please review and add any additiona
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <h2 style={{ fontSize: '1.3rem', fontWeight: '700', margin: 0, color: theme.colors.text.primary }}>
-                            Action Items
+                            Action Items {actionItems.length > 0 && `(${actionItems.length})`}
                         </h2>
                         {mediaId && (
                             <button
