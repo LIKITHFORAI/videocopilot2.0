@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { getCategoryColor, theme } from '@/lib/theme';
+import { getApiPath } from '@/lib/apiPath';
 
 interface ActionItemsPanelProps {
     mediaId: string | null;
@@ -53,7 +54,7 @@ export default function ActionItemsPanel({ mediaId, jobId, jobStatus, onSeek }: 
             setLoading(true);
             try {
                 // Fetch action items
-                const res = await fetch(`/api/action-items/${mediaId}`);
+                const res = await fetch(getApiPath(`/api/action-items/${mediaId}`));
                 if (res.ok) {
                     const data = await res.json();
                     setActionItems(data);
@@ -66,7 +67,7 @@ export default function ActionItemsPanel({ mediaId, jobId, jobStatus, onSeek }: 
 
                 // Fetch transcript to get video title and summary
                 try {
-                    const transcriptRes = await fetch(`/api/transcript/${mediaId}`);
+                    const transcriptRes = await fetch(getApiPath(`/api/transcript/${mediaId}`));
                     if (transcriptRes.ok) {
                         const transcriptData = await transcriptRes.json();
                         setVideoTitle(transcriptData.title || 'Meeting Recording');

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "action-1770073420854-0",
+    "category": "Meeting Management",
+    "action_item": "Meeting Management - Clean up duplicated meeting invites and ensure all team members are aware of the correct meeting link.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "2023-10-30",
+    "notes": "Address technical issues caused by server updates that led to meeting confusion.",
+    "timestamp": 429
+  },
+  {
+    "id": "action-1770073420854-1",
+    "category": "Meeting Coordination",
+    "action_item": "Meeting Coordination - Schedule a 30-minute session to review and organize the meeting invites.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "2023-10-30",
+    "notes": "Coordinate with Jamila to clean up the meeting invites after the PATH meeting.",
+    "timestamp": 428
+  },
+  {
+    "id": "action-1770073420854-2",
+    "category": "Data Collection",
+    "action_item": "Data Collection - Compile and share the required data points for mobile crisis reporting.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Ensure all forms and data points are organized for state reporting requirements.",
+    "timestamp": 1175
+  },
+  {
+    "id": "action-1770073420854-3",
+    "category": "Documentation",
+    "action_item": "Documentation - Provide access to NextGen documentation templates for mobile crisis assessments.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Demonstrate how to enter information in NextGen for mobile crisis documentation.",
+    "timestamp": 1358
+  },
+  {
+    "id": "action-1770073420854-4",
+    "category": "User Access",
+    "action_item": "User Access - Discuss the possibility of creating a group user for the mobile crisis team in Dr. Cloud.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Explore how to manage group work and documentation for mobile crisis encounters.",
+    "timestamp": 1883
+  }
+]

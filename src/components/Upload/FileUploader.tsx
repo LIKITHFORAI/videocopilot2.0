@@ -98,14 +98,34 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
             } catch (e) {
                 console.error("Failed to parse history", e);
             }
+        } else {
+            // If no localStorage history, load from database
+            fetch(getApiPath('/api/media/list'))
+                .then(res => res.json())
+                .then(data => {
+                    if (data.videos && Array.isArray(data.videos)) {
+                        const historyItems = data.videos.map((v: any) => ({
+                            mediaId: v.id,
+                            jobId: v.id,
+                            fileName: v.title || 'Untitled',
+                            date: new Date(v.upload_date * 1000).toISOString()
+                        }));
+                        setHistory(historyItems);
+                        localStorage.setItem('vc_history', JSON.stringify(historyItems));
+                        console.log(`📹 Loaded ${historyItems.length} videos from database into Recent Media`);
+                    }
+                })
+                .catch(err => console.error('Failed to load videos from database:', err));
         }
     }, []);
 
     // Save history helper
     const addToHistory = (item: HistoryItem) => {
-        const newHistory = [item, ...history.filter(h => h.fileName !== item.fileName)].slice(0, 10); // Keep last 10, remove duplicates
-        setHistory(newHistory);
-        localStorage.setItem('vc_history', JSON.stringify(newHistory));
+        setHistory(prevHistory => {
+            const newHistory = [item, ...prevHistory.filter(h => h.mediaId !== item.mediaId)]; // No limit - show all
+            localStorage.setItem('vc_history', JSON.stringify(newHistory));
+            return newHistory;
+        });
     };
 
     // reset internal state when job completes
@@ -157,7 +177,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
         }
     };
 
-    const startProcessing = async (mediaId: string, fileName: string) => {
+    const startProcessing = async (mediaId: string, fileName: string, fileId: string | null = null) => {
         try {
             const res = await fetch(getApiPath('/api/process'), {
                 method: 'POST',
@@ -188,7 +208,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
         }
     };
 
-    const processFile = async (file: File) => {
+    const processFile = async (file: File, fileId: string | null = null) => {
         if (!file) return;
 
         // Duplicate Check
@@ -229,8 +249,9 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                     const response = JSON.parse(xhr.responseText);
                     setStatus('queued');
                     setMessage('Queuing for processing...');
+
                     // Start the job
-                    await startProcessing(response.mediaId, file.name);
+                    await startProcessing(response.mediaId, file.name, fileId);
                 } else {
                     setStatus('error');
                     setMessage('Upload failed.');
@@ -358,11 +379,39 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
     }));
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            processFile(file);
-            // Reset input value
-            e.target.value = '';
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
+
+        console.log(`📦 Batch upload: ${files.length} file(s) selected`);
+
+        // Process files sequentially
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            console.log(`Processing file ${i + 1}/${files.length}: ${file.name}`);
+
+            // Update message to show batch progress with time estimate
+            if (files.length > 1) {
+                const avgTimePerVideo = 15; // minutes per video
+                const remainingFiles = files.length - i;
+                const estimatedMinutes = Math.round(remainingFiles * avgTimePerVideo);
+                setMessage(`Batch: ${i + 1}/${files.length} - ${file.name} (~${estimatedMinutes} min remaining)`);
+            }
+
+            await processFile(file);
+
+            // Small delay between files to prevent overwhelming the system
+            if (i < files.length - 1) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        }
+
+        // Reset input value
+        e.target.value = '';
+
+        if (files.length > 1) {
+            setMessage(`✅ All ${files.length} files queued! Check Recent Media.`);
+            console.log(`✅ All ${files.length} files queued successfully`);
+            setTimeout(() => { setMessage(''); setStatus('idle'); }, 3000);
         }
     };
 
@@ -440,7 +489,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                 {/* Central Status Area */}
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.4rem', justifyContent: 'center' }}>
                     <div style={{ opacity: 0.7, fontSize: '0.85rem', textAlign: 'center' }}>
-                        {(isUploading || isProcessing) ? 'Processing...' : (message || 'Ready for new media')}
+                        {message || ((isUploading || isProcessing) ? 'Processing...' : 'Ready for new media')}
                     </div>
                 </div>
 
@@ -649,7 +698,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                                 {history.length === 0 ? (
                                     <p style={{ fontSize: '0.9rem', color: '#888' }}>No saved media yet.</p>
                                 ) : (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '400px', overflowY: 'auto', paddingRight: '0.5rem' }}>
                                         {history.map((item, i) => (
                                             <div
                                                 key={i}
@@ -732,6 +781,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                     <input
                         type="file"
                         accept="video/*,audio/*,.mkv"
+                        multiple
                         ref={fileInputRef}
                         onChange={handleFileChange}
                         style={{ display: 'none' }}
@@ -777,13 +827,13 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                     textAlign: 'center',
                     fontWeight: '500'
                 }}>
-                    {
+                    {message || (
                         isUploading ? 'Uploading File' :
                             (currentJobStatus === 'QUEUED' || currentJobStatus === 'PREPARING' || currentJobStatus === 'EXTRACTING_AUDIO' ||
                                 currentJobStatus === 'COMPRESSING_VIDEO' || currentJobStatus === 'CHUNKING' || currentJobStatus === 'TRANSCRIBING' ||
                                 currentJobStatus === 'TRANSCRIBING_CHUNK') ? 'Processing File' :
                                 'Generating Content'
-                    }
+                    )}
                 </div>
             )}
         </div>

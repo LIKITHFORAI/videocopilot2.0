@@ -182,7 +182,19 @@ async function processMedia(jobId: string, mediaId: string) {
         }
         await writeFile(actionItemsCachePath, JSON.stringify(actionItems, null, 2));
 
-        // 5. CLEANUP
+        // 4.5. INDEX CHUNKS FOR SEARCH
+        await updateJob(jobId, { status: 'INDEXING', progress: 96 });
+        console.log(`Job ${jobId}: Indexing chunks for search...`);
+        try {
+            const { indexVideoChunks } = await import('@/lib/indexChunks');
+            await indexVideoChunks(mediaId, 'mountmontgomery', transcript, summaryData.title);
+            console.log(`Job ${jobId}: Indexing complete`);
+        } catch (indexError) {
+            console.error(`Job ${jobId}: Indexing failed (non-fatal):`, indexError);
+            // Continue even if indexing fails
+        }
+
+        //5. CLEANUP
         await updateJob(jobId, { status: 'CLEANUP', progress: 98 });
         await cleanupMedia(mediaId);
 

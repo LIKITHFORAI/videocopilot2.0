@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { getApiPath } from '@/lib/apiPath';
 
 interface TranscriptPanelProps {
     mediaId: string | null;
@@ -26,7 +27,7 @@ export default function TranscriptPanel({ mediaId, jobId, jobStatus, onSeek }: T
 
         const checkStatus = async () => {
             try {
-                const res = await fetch(`/api/job/${jobId}`);
+                const res = await fetch(getApiPath(`/api/job/${jobId}`));
                 if (res.ok) {
                     const data = await res.json();
 
@@ -53,7 +54,7 @@ export default function TranscriptPanel({ mediaId, jobId, jobStatus, onSeek }: T
 
     const fetchTranscript = async (mid: string) => {
         try {
-            const res = await fetch(`/api/transcript/${mid}`);
+            const res = await fetch(getApiPath(`/api/transcript/${mid}`));
             if (res.ok) {
                 const data = await res.json();
                 setTranscriptData(data);

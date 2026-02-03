@@ -1,0 +1,65 @@
+[
+  {
+    "id": "action-1770074185926-0",
+    "category": "Requirements",
+    "action_item": "Requirements - Walk through current workflows in NextGen with Dr. Cloud team.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Becky will likely lead the walkthrough to show how providers enter notes and registrations.",
+    "timestamp": 396
+  },
+  {
+    "id": "action-1770074185926-1",
+    "category": "Requirements",
+    "action_item": "Requirements - Identify user roles and permissions in NextGen.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Ryan Phillips emphasized the need to understand user roles and permissions.",
+    "timestamp": 420
+  },
+  {
+    "id": "action-1770074185926-2",
+    "category": "Requirements",
+    "action_item": "Requirements - Discuss completion criteria and supervisor signatures for forms.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Ryan Phillips requested clarification on completion criteria for forms.",
+    "timestamp": 443
+  },
+  {
+    "id": "action-1770074185926-3",
+    "category": "Reports",
+    "action_item": "Reports - Gather reporting requirements for patient population and state reporting.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Ryan Phillips mentioned the need for understanding reporting requirements.",
+    "timestamp": 464
+  },
+  {
+    "id": "action-1770074185926-4",
+    "category": "Interface",
+    "action_item": "Interface - Request integration of eligibility checking through the EHR system.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Request to link insurance eligibility checking through Dr. Cloud.",
+    "timestamp": 1091
+  },
+  {
+    "id": "action-1770074185926-5",
+    "category": "Requirements",
+    "action_item": "Requirements - Review EPSDT guidelines and required fields for documentation.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Brenda to send EPSDT guidelines for review.",
+    "timestamp": 1941
+  },
+  {
+    "id": "action-1770074185926-6",
+    "category": "Requirements",
+    "action_item": "Requirements - Share NextGen user manual with the Dr. Cloud team.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Becky has a compiled manual for NextGen usage.",
+    "timestamp": 2551
+  }
+]

@@ -1,0 +1,56 @@
+[
+  {
+    "id": "action-1770069535470-0",
+    "category": "Data Migration",
+    "action_item": "Data Migration - Collect and move all AI notes to a designated folder on SharePoint.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Ensure that all previously collected AI notes are organized in the new folder.",
+    "timestamp": 49
+  },
+  {
+    "id": "action-1770069535470-1",
+    "category": "Requirements",
+    "action_item": "Requirements - Walk through data entry process in NextGen with the team.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Focus on field-to-field data entry and business rules for data input.",
+    "timestamp": 370
+  },
+  {
+    "id": "action-1770069535470-2",
+    "category": "Requirements",
+    "action_item": "Requirements - Review and clarify appointment types to distinguish between billable and non-billable.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Ensure that the system captures the correct information for reporting purposes.",
+    "timestamp": 1041
+  },
+  {
+    "id": "action-1770069535470-3",
+    "category": "Reports",
+    "action_item": "Reports - Gather feedback on desired dashboard features for managing client assessments.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Collect input from staff on what information is critical for managing cases.",
+    "timestamp": 1589
+  },
+  {
+    "id": "action-1770069535470-4",
+    "category": "DrFirst/EPCS",
+    "action_item": "DrFirst/EPCS - Address configuration issues preventing clinical assistants from updating patient notes.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Investigate why updates made by clinical assistants are not visible to licensed clinicians.",
+    "timestamp": 1218
+  },
+  {
+    "id": "action-1770069535471-5",
+    "category": "Service Codes",
+    "action_item": "Service Codes - Review and simplify the billing code selection process in NextGen.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Ensure billing codes are clear and easy to select to reduce errors.",
+    "timestamp": 2132
+  }
+]

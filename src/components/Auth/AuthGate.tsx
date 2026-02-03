@@ -8,9 +8,9 @@ export default function AuthGate() {
     const { instance } = useMsal();
     const [bypassAuth, setBypassAuth] = useState(false);
 
-    // Load bypass state from localStorage on mount
+    // Load bypass state from sessionStorage on mount
     useEffect(() => {
-        const saved = localStorage.getItem('devBypassAuth');
+        const saved = sessionStorage.getItem('devBypassAuth');
         if (saved === 'true') {
             setBypassAuth(true);
             // Trigger a reload to bypass the auth gate
@@ -29,7 +29,7 @@ export default function AuthGate() {
     const handleBypassToggle = () => {
         const newValue = !bypassAuth;
         setBypassAuth(newValue);
-        localStorage.setItem('devBypassAuth', String(newValue));
+        sessionStorage.setItem('devBypassAuth', String(newValue));
         if (newValue) {
             // Reload to bypass auth
             window.location.reload();

@@ -1,0 +1,16 @@
+                </div>
+            )}
+
+            {/* Batch Upload Progress Panel */}
+            <BatchUploadPanel 
+                files={batchFiles}
+                onRemove={(id) => {
+                    setBatchFiles(prev => prev.filter(f => f.id !== id));
+                }}
+            />
+        </div>
+    );
+});
+
+FileUploader.displayName = 'FileUploader';
+export default FileUploader;

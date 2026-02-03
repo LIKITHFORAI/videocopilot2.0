@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { getApiPath } from '@/lib/apiPath';
 
 interface Frame {
     filename: string;
@@ -28,7 +29,7 @@ export default function VisionTestPage() {
         setFrames([]);
 
         try {
-            const res = await fetch('/api/extract-frames', {
+            const res = await fetch(getApiPath('/api/extract-frames'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -61,7 +62,7 @@ export default function VisionTestPage() {
         ));
 
         try {
-            const res = await fetch('/api/vision', {
+            const res = await fetch(getApiPath('/api/vision'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ image: frame.data })

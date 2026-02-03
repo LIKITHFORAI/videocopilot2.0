@@ -1,0 +1,11 @@
+{
+  "jobId": "2a6055f1-c6fe-40d6-a5bd-518e05ccebba",
+  "mediaId": "2ff1d101-5d93-4769-91ce-b51ba8e61ede",
+  "status": "FAILED",
+  "createdAt": "2026-02-02T22:32:36.392Z",
+  "progress": 70,
+  "updatedAt": "2026-02-02T22:40:18.575Z",
+  "chunkIndex": 3,
+  "totalChunks": 3,
+  "error": "429 Your requests to whisper-for-video-copilot for whisper in East US 2 have exceeded the call rate limit for your current AIServices S0 pricing tier. This request was for Audio_Transcriptions under Azure OpenAI API version 2024-06-01. Please retry after 10 seconds. To increase your default rate limit, visit: https://aka.ms/oai/quotaincrease."
+}

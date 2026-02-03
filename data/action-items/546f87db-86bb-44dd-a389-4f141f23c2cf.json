@@ -1,0 +1,47 @@
+[
+  {
+    "id": "action-1770068765025-0",
+    "category": "Requirements",
+    "action_item": "Requirements - Update meeting invites to include requirement for sharing NextGen screen",
+    "responsible_party": "Summer",
+    "due_date": "N/A",
+    "notes": "Ensure all participants are aware of the requirement to share their NextGen screen during meetings.",
+    "timestamp": 35
+  },
+  {
+    "id": "action-1770068765031-1",
+    "category": "Requirements",
+    "action_item": "Requirements - Send email outlining expectations for using NextGen",
+    "responsible_party": "Angeline",
+    "due_date": "2023-10-05",
+    "notes": "Include details about the necessary information to be inputted into NextGen.",
+    "timestamp": 53
+  },
+  {
+    "id": "action-1770068765031-2",
+    "category": "Requirements",
+    "action_item": "Requirements - Develop case management portal for Baby's Born Healthy program",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "The program needs a case management section to avoid triggering billing for unbillable services.",
+    "timestamp": 131
+  },
+  {
+    "id": "action-1770068765031-3",
+    "category": "Requirements",
+    "action_item": "Requirements - Set up non-billable appointment types and documentation workflow",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Identify appointment types and documentation needed for services provided at non-billable locations.",
+    "timestamp": 450
+  },
+  {
+    "id": "action-1770068765031-4",
+    "category": "Data Migration",
+    "action_item": "Data Migration - Collect and send information for data transfer to Dr. Cloud",
+    "responsible_party": "Angeline",
+    "due_date": "N/A",
+    "notes": "Ensure all relevant data between now and the cloud start is documented for transfer.",
+    "timestamp": 543
+  }
+]
