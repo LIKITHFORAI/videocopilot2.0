@@ -438,7 +438,7 @@ curl -I http://localhost:3000/demo-tool
 
 **⚠️ IMPORTANT INSTRUCTION FOR DEPLOYER:**
 
-The vector database implementation (using Orama/Vector Store) is currently being finalized.
+The new **PostgreSQL Vector Database** implementation is currently being finalized. This will replace the current file-based search with a robust, scalable vector engine using `pgvector`.
 
 **DO NOT DEPLOY until you receive the `vector-db-update.zip` file via email.**
 
@@ -455,18 +455,24 @@ The vector database implementation (using Orama/Vector Store) is currently being
     # Navigate to app directory
     cd /var/www/video-copilot
 
-    # Remove existing vector store data (if any)
-    rm -rf data/vector-store
-    rm -f data/search-index.json
+    # Remove existing SQLite data (migrating to Postgres)
+    rm -rf data/transcripts.db
+    rm -rf data/transcripts.db-shm
+    rm -rf data/transcripts.db-wal
     ```
 
-3.  **Install New Database Files:**
-    - Extract the `vector-db-update.zip` contents into the project root.
-    - Ensure new files from the ZIP overwrite any existing ones.
+3.  **Prepare PostgreSQL (Required):**
+    - Install PostgreSQL 14+ on the server.
+    - Enable the `vector` extension: `CREATE EXTENSION vector;`
+    - Create a database named `videocopilot`.
 
-4.  **Rebuild and Start:**
+4.  **Install New Database Files:**
+    - Extract the `vector-db-update.zip` contents into the project root.
+    - Ensure `src/lib/db.ts` and `package.json` are overwritten.
+
+5.  **Rebuild and Start:**
     ```bash
-    npm install  # In case of new dependencies
+    npm install  # Will install 'pg' driver
     npm run build
     pm2 restart video-copilot
     ```

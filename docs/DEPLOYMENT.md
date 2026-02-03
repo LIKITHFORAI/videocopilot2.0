@@ -77,24 +77,28 @@ User Upload → Video Storage → FFmpeg Processing → Transcription → AI Ana
 
 ---
 
-## 🗄️ Vector Database Integration
+---
+
+## 🗄️ Vector Database Integration (PostgreSQL)
 
 **Status:** Implementation In-Progress (Pending ZIP delivery)
 
-The application is transitioning to a local vector database for semantic search capabilities.
+The application is transitioning from SQLite to **PostgreSQL with pgvector** for semantic search capabilities.
 
 ### Deployment Instructions for Vector DB
 
 1.  **Wait for asset delivery:** A ZIP file `vector-db-update.zip` containing the completed implementation will be provided via email.
-2.  **Clean State Required:** The vector database requires a fresh index on first run.
-    - **Action:** Delete `data/vector-store/` directory before deploying the update.
-    - **Action:** Delete `data/search-index.json` if present.
+2.  **Clean State Required:** The migration requires clearing old SQLite data.
+    - **Action:** Delete `data/transcripts.db` and associated files.
+3.  **Infrastructure Requirements:**
+    - **PostgreSQL 14+**
+    - **pgvector Extension** (`sudo apt install postgresql-14-pgvector`)
 
 ### File Structure Changes
 The update will likely introduce:
 - `src/lib/vector-store.ts` (Database logic)
-- `data/vector-store/` (Storage directory)
-- Updates to `package.json` (New dependencies like `@orama/orama` or similar)
+- Migration from `better-sqlite3` to `pg` driver
+- Updates to `package.json` (Adding `pg`, `pgvector`)
 
 ---
 
