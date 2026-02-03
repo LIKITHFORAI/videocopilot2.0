@@ -1,9 +1,0 @@
-{
-  "jobId": "d12b41dc-9ad3-47bb-a73b-7767b29569c6",
-  "mediaId": "cfd0067e-b726-4425-ba2f-607a92a929da",
-  "status": "FAILED",
-  "createdAt": "2026-01-27T23:11:48.876Z",
-  "progress": 30,
-  "updatedAt": "2026-01-27T23:18:40.674Z",
-  "error": "ffmpeg exited with code 4294967294: Error opening input file C:\\Users\\herei\\.gemini\\antigravity\\scratch\\video_copilot_fresh\\data\\uploads\\cfd0067e-b726-4425-ba2f-607a92a929da\\audio_master.mp3.\nError opening input files: No such file or directory\n"
-}

@@ -1,0 +1,65 @@
+[
+  {
+    "id": "action-1770146302404-0",
+    "category": "Workflow",
+    "action_item": "Workflow - Show the workflow of receiving client referrals and using the system.",
+    "responsible_party": "Rahel",
+    "due_date": "N/A",
+    "notes": "Demonstrate the process from receiving referrals via email, fax, or shared spreadsheet.",
+    "timestamp": 0
+  },
+  {
+    "id": "action-1770146302404-1",
+    "category": "Data Migration",
+    "action_item": "Data Migration - Share the spreadsheet with client referrals while ensuring PHI is protected.",
+    "responsible_party": "Rahel",
+    "due_date": "N/A",
+    "notes": "Hide patient identifiers and share the spreadsheet for review.",
+    "timestamp": 131
+  },
+  {
+    "id": "action-1770146302404-2",
+    "category": "Requirements",
+    "action_item": "Requirements - Confirm the requirements for reporting and data extraction from NextGen.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Discuss the need for improved reporting capabilities and gather specific requirements.",
+    "timestamp": 1407
+  },
+  {
+    "id": "action-1770146302404-3",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Clarify the roles of admins and clinical staff in the workflow.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Ensure everyone understands their responsibilities in the patient management process.",
+    "timestamp": 299
+  },
+  {
+    "id": "action-1770146302404-4",
+    "category": "DrFirst/EPCS",
+    "action_item": "DrFirst/EPCS - Discuss the integration of immunization tracking in the new system.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Ensure immunization inventory tracking is included in the system requirements.",
+    "timestamp": 2081
+  },
+  {
+    "id": "action-1770146302404-5",
+    "category": "Reports",
+    "action_item": "Reports - Collect and specify reporting requirements for case management and outcomes.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Compile a list of desired reports and outcomes for review.",
+    "timestamp": 1446
+  },
+  {
+    "id": "action-1770146302404-6",
+    "category": "Appointment Types",
+    "action_item": "Appointment Types - Walk through the immunization case process in the new system.",
+    "responsible_party": "Rahel",
+    "due_date": "N/A",
+    "notes": "Demonstrate the steps involved in documenting immunizations.",
+    "timestamp": 1970
+  }
+]

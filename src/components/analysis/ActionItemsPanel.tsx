@@ -28,6 +28,7 @@ export default function ActionItemsPanel({ mediaId, jobId, jobStatus, onSeek }: 
     const [error, setError] = useState<string | null>(null);
     const [videoTitle, setVideoTitle] = useState<string>('');
     const [videoSummary, setVideoSummary] = useState<string>('');
+    const [regenerating, setRegenerating] = useState(false);
 
     useEffect(() => {
         if (!mediaId) {
@@ -144,6 +145,33 @@ This email was generated from Video Copilot. Please review and add any additiona
         window.open(outlookWebUrl, '_blank');
     };
 
+    const regenerateActionItems = async () => {
+        if (!mediaId) return;
+
+        setRegenerating(true);
+        setError(null);
+
+        try {
+            const res = await fetch(getApiPath(`/api/action-items/${mediaId}/regenerate`), {
+                method: 'POST',
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setActionItems(data);
+                setError(null);
+            } else {
+                const errorText = await res.text();
+                setError(`Failed to regenerate: ${errorText}`);
+            }
+        } catch (err) {
+            console.error('Error regenerating action items:', err);
+            setError('Failed to regenerate action items');
+        } finally {
+            setRegenerating(false);
+        }
+    };
+
     const handleExportToExcel = () => {
         if (actionItems.length === 0) {
             alert('No action items to export');
@@ -234,9 +262,62 @@ This email was generated from Video Copilot. Please review and add any additiona
                     padding: '1.5rem',
                     borderBottom: `1px solid ${theme.colors.border.default}`
                 }}>
-                    <h2 style={{ fontSize: '1.3rem', fontWeight: '700', margin: 0, color: theme.colors.text.primary }}>
-                        Action Items
-                    </h2>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <h2 style={{ fontSize: '1.3rem', fontWeight: '700', margin: 0, color: theme.colors.text.primary }}>
+                            Action Items
+                        </h2>
+                        {mediaId && (
+                            <button
+                                onClick={regenerateActionItems}
+                                disabled={regenerating || loading}
+                                title="Regenerate Action Items"
+                                style={{
+                                    background: regenerating ? theme.colors.border.light : 'transparent',
+                                    color: theme.colors.text.secondary,
+                                    border: `1px solid ${theme.colors.border.default}`,
+                                    borderRadius: '50%',
+                                    width: '32px',
+                                    height: '32px',
+                                    cursor: regenerating || loading ? 'not-allowed' : 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    transition: 'all 0.2s',
+                                    opacity: regenerating || loading ? 0.5 : 1
+                                }}
+                                onMouseEnter={(e) => {
+                                    if (!regenerating && !loading) {
+                                        e.currentTarget.style.background = theme.colors.upload.hoverBg;
+                                        e.currentTarget.style.borderColor = theme.colors.primary;
+                                        e.currentTarget.style.color = theme.colors.primary;
+                                    }
+                                }}
+                                onMouseLeave={(e) => {
+                                    if (!regenerating && !loading) {
+                                        e.currentTarget.style.background = 'transparent';
+                                        e.currentTarget.style.borderColor = theme.colors.border.default;
+                                        e.currentTarget.style.color = theme.colors.text.secondary;
+                                    }
+                                }}
+                            >
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    style={{
+                                        animation: regenerating ? 'spin 1s linear infinite' : 'none'
+                                    }}
+                                >
+                                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+                                </svg>
+                            </button>
+                        )}
+                    </div>
 
                     {/* Export Button - Only show when action items are available */}
                     {actionItems.length > 0 && (
