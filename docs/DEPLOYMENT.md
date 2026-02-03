@@ -75,6 +75,29 @@ User Upload → Video Storage → FFmpeg Processing → Transcription → AI Ana
 
 ---
 
+---
+
+## 🗄️ Vector Database Integration
+
+**Status:** Implementation In-Progress (Pending ZIP delivery)
+
+The application is transitioning to a local vector database for semantic search capabilities.
+
+### Deployment Instructions for Vector DB
+
+1.  **Wait for asset delivery:** A ZIP file `vector-db-update.zip` containing the completed implementation will be provided via email.
+2.  **Clean State Required:** The vector database requires a fresh index on first run.
+    - **Action:** Delete `data/vector-store/` directory before deploying the update.
+    - **Action:** Delete `data/search-index.json` if present.
+
+### File Structure Changes
+The update will likely introduce:
+- `src/lib/vector-store.ts` (Database logic)
+- `data/vector-store/` (Storage directory)
+- Updates to `package.json` (New dependencies like `@orama/orama` or similar)
+
+---
+
 ## Data Storage Details
 
 ### What is Stored Permanently

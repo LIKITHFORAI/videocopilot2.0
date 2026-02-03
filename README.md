@@ -434,7 +434,46 @@ curl -I http://localhost:3000/demo-tool
 
 ---
 
-## Troubleshooting
+## 🗄️ Vector Database Update (PENDING)
+
+**⚠️ IMPORTANT INSTRUCTION FOR DEPLOYER:**
+
+The vector database implementation (using Orama/Vector Store) is currently being finalized.
+
+**DO NOT DEPLOY until you receive the `vector-db-update.zip` file via email.**
+
+### When you receive the ZIP file:
+
+1.  **Stop the Application:**
+    ```bash
+    pm2 stop video-copilot
+    ```
+
+2.  **Clear Existing Database:**
+    You must wipe the current database state before applying the new one.
+    ```bash
+    # Navigate to app directory
+    cd /var/www/video-copilot
+
+    # Remove existing vector store data (if any)
+    rm -rf data/vector-store
+    rm -f data/search-index.json
+    ```
+
+3.  **Install New Database Files:**
+    - Extract the `vector-db-update.zip` contents into the project root.
+    - Ensure new files from the ZIP overwrite any existing ones.
+
+4.  **Rebuild and Start:**
+    ```bash
+    npm install  # In case of new dependencies
+    npm run build
+    pm2 restart video-copilot
+    ```
+
+---
+
+## ❓ Troubleshooting
 
 ### Issue: Upload Returns 404
 
