@@ -14,8 +14,7 @@ export default function AuthGate() {
         const saved = sessionStorage.getItem('devBypassAuth');
         if (saved === 'true') {
             setBypassAuth(true);
-            // Trigger a reload to bypass the auth gate
-            window.location.reload();
+            // Don't reload here - it will be handled by parent component re-render
         }
     }, []);
 
