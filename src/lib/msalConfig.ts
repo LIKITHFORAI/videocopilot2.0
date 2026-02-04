@@ -4,9 +4,13 @@ export const msalConfig: Configuration = {
     auth: {
         clientId: process.env.NEXT_PUBLIC_AZURE_AD_CLIENT_ID!,
         authority: `https://login.microsoftonline.com/${process.env.NEXT_PUBLIC_AZURE_AD_TENANT_ID}`,
-        // Use blank redirect page for popup authentication
+        // Dynamically build redirect URI to work with basePath (e.g., /videocopilot)
         redirectUri: typeof window !== 'undefined'
-            ? `${window.location.origin}/auth-redirect.html`
+            ? (() => {
+                // Get the base path from current location
+                const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+                return `${window.location.origin}${basePath}/auth-redirect.html`;
+            })()
             : 'http://localhost:3000/auth-redirect.html',
     },
     cache: {

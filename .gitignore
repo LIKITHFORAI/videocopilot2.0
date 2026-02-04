@@ -44,3 +44,5 @@ BATCH_*.txt
 
 # User uploads
 data/uploads/
+*.tar.gz
+*.zip
