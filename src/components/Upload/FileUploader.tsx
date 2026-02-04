@@ -88,35 +88,47 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
         };
     }, [showHistory, isClosing, showUploadModal]);
 
-    // Load history on mount
+    // Load history on mount and sync with server
     useEffect(() => {
+        // 1. Initial load from localStorage for instant UI
         const saved = localStorage.getItem('vc_history');
         if (saved) {
             try {
-                // eslint-disable-next-line
                 setHistory(JSON.parse(saved));
             } catch (e) {
                 console.error("Failed to parse history", e);
             }
-        } else {
-            // If no localStorage history, load from database
-            fetch(getApiPath('/api/media/list'))
-                .then(res => res.json())
-                .then(data => {
-                    if (data.videos && Array.isArray(data.videos)) {
-                        const historyItems = data.videos.map((v: any) => ({
-                            mediaId: v.id,
-                            jobId: v.id,
-                            fileName: v.title || 'Untitled',
-                            date: new Date(v.upload_date * 1000).toISOString()
-                        }));
-                        setHistory(historyItems);
-                        localStorage.setItem('vc_history', JSON.stringify(historyItems));
-                        console.log(`📹 Loaded ${historyItems.length} videos from database into Recent Media`);
-                    }
-                })
-                .catch(err => console.error('Failed to load videos from database:', err));
         }
+
+        // 2. ALWAYS fetch fresh list/status from server to fix stuck "Processing" states
+        fetch(getApiPath('/api/media/list'))
+            .then(res => res.json())
+            .then(data => {
+                if (data.videos && Array.isArray(data.videos)) {
+                    // Map server videos to history items
+                    const serverItems = data.videos.map((v: any) => ({
+                        mediaId: v.id,
+                        jobId: v.id, // Use mediaId as jobId fallback
+                        fileName: v.title || 'Untitled',
+                        status: v.status || 'completed',
+                        date: new Date(v.upload_date).toLocaleDateString(),
+                        progress: 100
+                    }));
+
+                    // Update history, keeping local items if needed, but prioritizing server status
+                    setHistory(current => {
+                        // Merge logic: Use server items, maybe append local ones that are missing?
+                        // For simplicity and correctness, let's just use server list as source of truth
+                        // But we want to keep jobId references if possible.
+
+                        // Actually, trusting server is safer. Server knows what is really done.
+                        const newHistory = serverItems;
+                        localStorage.setItem('vc_history', JSON.stringify(newHistory));
+                        return newHistory;
+                    });
+                }
+            })
+            .catch(err => console.error("Failed to sync history", err));
     }, []);
 
     // Save history helper
