@@ -304,7 +304,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
             const pickerOptions = {
                 sdk: "8.0",
                 entry: {
-                    oneDrive: { files: {} }
+                    sharePoint: {}  // Use sharePoint entry for OneDrive
                 },
                 authentication: {
                     accessToken: response.accessToken
@@ -321,7 +321,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
 
             // Open File Picker in popup
             const form = document.createElement('form');
-            form.action = 'https://ensoftekinc-my.sharepoint.com/_layouts/15/FilePicker.aspx';
+            form.action = 'https://ensoftekinc-my.sharepoint.com/my';
             form.method = 'POST';
             form.target = 'sharepoint-picker';
 

@@ -9,23 +9,14 @@ export default function AuthButton() {
     const [isLoggingIn, setIsLoggingIn] = useState(false);
     const account = accounts[0];
 
-    const handleLogin = async () => {
-        try {
-            setIsLoggingIn(true);
-            const response = await instance.loginPopup(loginRequest);
-            // Set the active account after successful login
-            if (response && response.account) {
-                instance.setActiveAccount(response.account);
-            }
-        } catch (error) {
-            console.error('Login failed:', error);
-        } finally {
-            setIsLoggingIn(false);
-        }
+    const handleLogin = () => {
+        setIsLoggingIn(true);
+        // Use redirect flow - page will redirect to Microsoft and back
+        instance.loginRedirect(loginRequest);
     };
 
     const handleLogout = () => {
-        instance.logoutPopup();
+        instance.logoutRedirect();
     };
 
     // Show loading state while MSAL is processing or logging in

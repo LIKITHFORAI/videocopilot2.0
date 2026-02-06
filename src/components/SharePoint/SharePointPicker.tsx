@@ -20,20 +20,31 @@ export default function SharePointPicker({ onFileSelected }: {
         setError(null);
 
         try {
-            // Get access token silently
-            const response = await instance.acquireTokenSilent({
-                scopes: ["Files.Read.All", "Sites.Read.All"],
-                account: accounts[0]
-            });
+            // Get access token, requesting consent if needed
+            let tokenResponse;
+            try {
+                tokenResponse = await instance.acquireTokenSilent({
+                    scopes: ["Files.Read.All", "Sites.Read.All"],
+                    account: accounts[0]
+                });
+            } catch (silentError) {
+                // If silent fails, request consent via redirect
+                console.log('Silent token acquisition failed, requesting consent:', silentError);
+                await instance.acquireTokenRedirect({
+                    scopes: ["Files.Read.All", "Sites.Read.All"],
+                    account: accounts[0]
+                });
+                return; // Redirect will occur, function will exit
+            }
 
-            // Configure File Picker
+            // Configure File Picker for OneDrive for Business
             const pickerOptions = {
                 sdk: "8.0",
                 entry: {
-                    oneDrive: { files: {} }
+                    sharePoint: {}  // Changed from oneDrive to sharePoint for proper loading
                 },
                 authentication: {
-                    accessToken: response.accessToken
+                    accessToken: tokenResponse.accessToken
                 },
                 messaging: {
                     origin: window.location.origin,
@@ -41,13 +52,13 @@ export default function SharePointPicker({ onFileSelected }: {
                 },
                 typesAndSources: {
                     mode: "files",
-                    filters: [".mp4", ".avi", ".mov", ".mkv", ".webm"]
+                    filters: [".mp4", ".avi", ".mov", ".mkv", ".webm", ".MP4", ".AVI", ".MOV"]
                 }
             };
 
             // Open File Picker in popup
             const form = document.createElement('form');
-            form.action = 'https://ensoftekinc-my.sharepoint.com/_layouts/15/FilePicker.aspx';
+            form.action = 'https://ensoftekinc-my.sharepoint.com/my';
             form.method = 'POST';
             form.target = 'sharepoint-picker';
 
@@ -76,7 +87,7 @@ export default function SharePointPicker({ onFileSelected }: {
                         // Download file from Microsoft Graph
                         const fileResponse = await fetch(
                             `https://graph.microsoft.com/v1.0/me/drive/items/${fileInfo.id}/content`,
-                            { headers: { Authorization: `Bearer ${response.accessToken}` } }
+                            { headers: { Authorization: `Bearer ${tokenResponse.accessToken}` } }
                         );
 
                         if (!fileResponse.ok) {
@@ -101,7 +112,11 @@ export default function SharePointPicker({ onFileSelected }: {
 
         } catch (err: any) {
             console.error('SharePoint picker error:', err);
-            setError(err.message || 'Failed to open SharePoint picker');
+            if (err.errorCode === 'consent_required') {
+                setError('Additional permissions needed. Please grant access to your OneDrive files.');
+            } else {
+                setError(err.message || 'Failed to open SharePoint picker');
+            }
         } finally {
             setLoading(false);
         }

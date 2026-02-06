@@ -8,6 +8,7 @@ import ActionItemsPanel from '../components/analysis/ActionItemsPanel';
 import AuthGate from '../components/Auth/AuthGate';
 import { useState, useRef } from 'react';
 import { useMsal } from '@azure/msal-react';
+import OneDriveBrowser from '../components/SharePoint/OneDriveBrowser';
 
 export default function Home() {
   const { accounts } = useMsal();

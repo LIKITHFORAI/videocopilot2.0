@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redirecting...</title>
+    <script src="https://alcdn.msauth.net/browser/2.38.1/js/msal-browser.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -16,9 +18,11 @@
             font-family: system-ui, -apple-system, sans-serif;
             color: white;
         }
+
         .message {
             text-align: center;
         }
+
         .spinner {
             width: 40px;
             height: 40px;
@@ -28,16 +32,47 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="message">
         <div class="spinner"></div>
         <p>Completing authentication...</p>
     </div>
+
+    <script>
+        // MSAL configuration
+        const msalConfig = {
+            auth: {
+                clientId: '70e7d27a-bb68-4ff1-819d-3d0cddd4f5a2',
+                authority: 'https://login.microsoftonline.com/caa18e62-2bed-40c2-9d65-8d78e846a0d1',
+                redirectUri: window.location.origin + '/auth-redirect.html'
+            }
+        };
+
+        // Create MSAL instance and handle redirect
+        const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+        msalInstance.handleRedirectPromise()
+            .then(response => {
+                console.log('Auth redirect handled successfully:', response);
+                // MSAL will automatically communicate with parent window
+            })
+            .catch(error => {
+                console.error('Auth redirect error:', error);
+            });
+    </script>
 </body>
+
 </html>

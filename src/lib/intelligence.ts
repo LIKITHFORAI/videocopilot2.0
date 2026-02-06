@@ -170,7 +170,7 @@ export async function answerQuestion(transcriptSegments: any[], question: string
                     2. "suggested_questions": An array of 3-4 short, relevant follow-up questions the user might want to ask next based on your answer. These should be phrasing as questions (e.g., "How do I configure X?", "What about Y?").
 
                     ### CONTEXT (Transcript segments with [seconds]):
-                    ${context.substring(0, 25000)}`
+                    ${context.substring(0, 120000)}`
                 },
                 ...history.slice(-10), // More history for better context
                 {

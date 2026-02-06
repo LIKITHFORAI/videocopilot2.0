@@ -4,9 +4,10 @@ import { useMsal } from "@azure/msal-react";
 import { loginRequest } from "@/lib/msalConfig";
 import { useState, useEffect } from 'react';
 import { getApiPath } from '@/lib/apiPath';
+import { InteractionStatus } from "@azure/msal-browser";
 
 export default function AuthGate() {
-    const { instance } = useMsal();
+    const { instance, inProgress } = useMsal();
     const [bypassAuth, setBypassAuth] = useState(false);
 
     // Load bypass state from localStorage on mount
@@ -18,12 +19,15 @@ export default function AuthGate() {
         }
     }, []);
 
-    const handleLogin = async () => {
-        try {
-            await instance.loginPopup(loginRequest);
-        } catch (error) {
-            console.error('Login failed:', error);
+    const handleLogin = () => {
+        // Don't start a new login if one is already in progress
+        if (inProgress !== InteractionStatus.None) {
+            console.log('Login already in progress, please wait...');
+            return;
         }
+
+        // Use redirect flow - simpler and more reliable than popup
+        instance.loginRedirect(loginRequest);
     };
 
     const handleBypassToggle = () => {
@@ -103,6 +107,7 @@ export default function AuthGate() {
                 {/* Sign-in Button */}
                 <button
                     onClick={handleLogin}
+                    disabled={inProgress !== InteractionStatus.None}
                     style={{
                         width: '100%',
                         padding: '1rem 1.5rem',
