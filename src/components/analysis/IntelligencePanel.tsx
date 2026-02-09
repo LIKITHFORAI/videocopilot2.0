@@ -4,12 +4,15 @@ import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { getApiPath } from '@/lib/apiPath';
 
+import { Personality } from '../Personality/PersonalityChooser';
+
 interface IntelligencePanelProps {
     mediaId: string | null;
     jobId: string | null;
     onSeek: (time: number) => void;
     onStatusChange?: (status: string) => void;
     onProgressChange?: (progress: number) => void;
+    personality?: Personality;
 }
 
 interface Message {
@@ -24,7 +27,97 @@ interface KeyPoint {
     timestamp?: number;
 }
 
-export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChange, onProgressChange }: IntelligencePanelProps) {
+function formatTrainingResponse(tab: string, data: any): string {
+    if (!data) return "No data available.";
+
+    // If data is string, try to parse it
+    if (typeof data === 'string') {
+        try {
+            data = JSON.parse(data);
+        } catch {
+            return data; // Return as is if not JSON
+        }
+    }
+
+    if (tab === 'chat') {
+        let md = `### ${data.topic_identification?.topic_name || 'Analysis'}\n\n`;
+        md += `**Goal:** ${data.training_goal}\n\n`;
+        md += `**Target Audience:** ${data.topic_identification?.audience_type}\n`;
+        if (data.topic_identification?.target_video_length_seconds) {
+            md += `**Target Length:** ${data.topic_identification.target_video_length_seconds}s\n\n`;
+        }
+
+        if (data.scope_guardrails) {
+            md += `### Scope & Guardrails\n`;
+            md += `**Included:**\n${data.scope_guardrails?.included?.map((i: string) => `- ${i}`).join('\n') || 'None'}\n\n`;
+            md += `**Excluded:**\n${data.scope_guardrails?.excluded?.map((i: string) => `- ${i}`).join('\n') || 'None'}\n\n`;
+        }
+
+        if (data.content_readiness) {
+            md += `### Readiness\n`;
+            md += `**Status:** ${data.content_readiness?.reusability_status}\n`;
+            md += `**Reason:** ${data.content_readiness?.reason}\n\n`;
+        }
+
+        if (data.next_recording_action) {
+            md += `### Next Steps\n${data.next_recording_action.what_to_record_next}\n`;
+        }
+
+        if (data.sanitization_report) {
+            md += `### Sanitization Report\n`;
+            md += `**PHI Risk:** ${data.sanitization_report.phi_risk}\n`;
+            if (data.sanitization_report.detected_terms?.length) {
+                md += `**Detected Terms:** ${data.sanitization_report.detected_terms.join(', ')}\n`;
+            }
+        }
+
+        return md;
+    }
+
+    if (tab === 'scribe') {
+        if (!data.steps || !Array.isArray(data.steps)) return JSON.stringify(data, null, 2);
+
+        let md = `### Build Steps\n\n`;
+        data.steps.forEach((step: any) => {
+            md += `**${step.n}. ${step.action}**\n`;
+            if (step.ui_path && step.ui_path.length) {
+                md += `   *Path: ${step.ui_path.join(' > ')}*\n`;
+            }
+            if (step.fields_edited && step.fields_edited.length) {
+                md += `   *Fields:* ${step.fields_edited.join(', ')}\n`;
+            }
+            md += '\n';
+        });
+        return md;
+    }
+
+    if (tab === 'voiceover') {
+        let md = `### Voice-Over Script\n\n`;
+        md += `**Opening:**\n"${data.opening}"\n\n`;
+
+        md += `**Walkthrough:**\n`;
+        data.step_walkthrough?.forEach((step: string) => {
+            md += `- "${step}"\n`;
+        });
+        md += '\n';
+
+        if (data.single_example) {
+            md += `**Example (${data.single_example.example_name}):**\n"${data.single_example.example_script}"\n\n`;
+        }
+
+        if (data.common_mistakes?.length) {
+            md += `**Common Mistakes:**\n${data.common_mistakes.map((m: string) => `- ${m}`).join('\n')}\n\n`;
+        }
+
+        md += `**Wrap Up:**\n"${data.wrap_up}"\n`;
+
+        return md;
+    }
+
+    return JSON.stringify(data, null, 2);
+}
+
+export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChange, onProgressChange, personality = 'meetings' }: IntelligencePanelProps) {
     const [jobStatus, setJobStatus] = useState<string>('');
     const [transcriptData, setTranscriptData] = useState<any>(null);
     const [polling, setPolling] = useState(false);
@@ -34,6 +127,22 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
     const [input, setInput] = useState('');
     const [isChatting, setIsChatting] = useState(false);
     const chatEndRef = useRef<HTMLDivElement>(null);
+
+    // Training mode sub-tabs
+    type TrainingTab = 'chat' | 'scribe' | 'voiceover';
+    const [activeTrainingTab, setActiveTrainingTab] = useState<TrainingTab>('chat');
+
+    // Separate state for each training tab to prevent overwrites
+    const [trainingMessages, setTrainingMessages] = useState<Record<TrainingTab, Message[]>>({
+        chat: [],
+        scribe: [],
+        voiceover: []
+    });
+
+    // Track which tabs have been generated for current video to prevent duplicate API calls
+    const generatedTabs = useRef<Set<string>>(new Set());
+    const currentMediaRef = useRef<string | null>(null);
+
 
     useEffect(() => {
         if (chatEndRef.current) {
@@ -46,7 +155,9 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
             // Reset when no job is active
             setTranscriptData(null);
             setMessages([]);
+            setTrainingMessages({ chat: [], scribe: [], voiceover: [] });
             setJobStatus('');
+            generatedTabs.current.clear(); // Also clear generation cache
             return;
         }
 
@@ -100,13 +211,113 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
         }
     };
 
+    // Auto-generate content when Training tab changes
+    useEffect(() => {
+        if (personality !== 'training' || !transcriptData || !mediaId) return;
+
+        // Reset cache when switching to a different video
+        if (currentMediaRef.current !== mediaId) {
+            currentMediaRef.current = mediaId;
+            generatedTabs.current.clear();
+        }
+
+        // Create unique key for this tab + video combination
+        const cacheKey = `${mediaId}-${activeTrainingTab}`;
+
+        // Skip if already generated for this tab
+        if (generatedTabs.current.has(cacheKey)) {
+            return;
+        }
+
+        // Mark as generating to prevent duplicates
+        generatedTabs.current.add(cacheKey);
+
+
+        // Auto-generate content for the active tab
+        const autoGenerate = async () => {
+            setIsChatting(true);
+
+            // Capture current tab to ensure updates go to the right place even if user switches tabs
+            const currentTab = activeTrainingTab;
+
+            // Define default questions for each tab
+            const defaultQuestions: Record<string, string> = {
+                chat: 'Analyze this training video and provide a comprehensive overview.',
+                scribe: 'Extract all build steps from this training video.',
+                voiceover: 'Generate a voice-over script for this training video.'
+            };
+
+            const question = defaultQuestions[currentTab];
+
+            try {
+                const res = await fetch(getApiPath('/api/training-chat'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        question,
+                        activeTab: currentTab,
+                        transcriptSegments: transcriptData.segments
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+
+                    const formattedContent = formatTrainingResponse(currentTab, data.trainingData || data.answer);
+
+                    const newMsg: Message = {
+                        role: 'assistant',
+                        content: formattedContent,
+                        citations: data.citations,
+                        followUps: data.followUps
+                    };
+
+                    // Update only the specific tab's messages
+                    setTrainingMessages(prev => ({
+                        ...prev,
+                        [currentTab]: [newMsg]
+                    }));
+                } else {
+                    setTrainingMessages(prev => ({
+                        ...prev,
+                        [currentTab]: [{ role: 'assistant', content: "Sorry, I had trouble generating content for this tab." }]
+                    }));
+
+                    // Remove from cache on error so user can retry
+                    generatedTabs.current.delete(cacheKey);
+                }
+            } catch (e) {
+                setTrainingMessages(prev => ({
+                    ...prev,
+                    [currentTab]: [{ role: 'assistant', content: "Error connecting to the AI service." }]
+                }));
+                // Remove from cache on error so user can retry
+                generatedTabs.current.delete(cacheKey);
+            } finally {
+                setIsChatting(false);
+            }
+        };
+
+        autoGenerate();
+    }, [activeTrainingTab, personality, transcriptData, mediaId]);
+
+
     const handleSendMessage = async (textOverride?: string) => {
         const textToSend = textOverride || input;
 
         if (!textToSend.trim() || !mediaId || isChatting) return;
 
         const userMsg: Message = { role: 'user', content: textToSend };
-        setMessages(prev => [...prev, userMsg]);
+
+        // Update correct state based on mode
+        if (personality === 'training') {
+            setTrainingMessages(prev => ({
+                ...prev,
+                [activeTrainingTab]: [...prev[activeTrainingTab], userMsg]
+            }));
+        } else {
+            setMessages(prev => [...prev, userMsg]);
+        }
 
         // Only clear input if we didn't use an override (i.e., user typed it)
         if (!textOverride) {
@@ -114,31 +325,70 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
         }
 
         setIsChatting(true);
+        const currentTab = activeTrainingTab; // Capture for async closure
 
         try {
-            const res = await fetch(getApiPath('/api/chat'), {
+            // Use different API route for Training mode
+            const apiRoute = personality === 'training' ? '/api/training-chat' : '/api/chat';
+
+            // Get correct history
+            const historyMsgs = personality === 'training' ? trainingMessages[currentTab] : messages;
+
+            const res = await fetch(getApiPath(apiRoute), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     mediaId,
                     question: textToSend,
-                    history: messages.map(m => ({ role: m.role, content: m.content }))
+                    history: historyMsgs.map(m => ({ role: m.role, content: m.content })),
+                    personality: personality || 'meetings',
+                    activeTab: personality === 'training' ? currentTab : undefined,
+                    transcriptSegments: transcriptData?.segments
                 })
             });
 
             if (res.ok) {
                 const data = await res.json();
-                setMessages(prev => [...prev, {
+                const content = (personality === 'training')
+                    ? formatTrainingResponse(currentTab, data.trainingData || data.answer)
+                    : data.answer;
+
+                const newMsg: Message = {
                     role: 'assistant',
-                    content: data.answer,
+                    content: content,
                     citations: data.citations,
-                    followUps: data.followUps
-                }]);
+                    followUps: data.followUps || data.suggested_questions
+                };
+
+                if (personality === 'training') {
+                    setTrainingMessages(prev => ({
+                        ...prev,
+                        [currentTab]: [...prev[currentTab], newMsg]
+                    }));
+                } else {
+                    setMessages(prev => [...prev, newMsg]);
+                }
             } else {
-                setMessages(prev => [...prev, { role: 'assistant', content: "Sorry, I had trouble processing that request." }]);
+                const errorMsg: Message = { role: 'assistant', content: "Sorry, I had trouble processing that request." };
+                if (personality === 'training') {
+                    setTrainingMessages(prev => ({
+                        ...prev,
+                        [currentTab]: [...prev[currentTab], errorMsg]
+                    }));
+                } else {
+                    setMessages(prev => [...prev, errorMsg]);
+                }
             }
         } catch (e) {
-            setMessages(prev => [...prev, { role: 'assistant', content: "Connect error while chatting." }]);
+            const errorMsg: Message = { role: 'assistant', content: "Connect error while chatting." };
+            if (personality === 'training') {
+                setTrainingMessages(prev => ({
+                    ...prev,
+                    [currentTab]: [...prev[currentTab], errorMsg]
+                }));
+            } else {
+                setMessages(prev => [...prev, errorMsg]);
+            }
         } finally {
             setIsChatting(false);
         }
@@ -189,13 +439,54 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
         <div className="intelligence-panel">
             <div className="panel-card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 
-                <div style={{
-                    fontSize: '1.3rem',
-                    fontWeight: '700',
-                    padding: '1.5rem',
-                    borderBottom: '1px solid var(--border)',
-                    margin: 0
-                }}>Chat</div>
+                {/* Header with conditional sub-tabs */}
+                <div style={{ borderBottom: '1px solid var(--border)' }}>
+                    {/* Show "Chat" title only for non-training modes */}
+                    {personality !== 'training' && (
+                        <div style={{
+                            fontSize: '1.3rem',
+                            fontWeight: '700',
+                            padding: '1.5rem',
+                            margin: 0
+                        }}>Chat</div>
+                    )}
+
+                    {/* Training Mode Sub-Tabs (replaces "Chat" title) */}
+                    {personality === 'training' && (
+                        <div style={{
+                            display: 'flex',
+                            gap: '0.25rem',
+                            padding: '1rem 1rem 0 1rem',
+                            marginTop: 0,
+                            borderBottom: '1px solid #e2e8f0',
+                            justifyContent: 'space-between'
+                        }}>
+                            {['chat', 'scribe', 'voiceover'].map((tab) => (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTrainingTab(tab as any)}
+                                    style={{
+                                        flex: 1,
+                                        padding: '0.75rem 0.5rem',
+                                        border: 'none',
+                                        background: activeTrainingTab === tab ? '#eff6ff' : 'transparent', // Light blue background for active
+                                        borderBottom: activeTrainingTab === tab ? '3px solid var(--primary)' : '3px solid transparent',
+                                        cursor: 'pointer',
+                                        fontWeight: activeTrainingTab === tab ? '700' : '500',
+                                        color: activeTrainingTab === tab ? 'var(--primary)' : '#64748b',
+                                        fontSize: '0.95rem',
+                                        borderRadius: '8px 8px 0 0',
+                                        transition: 'all 0.2s',
+                                        textAlign: 'center',
+                                        whiteSpace: 'nowrap'
+                                    }}
+                                >
+                                    {tab === 'chat' ? 'Chat' : tab === 'scribe' ? 'Scribe Steps' : 'VoiceOver Tips'}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
 
                 <div className="content-area" style={{ flex: 1, overflow: 'hidden' }}>
                     {(
@@ -225,8 +516,9 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
                                     </div>
                                 )}
 
-                                {/* Summary Header */}
-                                {transcriptData && (
+
+                                {/* Summary Header - Only for Meetings Mode */}
+                                {transcriptData && personality === 'meetings' && (
                                     <div className="summary-header" style={{ marginBottom: '2rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
                                         <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: '700' }}>
                                             {transcriptData.title || "Video Recap"}
@@ -286,7 +578,7 @@ export default function IntelligencePanel({ mediaId, jobId, onSeek, onStatusChan
                                     </div>
                                 )}
 
-                                {messages.map((m, i) => (
+                                {(personality === 'training' ? trainingMessages[activeTrainingTab] : messages).map((m, i) => (
                                     <div key={i} className={`message-row ${m.role}`}>
                                         <div className="message-content">
                                             {m.role === 'assistant' ? (

@@ -40,7 +40,7 @@ async function updateJob(jobId: string, data: any) {
 }
 
 // Background processing function
-async function processMedia(jobId: string, mediaId: string) {
+async function processMedia(jobId: string, mediaId: string, personality: string = 'meetings') {
     try {
         await updateJob(jobId, { status: 'PREPARING', progress: 5 });
         const uploadDir = getUploadPath(mediaId);
@@ -187,7 +187,7 @@ async function processMedia(jobId: string, mediaId: string) {
         console.log(`Job ${jobId}: Indexing chunks for search...`);
         try {
             const { indexVideoChunks } = await import('@/lib/indexChunks');
-            await indexVideoChunks(mediaId, 'mountmontgomery', transcript, summaryData.title);
+            await indexVideoChunks(mediaId, 'mountmontgomery', transcript, summaryData.title, personality);
             console.log(`Job ${jobId}: Indexing complete`);
         } catch (indexError) {
             console.error(`Job ${jobId}: Indexing failed (non-fatal):`, indexError);
@@ -211,7 +211,7 @@ async function processMedia(jobId: string, mediaId: string) {
 export async function POST(req: NextRequest) {
     try {
         await ensureDirs();
-        const { mediaId } = await req.json();
+        const { mediaId, personality } = await req.json();
         if (!mediaId) {
             return NextResponse.json({ error: 'Missing mediaId' }, { status: 400 });
         }
@@ -220,6 +220,7 @@ export async function POST(req: NextRequest) {
         const jobData = {
             jobId,
             mediaId,
+            personality: personality || 'meetings',
             status: 'QUEUED',
             createdAt: new Date().toISOString(),
             progress: 0,
@@ -232,7 +233,7 @@ export async function POST(req: NextRequest) {
         // Start processing asynchronously (fire and forget)
         // Note: In Next.js Serverless env this might not finish. 
         // For local dev/MVP it's fine.
-        processMedia(jobId, mediaId);
+        processMedia(jobId, mediaId, personality || 'meetings');
 
         return NextResponse.json({ jobId });
     } catch (error) {

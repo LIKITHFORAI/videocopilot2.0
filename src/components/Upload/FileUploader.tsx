@@ -4,6 +4,8 @@ import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 're
 import MinimalProgressBar from './MinimalProgressBar';
 import { useDragDrop } from '@/hooks/useDragDrop';
 import AuthButton from '@/components/Auth/AuthButton';
+import OneDriveBrowser from '@/components/SharePoint/OneDriveBrowser';
+import PersonalityChooser, { Personality } from '@/components/Personality/PersonalityChooser';
 import { theme } from '@/lib/theme';
 import { getApiPath } from '@/lib/apiPath';
 
@@ -18,6 +20,8 @@ interface FileUploaderProps {
     currentJobStatus?: string;
     currentJobProgress?: number;
     onCancel?: () => void;
+    personality?: Personality; // Added for passing personality to APIs
+    onPersonalityChange?: (personality: Personality) => void; // Handler for personality changes
 }
 
 interface HistoryItem {
@@ -32,7 +36,9 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
     onUploadComplete,
     currentJobStatus,
     currentJobProgress = 0,
-    onCancel
+    onCancel,
+    personality = 'meetings', // Default to meetings
+    onPersonalityChange
 }, ref) => {
     const { instance, accounts } = useMsal();
     const [status, setStatus] = useState<'idle' | 'uploading' | 'queued' | 'error'>('idle');
@@ -91,17 +97,21 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
     // Load history on mount and sync with server
     useEffect(() => {
         // 1. Initial load from localStorage for instant UI
-        const saved = localStorage.getItem('vc_history');
+        const storageKey = `vc_history_${personality}`;
+        const saved = localStorage.getItem(storageKey);
         if (saved) {
             try {
                 setHistory(JSON.parse(saved));
             } catch (e) {
                 console.error("Failed to parse history", e);
             }
+        } else {
+            // Clear history if nothing saved for this personality to prevent stale data
+            setHistory([]);
         }
 
         // 2. ALWAYS fetch fresh list/status from server to fix stuck "Processing" states
-        fetch(getApiPath('/api/media/list'))
+        fetch(getApiPath(`/api/media/list?personality=${personality}`))
             .then(res => res.json())
             .then(data => {
                 if (data.videos && Array.isArray(data.videos)) {
@@ -109,7 +119,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                     const serverItems = data.videos.map((v: any) => ({
                         mediaId: v.id,
                         jobId: v.id, // Use mediaId as jobId fallback
-                        fileName: v.title || 'Untitled',
+                        fileName: v.title || v.filename || 'Untitled',
                         status: v.status || 'completed',
                         date: new Date(v.upload_date).toLocaleDateString(),
                         progress: 100
@@ -117,25 +127,22 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
 
                     // Update history, keeping local items if needed, but prioritizing server status
                     setHistory(current => {
-                        // Merge logic: Use server items, maybe append local ones that are missing?
-                        // For simplicity and correctness, let's just use server list as source of truth
-                        // But we want to keep jobId references if possible.
-
-                        // Actually, trusting server is safer. Server knows what is really done.
+                        // Trusting server is safer. Server knows what is really done.
                         const newHistory = serverItems;
-                        localStorage.setItem('vc_history', JSON.stringify(newHistory));
+                        localStorage.setItem(storageKey, JSON.stringify(newHistory));
                         return newHistory;
                     });
                 }
             })
             .catch(err => console.error("Failed to sync history", err));
-    }, []);
+    }, [personality]);
 
     // Save history helper
     const addToHistory = (item: HistoryItem) => {
         setHistory(prevHistory => {
             const newHistory = [item, ...prevHistory.filter(h => h.mediaId !== item.mediaId)]; // No limit - show all
-            localStorage.setItem('vc_history', JSON.stringify(newHistory));
+            const storageKey = `vc_history_${personality}`;
+            localStorage.setItem(storageKey, JSON.stringify(newHistory));
             return newHistory;
         });
     };
@@ -194,7 +201,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
             const res = await fetch(getApiPath('/api/process'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mediaId }),
+                body: JSON.stringify({ mediaId, personality }),
             });
             const data = await res.json();
             if (res.ok) {
@@ -507,6 +514,14 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
 
                 {/* Action Area */}
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    {/* 0. PERSONALITY Button (Before UPLOAD) */}
+                    {onPersonalityChange && (
+                        <PersonalityChooser
+                            onPersonalityChange={onPersonalityChange}
+                            currentPersonality={personality}
+                        />
+                    )}
+
                     {/* 1. UPLOAD Button (First) */}
                     <div style={{ position: 'relative' }} ref={uploadContainerRef}>
                         <button

@@ -6,9 +6,10 @@ import IntelligencePanel from '../components/analysis/IntelligencePanel';
 import TranscriptPanel from '../components/analysis/TranscriptPanel';
 import ActionItemsPanel from '../components/analysis/ActionItemsPanel';
 import AuthGate from '../components/Auth/AuthGate';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useMsal } from '@azure/msal-react';
 import OneDriveBrowser from '../components/SharePoint/OneDriveBrowser';
+import PersonalityChooser, { Personality } from '../components/Personality/PersonalityChooser';
 
 export default function Home() {
   const { accounts } = useMsal();
@@ -16,6 +17,30 @@ export default function Home() {
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [jobStatus, setJobStatus] = useState<string>('');
   const [jobProgress, setJobProgress] = useState<number>(0);
+  const [personality, setPersonality] = useState<Personality>('meetings');
+
+  // Load personality from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('videocopilot_personality') as Personality;
+      if (saved && ['meetings', 'training', 'support'].includes(saved)) {
+        setPersonality(saved);
+      }
+    }
+  }, []);
+
+  // Save personality to localStorage
+  const handlePersonalityChange = (newPersonality: Personality) => {
+    setPersonality(newPersonality);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('videocopilot_personality', newPersonality);
+    }
+    // Reset session state when switching modes
+    setActiveMediaId(null);
+    setActiveJobId(null);
+    setJobStatus('');
+    setJobProgress(0);
+  };
 
   const videoPlayerRef = useRef<VideoPlayerRef>(null);
   const fileUploaderRef = useRef<FileUploaderRef>(null);
@@ -60,6 +85,8 @@ export default function Home() {
         currentJobStatus={jobStatus}
         currentJobProgress={jobProgress}
         onCancel={handleCancel}
+        personality={personality}
+        onPersonalityChange={handlePersonalityChange}
       />
 
       <main className="main-layout">
@@ -85,6 +112,7 @@ export default function Home() {
             onSeek={handleSeek}
             onStatusChange={setJobStatus}
             onProgressChange={setJobProgress}
+            personality={personality}
           />
         </div>
 

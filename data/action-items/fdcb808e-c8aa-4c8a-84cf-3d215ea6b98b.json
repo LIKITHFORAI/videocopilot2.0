@@ -1,0 +1,101 @@
+[
+  {
+    "id": "action-1770424379463-0",
+    "category": "Topics",
+    "action_item": "Topics - Discuss the billing process in Dr. Cloud EHR and creating claims.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Focus on generating claims, marking claims as billed, and handling special scenarios.",
+    "timestamp": 9
+  },
+  {
+    "id": "action-1770424379463-1",
+    "category": "Requirements",
+    "action_item": "Requirements - Update the rate tables and master charge list in Dr. Cloud EHR.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Ensure usual and customary rates are accurate and up to date.",
+    "timestamp": 36
+  },
+  {
+    "id": "action-1770424379463-2",
+    "category": "Service Codes",
+    "action_item": "Service Codes - Implement billing rules related to age of the client and diagnoses.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Set up rules that apply specific service codes based on client age and diagnosis.",
+    "timestamp": 48
+  },
+  {
+    "id": "action-1770424379463-3",
+    "category": "Reports",
+    "action_item": "Reports - Generate month-end closed report for the general ledger.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Include details on outstanding balances and collections.",
+    "timestamp": 79
+  },
+  {
+    "id": "action-1770424379463-4",
+    "category": "Payers",
+    "action_item": "Payers - Manage contract rates for payers in Dr. Cloud EHR.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Edit payer contracts and ensure correct rates are applied.",
+    "timestamp": 84
+  },
+  {
+    "id": "action-1770424379463-5",
+    "category": "Data Migration",
+    "action_item": "Data Migration - Ensure all claims can be generated and submitted electronically.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Support multiple clearinghouses and ensure data integrity.",
+    "timestamp": 220
+  },
+  {
+    "id": "action-1770424379463-6",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Display authorization information during appointment creation.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Check authorized units to prevent exceeding limits.",
+    "timestamp": 1156
+  },
+  {
+    "id": "action-1770424379463-7",
+    "category": "Key Question",
+    "action_item": "Key Question - Clarify requirements for sending encounters to Medicaid authority.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Determine formatting and data needed for reporting.",
+    "timestamp": 429
+  },
+  {
+    "id": "action-1770424379463-8",
+    "category": "Reaction",
+    "action_item": "Reaction - Address golden threat alerts preventing claims from being billed.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Implement a process for overriding alerts and capturing notes.",
+    "timestamp": 308
+  },
+  {
+    "id": "action-1770424379463-9",
+    "category": "Workflow",
+    "action_item": "Workflow - Establish a process for placing clients with collection agencies.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Utilize the collections aging report to manage outstanding balances.",
+    "timestamp": 1226
+  },
+  {
+    "id": "action-1770424379463-10",
+    "category": "Reports",
+    "action_item": "Reports - Generate net revenue report based on contracted rates.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Include expected revenue and adjustments for accurate financial tracking.",
+    "timestamp": 1575
+  }
+]

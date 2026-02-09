@@ -14,13 +14,14 @@ export async function indexVideoChunks(
     videoId: string,
     clientId: string,
     transcript: any,
-    videoTitle?: string
+    videoTitle?: string,
+    personality: string = 'meetings'
 ): Promise<IndexResult> {
     try {
         // 1. Chunk the transcript
         const chunks = chunkTranscript(transcript.segments || []);
 
-        // 2. Start transaction
+        //2. Start transaction
         const insertChunk = db.prepare(`
       INSERT INTO transcript_chunks (id, video_id, client_id, chunk_index, chunk_text, speaker, start_time, end_time, created_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, strftime('%s', 'now'))
@@ -35,12 +36,13 @@ export async function indexVideoChunks(
     `);
 
         const updateVideo = db.prepare(`
-      INSERT INTO videos (id, client_id, filename, title, indexed, status)
-      VALUES (?, ?, ?, ?, 1, 'completed')
+      INSERT INTO videos (id, client_id, filename, title, indexed, status, personality)
+      VALUES (?, ?, ?, ?, 1, 'completed', ?)
       ON CONFLICT(id) DO UPDATE SET
         indexed = 1,
         status = 'completed',
-        title = COALESCE(excluded.title, title)
+        title = COALESCE(excluded.title, title),
+        personality = excluded.personality
     `);
 
         const transaction = db.transaction((chunks: Chunk[]) => {
@@ -70,7 +72,7 @@ export async function indexVideoChunks(
             }
 
             // Mark video as indexed
-            updateVideo.run(videoId, clientId, videoId, videoTitle || 'Untitled');
+            updateVideo.run(videoId, clientId, videoId, videoTitle || 'Untitled', personality);
         });
 
         transaction(chunks);

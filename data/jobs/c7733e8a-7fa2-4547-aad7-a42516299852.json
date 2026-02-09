@@ -1,0 +1,12 @@
+{
+  "jobId": "c7733e8a-7fa2-4547-aad7-a42516299852",
+  "mediaId": "54fb99ee-96c7-4f6d-b910-a30e060626d6",
+  "personality": "training",
+  "status": "COMPLETED",
+  "createdAt": "2026-02-07T01:03:03.155Z",
+  "progress": 100,
+  "updatedAt": "2026-02-07T01:07:40.514Z",
+  "chunkIndex": 2,
+  "totalChunks": 2,
+  "resultUrl": "/api/transcript/54fb99ee-96c7-4f6d-b910-a30e060626d6"
+}

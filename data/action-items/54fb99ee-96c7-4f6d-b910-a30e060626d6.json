@@ -1,0 +1,92 @@
+[
+  {
+    "id": "action-1770426460417-0",
+    "category": "Topics",
+    "action_item": "Topics - Discuss the billing process in Dr. Cloud EHR including claims creation and marking claims as billed.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Focus on the steps for generating claims and the options for marking them as billed without sending to a clearinghouse.",
+    "timestamp": 9
+  },
+  {
+    "id": "action-1770426460417-1",
+    "category": "Requirements",
+    "action_item": "Requirements - Gather requirements for sending encounters to Medicaid authority for reporting.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Clarify the formatting and data needed for Medicaid reporting.",
+    "timestamp": 429
+  },
+  {
+    "id": "action-1770426460417-2",
+    "category": "Reports",
+    "action_item": "Reports - Create a month-end closed report for the general ledger.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Ensure the report captures all necessary financial data.",
+    "timestamp": 79
+  },
+  {
+    "id": "action-1770426460417-3",
+    "category": "Service Codes",
+    "action_item": "Service Codes - Update the master charge list and rate tables in Dr. Cloud EHR.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Make necessary changes to service codes and their billing methods.",
+    "timestamp": 36
+  },
+  {
+    "id": "action-1770426460417-4",
+    "category": "Payers",
+    "action_item": "Payers - Manage contracts with payers and update contracted rates.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Ensure that the contracted rates are accurately reflected in the system.",
+    "timestamp": 1404
+  },
+  {
+    "id": "action-1770426460417-5",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Set up billing rules based on service codes and patient demographics.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Implement rules that adjust billing based on age, diagnosis, and service type.",
+    "timestamp": 896
+  },
+  {
+    "id": "action-1770426460417-6",
+    "category": "Data Migration",
+    "action_item": "Data Migration - Ensure proper handling of prior authorizations and authorized units.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Set up the system to manage authorized units effectively.",
+    "timestamp": 1107
+  },
+  {
+    "id": "action-1770426460417-7",
+    "category": "Interface",
+    "action_item": "Interface - Implement a feature to display authorization information during appointment creation.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Allow users to see authorized units consumed when creating appointments.",
+    "timestamp": 1152
+  },
+  {
+    "id": "action-1770426460417-8",
+    "category": "Topics",
+    "action_item": "Topics - Discuss the process for placing clients with collection agencies.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Review the collections aging report and the steps to initiate collections.",
+    "timestamp": 1226
+  },
+  {
+    "id": "action-1770426460417-9",
+    "category": "Reports",
+    "action_item": "Reports - Generate net revenue reports based on contracted rates.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Ensure the report provides a clear comparison of expected revenue versus actual payments.",
+    "timestamp": 1575
+  }
+]

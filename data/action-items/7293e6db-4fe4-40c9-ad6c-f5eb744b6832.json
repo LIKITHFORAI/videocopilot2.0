@@ -1,0 +1,65 @@
+[
+  {
+    "id": "action-1770417823700-0",
+    "category": "Billing",
+    "action_item": "Billing - Discuss the billing process in Dr. Cloud EHR and how to create and manage claims.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Focus on generating claims, marking claims as billed, and handling special scenarios.",
+    "timestamp": 9
+  },
+  {
+    "id": "action-1770417823700-1",
+    "category": "Rate Tables",
+    "action_item": "Rate Tables - Update the rate tables and master charge list in Dr. Cloud EHR.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Ensure usual and customary rates are current and editable based on date ranges.",
+    "timestamp": 36
+  },
+  {
+    "id": "action-1770417823700-2",
+    "category": "Claim Rules",
+    "action_item": "Claim Rules - Configure claim rules for specific service codes and insurance companies.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Set rules for missing information and notifications for claims not generated.",
+    "timestamp": 577
+  },
+  {
+    "id": "action-1770417823700-3",
+    "category": "Prior Authorizations",
+    "action_item": "Prior Authorizations - Implement a system to manage prior authorizations and authorized units.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Ensure the system checks authorized units before creating appointments.",
+    "timestamp": 1100
+  },
+  {
+    "id": "action-1770417823700-4",
+    "category": "Collections",
+    "action_item": "Collections - Set up a process for placing clients in collections based on outstanding balances.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Utilize the collections aging report to identify clients for collections.",
+    "timestamp": 1226
+  },
+  {
+    "id": "action-1770417823700-5",
+    "category": "Contract Management",
+    "action_item": "Contract Management - Manage payer contracts and ensure contracted rates are accurately reflected.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Update the system to reflect contracted rates for services provided.",
+    "timestamp": 1404
+  },
+  {
+    "id": "action-1770417823700-6",
+    "category": "General Ledger",
+    "action_item": "General Ledger - Export billing transactions to the general ledger software.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Ensure transactions are accurately exported for accounting purposes.",
+    "timestamp": 1336
+  }
+]

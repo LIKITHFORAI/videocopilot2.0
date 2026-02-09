@@ -1,0 +1,110 @@
+[
+  {
+    "id": "action-1770418695431-0",
+    "category": "Topics",
+    "action_item": "Topics - Discuss the billing process in Dr. Cloud EHR and creating claims.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Focus on marking claims as billed without sending to a clearinghouse.",
+    "timestamp": 9
+  },
+  {
+    "id": "action-1770418695431-1",
+    "category": "Reports",
+    "action_item": "Reports - Update the rate tables and master charge list in Dr. Cloud EHR.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Ensure usual and customary rates are accurate.",
+    "timestamp": 36
+  },
+  {
+    "id": "action-1770418695431-2",
+    "category": "Requirements",
+    "action_item": "Requirements - Handle special billing scenarios using billing rules.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Consider age of the client and diagnoses based on service codes.",
+    "timestamp": 43
+  },
+  {
+    "id": "action-1770418695431-3",
+    "category": "Appointment Types",
+    "action_item": "Appointment Types - Discuss the process for handling authorizations.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Include cases with partial authorizations.",
+    "timestamp": 63
+  },
+  {
+    "id": "action-1770418695431-4",
+    "category": "Payers",
+    "action_item": "Payers - Review the contract management for payers' contracted rates.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Ensure editing capabilities in Dr. Cloud EHR.",
+    "timestamp": 84
+  },
+  {
+    "id": "action-1770418695431-5",
+    "category": "Data Migration",
+    "action_item": "Data Migration - Ensure the system can generate claims based on filters.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Filters should include authorization status, bill type, and service code.",
+    "timestamp": 113
+  },
+  {
+    "id": "action-1770418695431-6",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Set up notifications for claims not generated due to missing information.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Modify claim rules for each payer and service code.",
+    "timestamp": 617
+  },
+  {
+    "id": "action-1770418695431-7",
+    "category": "Service Codes",
+    "action_item": "Service Codes - Manage rate tables for CPT-4 codes.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Edit rates based on date ranges and service codes.",
+    "timestamp": 713
+  },
+  {
+    "id": "action-1770418695431-8",
+    "category": "Key Question",
+    "action_item": "Key Question - Determine the requirements for sending encounters to Medicaid authority.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Clarify formatting and reporting needs.",
+    "timestamp": 438
+  },
+  {
+    "id": "action-1770418695431-9",
+    "category": "Reaction",
+    "action_item": "Reaction - Address concerns about claims generation failures due to missing prior authorization.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Implement checks for prior authorization status.",
+    "timestamp": 510
+  },
+  {
+    "id": "action-1770418695431-10",
+    "category": "Topics",
+    "action_item": "Topics - Discuss the process for placing clients with collection agencies.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Utilize the collections aging report for outstanding balances.",
+    "timestamp": 1226
+  },
+  {
+    "id": "action-1770418695431-11",
+    "category": "Reports",
+    "action_item": "Reports - Export accounting transactions for general ledger.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Ensure transactions are accurately reflected in the export.",
+    "timestamp": 1346
+  }
+]

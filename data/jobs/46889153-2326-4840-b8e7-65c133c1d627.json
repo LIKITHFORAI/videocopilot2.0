@@ -1,0 +1,12 @@
+{
+  "jobId": "46889153-2326-4840-b8e7-65c133c1d627",
+  "mediaId": "ce74fbe1-070f-4fee-89ed-89d79fc4620d",
+  "personality": "training",
+  "status": "COMPLETED",
+  "createdAt": "2026-02-07T01:20:08.504Z",
+  "progress": 100,
+  "updatedAt": "2026-02-07T01:21:05.946Z",
+  "chunkIndex": 1,
+  "totalChunks": 1,
+  "resultUrl": "/api/transcript/ce74fbe1-070f-4fee-89ed-89d79fc4620d"
+}

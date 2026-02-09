@@ -7,7 +7,7 @@ const DB_PATH = join(process.cwd(), 'data', 'transcripts.db');
 // Ensure data directory exists
 const dataDir = join(process.cwd(), 'data');
 if (!existsSync(dataDir)) {
-    mkdirSync(dataDir, { recursive: true });
+  mkdirSync(dataDir, { recursive: true });
 }
 
 // Initialize database
@@ -28,12 +28,14 @@ db.exec(`
     duration_seconds INTEGER,
     status TEXT DEFAULT 'processing',
     indexed INTEGER DEFAULT 0,
+    personality TEXT DEFAULT 'meetings',
     created_at INTEGER DEFAULT (strftime('%s', 'now'))
   );
 
   CREATE INDEX IF NOT EXISTS idx_videos_client ON videos(client_id);
   CREATE INDEX IF NOT EXISTS idx_videos_date ON videos(upload_date DESC);
   CREATE INDEX IF NOT EXISTS idx_videos_indexed ON videos(indexed);
+  CREATE INDEX IF NOT EXISTS idx_videos_personality ON videos(personality);
 
   -- Transcript chunks table with FTS5
   CREATE VIRTUAL TABLE IF NOT EXISTS transcript_chunks USING fts5(
@@ -64,6 +66,17 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_chunks_meta_client ON chunk_metadata(client_id);
   CREATE INDEX IF NOT EXISTS idx_chunks_meta_video ON chunk_metadata(video_id);
 `);
+
+// Add personality column to existing tables if it doesn't exist
+try {
+  db.exec(`ALTER TABLE videos ADD COLUMN personality TEXT DEFAULT 'meetings'`);
+  console.log('✅ Added personality column to videos table');
+} catch (e: any) {
+  // Column already exists, ignore error
+  if (!e.message.includes('duplicate column name')) {
+    console.error('Error adding personality column:', e);
+  }
+}
 
 console.log('✅ SQLite database initialized at:', DB_PATH);
 

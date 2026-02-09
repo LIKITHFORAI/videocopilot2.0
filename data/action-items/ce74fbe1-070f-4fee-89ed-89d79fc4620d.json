@@ -1,0 +1,56 @@
+[
+  {
+    "id": "action-1770427265916-0",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Personalize the application settings for improved user experience.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Focus on landing page customization and inbox cleanup.",
+    "timestamp": 37
+  },
+  {
+    "id": "action-1770427265916-1",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Uncheck the legacy search box to enhance patient record search capabilities.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "This allows for more precise searching by combining first name, last name, and gender.",
+    "timestamp": 90
+  },
+  {
+    "id": "action-1770427265916-2",
+    "category": "Security",
+    "action_item": "Security - Change main login password for enhanced security.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Follow the straightforward process in the settings tab.",
+    "timestamp": 120
+  },
+  {
+    "id": "action-1770427265916-3",
+    "category": "Security",
+    "action_item": "Security - Update eSignature ID for document signing.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Ensure to validate current ID before creating a new one.",
+    "timestamp": 149
+  },
+  {
+    "id": "action-1770427265916-4",
+    "category": "Security",
+    "action_item": "Security - Update visual signature for documents.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Validate eSignature ID to access the signature drawing interface.",
+    "timestamp": 205
+  },
+  {
+    "id": "action-1770427265916-5",
+    "category": "Reports",
+    "action_item": "Reports - Customize clinical document templates using CCDA format.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Select and order the sections of patient charts to include in summaries.",
+    "timestamp": 249
+  }
+]
