@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import SharePointPicker from '../SharePoint/SharePointPicker';
+import type { ServerImportResult } from '../SharePoint/SharePointPicker';
 import { theme } from '@/lib/theme';
 
 interface UploadSourceModalProps {
     onClose: () => void;
     onLocalUpload: () => void;
-    onFileSelected: (file: File) => void;
+    onFileSelected: (file: File | ServerImportResult) => void;
 }
 
 export default function UploadSourceModal({ onClose, onLocalUpload, onFileSelected }: UploadSourceModalProps) {
@@ -18,7 +19,7 @@ export default function UploadSourceModal({ onClose, onLocalUpload, onFileSelect
         onClose();
     };
 
-    const handleSharePointSelect = (file: File) => {
+    const handleSharePointSelect = (file: File | ServerImportResult) => {
         onFileSelected(file);
         onClose();
     };

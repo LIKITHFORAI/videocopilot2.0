@@ -9,6 +9,7 @@ import type { ServerImportResult } from '@/components/SharePoint/SharePointPicke
 import PersonalityChooser, { Personality } from '@/components/Personality/PersonalityChooser';
 import { theme } from '@/lib/theme';
 import { getApiPath } from '@/lib/apiPath';
+import { saveVideoToLocal } from '@/lib/browserStorage';
 
 import { useMsal } from '@azure/msal-react';
 
@@ -249,7 +250,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
         }
 
         setStatus('uploading');
-        setMessage(`Uploading ${file.name}...`);
+        setMessage(`Saving locally & uploading ${file.name}...`);
         setUploadProgress(0);
 
         try {
@@ -270,6 +271,14 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                     const response = JSON.parse(xhr.responseText);
                     setStatus('queued');
                     setMessage('Queuing for processing...');
+
+                    // Save video blob to IndexedDB with the real mediaId
+                    try {
+                        await saveVideoToLocal(response.mediaId, file);
+                        console.log(`[FileUploader] Saved ${file.name} to IndexedDB (${response.mediaId})`);
+                    } catch (idbErr) {
+                        console.warn('[FileUploader] Failed to save video locally:', idbErr);
+                    }
 
                     // Start the job
                     await startProcessing(response.mediaId, file.name, fileId);
