@@ -3,7 +3,7 @@ import './globals.css';
 import AuthContext from '@/contexts/AuthContext';
 
 export const metadata: Metadata = {
-  title: 'DrCloudEHR VIBE',
+  title: 'DrCloudEHR GTD',
   description: 'AI-Powered Video Intelligence for Healthcare',
 };
 

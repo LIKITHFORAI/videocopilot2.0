@@ -413,7 +413,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                             color: '#a0b1ffe8',
                             fontStyle: 'normal'
                         }}>
-                            GetItDone
+                            GetThingsDone
                         </span>
                     </div>
                 </div>
