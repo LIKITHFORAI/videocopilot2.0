@@ -57,7 +57,7 @@
             auth: {
                 clientId: '70e7d27a-bb68-4ff1-819d-3d0cddd4f5a2',
                 authority: 'https://login.microsoftonline.com/caa18e62-2bed-40c2-9d65-8d78e846a0d1',
-                redirectUri: window.location.origin + '/auth-redirect.html'
+                redirectUri: window.location.href.split(/[?#]/)[0]
             }
         };
 
