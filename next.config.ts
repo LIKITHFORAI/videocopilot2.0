@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 // Use basePath only in production (deployment)
 const isProd = process.env.NODE_ENV === 'production';
-const basePathValue = isProd ? '/videocopilot' : '';
+const basePathValue = isProd ? '/getthingsdone' : '';
 
 const nextConfig: NextConfig = {
   basePath: basePathValue,
