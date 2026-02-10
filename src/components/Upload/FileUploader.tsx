@@ -383,21 +383,22 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                 position: 'relative'
             }}>
                 {/* Logo / Title Area */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: '250px' }}>
-                    {/* DrCloudEHR Logo */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', minWidth: '250px' }}>
+                    {/* New Logo */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                        src={getApiPath('/drcloud-logo.png')}
-                        alt="DrCloudEHR"
+                        src={getApiPath('/GetITDoneLogo.png')}
+                        alt="Get IT Done"
                         style={{
-                            height: '32px',
-                            width: 'auto'
+                            height: '38px',
+                            width: 'auto',
+                            display: 'block'
                         }}
                     />
                     {/* Brand Name */}
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.4rem' }}>
                         <span style={{
-                            fontSize: '1.3rem',
+                            fontSize: '1.5rem',
                             fontWeight: '600',
                             fontFamily: '"Noto Sans", sans-serif',
                             color: 'white',
@@ -406,13 +407,13 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                             DrCloudEHR
                         </span>
                         <span style={{
-                            fontSize: '2rem',
-                            fontWeight: '600',
+                            fontSize: '2.2rem',
+                            fontWeight: '700',
                             fontFamily: '"Bebas Neue", sans-serif',
                             color: '#a0b1ffe8',
                             fontStyle: 'normal'
                         }}>
-                            FocusNotes
+                            GetItDone
                         </span>
                     </div>
                 </div>

@@ -24,7 +24,13 @@ export default function UploadSourceModal({ onClose, onLocalUpload, onFileSelect
     };
 
     if (showSharePointPicker) {
-        return <SharePointPicker onFileSelected={handleSharePointSelect} />;
+        return (
+            <SharePointPicker
+                isOpen={showSharePointPicker}
+                onClose={() => setShowSharePointPicker(false)}
+                onFileSelected={handleSharePointSelect}
+            />
+        );
     }
 
     return (

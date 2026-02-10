@@ -68,8 +68,8 @@ export default function AuthGate() {
                 }}>
                     {/* DrCloudEHR Logo - Larger */}
                     <img
-                        src={getApiPath('/drcloud-logo.png')}
-                        alt="DrCloudEHR"
+                        src={getApiPath('/NewLogo.png')}
+                        alt="Get IT Done"
                         style={{
                             height: '72px',
                             width: 'auto'
@@ -99,7 +99,7 @@ export default function AuthGate() {
                             color: '#667eea',
                             lineHeight: '1'
                         }}>
-                            FocusNotes
+                            Get IT Done
                         </span>
                     </div>
                 </div>
