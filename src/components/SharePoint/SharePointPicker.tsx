@@ -2,6 +2,7 @@
 
 import { useMsal } from "@azure/msal-react";
 import { useState, useCallback, useEffect } from "react";
+import { getApiPath } from '@/lib/apiPath';
 
 const GRAPH_BASE = "https://graph.microsoft.com/v1.0";
 const VIDEO_EXTENSIONS = ['.mp4', '.avi', '.mov', '.mkv', '.webm', '.m4v', '.wmv'];
@@ -44,8 +45,16 @@ interface BreadcrumbItem {
 // The different "views" or sources the user can browse
 type BrowseSource = 'home' | 'myfiles' | 'shared' | 'sites' | 'site-drives' | 'drive-browse';
 
+/** Result returned when a file is imported server-side from SharePoint */
+export interface ServerImportResult {
+    mediaId: string;
+    fileName: string;
+    fileSize: number;
+    isServerImport: true;
+}
+
 interface SharePointPickerProps {
-    onFileSelected: (file: File) => void;
+    onFileSelected: (file: File | ServerImportResult) => void;
     isOpen: boolean;
     onClose: () => void;
 }
@@ -386,7 +395,7 @@ export default function SharePointPicker({ onFileSelected, isOpen, onClose }: Sh
         }
     };
 
-    // Download and select a file
+    // Import file via server-side download (On-Behalf-Of flow)
     const selectFile = async (item: DriveItem) => {
         setDownloading(true);
         setError(null);
@@ -394,37 +403,58 @@ export default function SharePointPicker({ onFileSelected, isOpen, onClose }: Sh
         try {
             const token = await getToken();
 
-            // If it's a shared item with a remote reference, use that drive
-            let metaUrl: string;
+            // Determine the effective driveId and itemId for the Graph API call
+            let effectiveDriveId: string;
+            let effectiveItemId: string;
+
             if (item.remoteItem?.parentReference?.driveId) {
-                metaUrl = `${GRAPH_BASE}/drives/${item.remoteItem.parentReference.driveId}/items/${item.remoteItem.id}`;
+                // Shared items have a remote reference with the source drive
+                effectiveDriveId = item.remoteItem.parentReference.driveId;
+                effectiveItemId = item.remoteItem.id;
             } else if (currentDriveId) {
-                metaUrl = `${GRAPH_BASE}/drives/${currentDriveId}/items/${item.id}`;
+                // Browsing a specific drive (SharePoint site or selected drive)
+                effectiveDriveId = currentDriveId;
+                effectiveItemId = item.id;
             } else {
-                metaUrl = `${GRAPH_BASE}/me/drive/items/${item.id}`;
+                // My Files — resolve the user's default drive ID
+                const meResp = await fetch(`${GRAPH_BASE}/me/drive`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!meResp.ok) throw new Error('Failed to get user drive info');
+                const meDrive = await meResp.json();
+                effectiveDriveId = meDrive.id;
+                effectiveItemId = item.id;
             }
 
-            const metaResp = await fetch(metaUrl, {
-                headers: { Authorization: `Bearer ${token}` }
+            // Send metadata to server for direct download
+            const importResp = await fetch(getApiPath('/api/sharepoint/import'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    driveId: effectiveDriveId,
+                    itemId: effectiveItemId,
+                    fileName: item.name,
+                    accessToken: token
+                })
             });
 
-            if (!metaResp.ok) throw new Error('Failed to get file info');
-            const meta = await metaResp.json();
-            const downloadUrl = meta['@microsoft.graph.downloadUrl'];
+            if (!importResp.ok) {
+                const errData = await importResp.json().catch(() => ({}));
+                throw new Error(errData.error || `Server import failed (${importResp.status})`);
+            }
 
-            if (!downloadUrl) throw new Error('No download URL available');
+            const result = await importResp.json();
 
-            const fileResp = await fetch(downloadUrl);
-            if (!fileResp.ok) throw new Error(`Download failed (${fileResp.status})`);
-
-            const blob = await fileResp.blob();
-            const file = new File([blob], item.name, { type: blob.type || 'video/mp4' });
-
-            onFileSelected(file);
+            onFileSelected({
+                mediaId: result.mediaId,
+                fileName: result.fileName || item.name,
+                fileSize: result.fileSize,
+                isServerImport: true
+            });
             onClose();
         } catch (err: any) {
-            console.error('Download error:', err);
-            setError(err.message || 'Failed to download file');
+            console.error('Server import error:', err);
+            setError(err.message || 'Failed to import file from SharePoint');
         } finally {
             setDownloading(false);
         }

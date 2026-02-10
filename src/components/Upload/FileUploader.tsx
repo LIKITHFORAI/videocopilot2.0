@@ -5,6 +5,7 @@ import MinimalProgressBar from './MinimalProgressBar';
 import { useDragDrop } from '@/hooks/useDragDrop';
 import AuthButton from '@/components/Auth/AuthButton';
 import SharePointPicker from '@/components/SharePoint/SharePointPicker';
+import type { ServerImportResult } from '@/components/SharePoint/SharePointPicker';
 import PersonalityChooser, { Personality } from '@/components/Personality/PersonalityChooser';
 import { theme } from '@/lib/theme';
 import { getApiPath } from '@/lib/apiPath';
@@ -781,9 +782,17 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
             <SharePointPicker
                 isOpen={showOneDriveBrowser}
                 onClose={() => setShowOneDriveBrowser(false)}
-                onFileSelected={(file) => {
+                onFileSelected={(fileOrImport: File | ServerImportResult) => {
                     setShowOneDriveBrowser(false);
-                    processFile(file);
+                    if ('isServerImport' in fileOrImport && fileOrImport.isServerImport) {
+                        // Server-side import — file already on disk, skip upload
+                        setStatus('queued');
+                        setMessage(`Imported ${fileOrImport.fileName} from SharePoint`);
+                        startProcessing(fileOrImport.mediaId, fileOrImport.fileName);
+                    } else {
+                        // Client-side file (fallback / local upload)
+                        processFile(fileOrImport as File);
+                    }
                 }}
             />
         </div>
