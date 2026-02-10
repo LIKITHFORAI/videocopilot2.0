@@ -114,7 +114,12 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
         }
 
         // 2. ALWAYS fetch fresh list/status from server to fix stuck "Processing" states
-        fetch(getApiPath(`/api/media/list?personality=${personality}`))
+        // Use the current user's email to filter the list
+        const userEmail = accounts[0]?.username;
+        const queryParams = new URLSearchParams({ personality });
+        if (userEmail) queryParams.append('userEmail', userEmail);
+
+        fetch(getApiPath(`/api/media/list?${queryParams.toString()}`))
             .then(res => res.json())
             .then(data => {
                 if (data.videos && Array.isArray(data.videos)) {
@@ -138,7 +143,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                 }
             })
             .catch(err => console.error("Failed to sync history", err));
-    }, [personality]);
+    }, [personality, accounts]);
 
     // Save history helper
     const addToHistory = (item: HistoryItem) => {
@@ -201,21 +206,26 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
 
     const startProcessing = async (mediaId: string, fileName: string, fileId: string | null = null) => {
         try {
+            const userEmail = accounts[0]?.username || 'anonymous';
+
             const res = await fetch(getApiPath('/api/process'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mediaId, personality }),
+                body: JSON.stringify({
+                    mediaId,
+                    personality,
+                    userEmail
+                }),
             });
             const data = await res.json();
             if (res.ok) {
                 // Save to history with user tracking
-                const userEmail = accounts[0]?.username || 'anonymous';
                 addToHistory({
                     mediaId,
                     jobId: data.jobId,
                     fileName,
                     date: new Date().toISOString(),
-                    userEmail  // Track who uploaded
+                    userEmail
                 });
 
                 setActiveJobId(data.jobId);

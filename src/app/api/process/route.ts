@@ -26,7 +26,7 @@ async function updateJob(jobId: string, data: any) {
 }
 
 // Background processing function
-async function processMedia(jobId: string, mediaId: string, personality: string = 'meetings') {
+async function processMedia(jobId: string, mediaId: string, personality: string = 'meetings', userEmail: string) {
     try {
         await updateJob(jobId, { status: 'PREPARING', progress: 5 });
         const uploadDir = getUploadPath(mediaId);
@@ -173,7 +173,7 @@ async function processMedia(jobId: string, mediaId: string, personality: string 
         console.log(`Job ${jobId}: Indexing chunks for search...`);
         try {
             const { indexVideoChunks } = await import('@/lib/indexChunks');
-            await indexVideoChunks(mediaId, 'mountmontgomery', transcript, summaryData.title, personality);
+            await indexVideoChunks(mediaId, userEmail, transcript, summaryData.title, personality);
             console.log(`Job ${jobId}: Indexing complete`);
         } catch (indexError) {
             console.error(`Job ${jobId}: Indexing failed (non-fatal):`, indexError);
@@ -197,7 +197,7 @@ async function processMedia(jobId: string, mediaId: string, personality: string 
 export async function POST(req: NextRequest) {
     try {
         await ensureDirs();
-        const { mediaId, personality } = await req.json();
+        const { mediaId, personality, userEmail } = await req.json();
         if (!mediaId) {
             return NextResponse.json({ error: 'Missing mediaId' }, { status: 400 });
         }
@@ -206,6 +206,7 @@ export async function POST(req: NextRequest) {
         const jobData = {
             jobId,
             mediaId,
+            userEmail: userEmail || 'anonymous', // Track ownership in job file too
             personality: personality || 'meetings',
             status: 'QUEUED',
             createdAt: new Date().toISOString(),
@@ -219,7 +220,7 @@ export async function POST(req: NextRequest) {
         // Start processing asynchronously (fire and forget)
         // Note: In Next.js Serverless env this might not finish. 
         // For local dev/MVP it's fine.
-        processMedia(jobId, mediaId, personality || 'meetings');
+        processMedia(jobId, mediaId, personality || 'meetings', userEmail || 'anonymous');
 
         return NextResponse.json({ jobId });
     } catch (error) {
