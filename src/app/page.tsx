@@ -9,7 +9,7 @@ import AuthGate from '../components/Auth/AuthGate';
 import { useState, useRef, useEffect } from 'react';
 import { useMsal, useIsAuthenticated } from '@azure/msal-react';
 import { InteractionStatus } from '@azure/msal-browser';
-import OneDriveBrowser from '../components/SharePoint/OneDriveBrowser';
+
 import PersonalityChooser, { Personality } from '../components/Personality/PersonalityChooser';
 
 export default function Home() {

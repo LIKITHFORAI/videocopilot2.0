@@ -1004,14 +1004,14 @@ export default function SharePointPicker({ onFileSelected, isOpen, onClose }: Sh
                                     fontSize: '0.9rem', fontWeight: '700'
                                 }}
                             >
-                                {downloading ? 'Downloading...' : 'Select'}
+                                {downloading ? 'Importing...' : 'Select'}
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Downloading overlay */}
+            {/* Server import overlay */}
             {downloading && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -1032,7 +1032,10 @@ export default function SharePointPicker({ onFileSelected, isOpen, onClose }: Sh
                             animation: 'spin 1s linear infinite'
                         }} />
                         <div style={{ color: '#e0e0e0', fontWeight: '600' }}>
-                            Downloading from OneDrive...
+                            Importing from SharePoint...
+                        </div>
+                        <div style={{ color: '#888', fontSize: '0.85rem', marginTop: '0.25rem' }}>
+                            Server is downloading the file directly — no bandwidth used on your end
                         </div>
                         <div style={{ color: '#888', fontSize: '0.85rem', marginTop: '0.5rem' }}>
                             {selectedItem?.name}

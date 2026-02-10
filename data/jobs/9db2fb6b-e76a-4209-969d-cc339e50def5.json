@@ -1,0 +1,12 @@
+{
+  "jobId": "9db2fb6b-e76a-4209-969d-cc339e50def5",
+  "mediaId": "95f5872b-98d2-4303-9322-619d472409d6",
+  "personality": "meetings",
+  "status": "COMPLETED",
+  "createdAt": "2026-02-10T22:22:53.651Z",
+  "progress": 100,
+  "updatedAt": "2026-02-10T22:23:52.986Z",
+  "chunkIndex": 1,
+  "totalChunks": 1,
+  "resultUrl": "/api/transcript/95f5872b-98d2-4303-9322-619d472409d6"
+}

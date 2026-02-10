@@ -1,0 +1,1112 @@
+{
+  "mediaId": "95f5872b-98d2-4303-9322-619d472409d6",
+  "jobId": "9db2fb6b-e76a-4209-969d-cc339e50def5",
+  "text": "Anna, you get muted when you share your screen so you have to unmute yourself. OK. Oh, now you're audible. So then we also need a URL, right? Yes, at the mine. Yes, yeah, the one I can ask our teacher. In de react. So you know it. What to do? Maybe this could be the way. the way. That yeah. So this is a tool. Yeah, so. Then you can use that authentication authentication go try it. Like a director using your office email. Oh, yeah. Oh, sorry. Yeah. Complaints. Okay. Okay. I'm thinking. Yeah. Outlook. Let me find that. Authentication authentication. Okay. I don't think. Okay. The laws of the minimum. I got a rakat ticket number, runs object under description is there. They liberated of the logo. Future altheyorkagaru to the NASA. The other. Jimkin and undergraduates. Jimkin. Conference. Conference. um Yeah. What's up? Okay. it's yeah. You can get But it's Yeah. Yeah. Hmm. So, Okay. Okay. I know. Yeah.",
+  "segments": [
+    {
+      "id": 0,
+      "seek": 0,
+      "start": 0,
+      "end": 14.880000114440918,
+      "text": " Anna, you get muted when you share your screen so you have",
+      "tokens": [
+        50364,
+        12899,
+        11,
+        291,
+        483,
+        32808,
+        562,
+        291,
+        2073,
+        288,
+        396,
+        2568,
+        370,
+        291,
+        362,
+        51108
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.623650848865509,
+      "compression_ratio": 1.1521738767623901,
+      "no_speech_prob": 0.187635600566864
+    },
+    {
+      "id": 1,
+      "seek": 0,
+      "start": 14.979999542236328,
+      "end": 17.600000381469727,
+      "text": " to unmute yourself.",
+      "tokens": [
+        51113,
+        281,
+        41445,
+        1803,
+        13,
+        51244
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.623650848865509,
+      "compression_ratio": 1.1521738767623901,
+      "no_speech_prob": 0.187635600566864
+    },
+    {
+      "id": 2,
+      "seek": 0,
+      "start": 17.600000381469727,
+      "end": 20.15999984741211,
+      "text": " OK. Oh, now you're audible.",
+      "tokens": [
+        51244,
+        2264,
+        13,
+        876,
+        11,
+        586,
+        291,
+        434,
+        41317,
+        13,
+        51372
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.623650848865509,
+      "compression_ratio": 1.1521738767623901,
+      "no_speech_prob": 0.187635600566864
+    },
+    {
+      "id": 3,
+      "seek": 3000,
+      "start": 30,
+      "end": 41.720001220703125,
+      "text": " So then we also need a URL, right?",
+      "tokens": [
+        50364,
+        407,
+        258,
+        268,
+        321,
+        611,
+        643,
+        257,
+        12905,
+        11,
+        558,
+        30,
+        50950
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.7091425061225891,
+      "compression_ratio": 1.0930233001708984,
+      "no_speech_prob": 0.06793253123760223
+    },
+    {
+      "id": 4,
+      "seek": 3000,
+      "start": 41.720001220703125,
+      "end": 44.68000030517578,
+      "text": " Yes, at the mine.",
+      "tokens": [
+        50950,
+        1079,
+        11,
+        412,
+        264,
+        3892,
+        13,
+        51098
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.7091425061225891,
+      "compression_ratio": 1.0930233001708984,
+      "no_speech_prob": 0.06793253123760223
+    },
+    {
+      "id": 5,
+      "seek": 3000,
+      "start": 44.68000030517578,
+      "end": 48.47999954223633,
+      "text": " Yes, yeah, the one I can ask our teacher.",
+      "tokens": [
+        51098,
+        1079,
+        11,
+        1338,
+        11,
+        264,
+        472,
+        286,
+        393,
+        1029,
+        527,
+        5027,
+        13,
+        51288
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.7091425061225891,
+      "compression_ratio": 1.0930233001708984,
+      "no_speech_prob": 0.06793253123760223
+    },
+    {
+      "id": 6,
+      "seek": 6000,
+      "start": 60,
+      "end": 88.54000091552734,
+      "text": " In de react.",
+      "tokens": [
+        50364,
+        682,
+        368,
+        4515,
+        13,
+        51791
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.3846325874328613,
+      "compression_ratio": 0.6000000238418579,
+      "no_speech_prob": 0.3010270893573761
+    },
+    {
+      "id": 7,
+      "seek": 11854,
+      "start": 118.62000274658203,
+      "end": 121.91999816894531,
+      "text": " So you know it.",
+      "tokens": [
+        50368,
+        407,
+        291,
+        458,
+        309,
+        13,
+        50533
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.9686079025268555,
+      "compression_ratio": 1.085714340209961,
+      "no_speech_prob": 0.51085364818573
+    },
+    {
+      "id": 8,
+      "seek": 11854,
+      "start": 122.80000305175781,
+      "end": 125.81999969482422,
+      "text": " What to do?",
+      "tokens": [
+        50577,
+        708,
+        220,
+        1353,
+        360,
+        30,
+        50728
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.9686079025268555,
+      "compression_ratio": 1.085714340209961,
+      "no_speech_prob": 0.51085364818573
+    },
+    {
+      "id": 9,
+      "seek": 11854,
+      "start": 127.16000366210938,
+      "end": 127.66000366210938,
+      "text": " Maybe this could be the way.",
+      "tokens": [
+        50795,
+        2704,
+        341,
+        1384,
+        348,
+        312,
+        264,
+        636,
+        13,
+        50820
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.9686079025268555,
+      "compression_ratio": 1.085714340209961,
+      "no_speech_prob": 0.51085364818573
+    },
+    {
+      "id": 10,
+      "seek": 11854,
+      "start": 128.05999755859375,
+      "end": 129,
+      "text": " the way.",
+      "tokens": [
+        50840,
+        264,
+        636,
+        13,
+        50887
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.9686079025268555,
+      "compression_ratio": 1.085714340209961,
+      "no_speech_prob": 0.51085364818573
+    },
+    {
+      "id": 11,
+      "seek": 11854,
+      "start": 129.33999633789062,
+      "end": 132.10000610351562,
+      "text": " That yeah.",
+      "tokens": [
+        50904,
+        663,
+        1338,
+        13,
+        51042
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.9686079025268555,
+      "compression_ratio": 1.085714340209961,
+      "no_speech_prob": 0.51085364818573
+    },
+    {
+      "id": 12,
+      "seek": 14854,
+      "start": 149.27999877929688,
+      "end": 171.5800018310547,
+      "text": " So this is a tool.",
+      "tokens": [
+        50401,
+        407,
+        341,
+        307,
+        257,
+        2290,
+        13,
+        51516
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.4014525413513184,
+      "compression_ratio": 0.75,
+      "no_speech_prob": 0.1871650367975235
+    },
+    {
+      "id": 13,
+      "seek": 17158,
+      "start": 171.5800018310547,
+      "end": 186.4600067138672,
+      "text": " Yeah, so.",
+      "tokens": [
+        50364,
+        865,
+        11,
+        370,
+        13,
+        51108
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.9469638466835022,
+      "compression_ratio": 1.2417582273483276,
+      "no_speech_prob": 0.1531423032283783
+    },
+    {
+      "id": 14,
+      "seek": 17158,
+      "start": 189.5800018310547,
+      "end": 195.33999633789062,
+      "text": " Then you can use that authentication authentication go try it.",
+      "tokens": [
+        51264,
+        1396,
+        291,
+        393,
+        764,
+        300,
+        26643,
+        26643,
+        352,
+        853,
+        309,
+        13,
+        51552
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.9469638466835022,
+      "compression_ratio": 1.2417582273483276,
+      "no_speech_prob": 0.1531423032283783
+    },
+    {
+      "id": 15,
+      "seek": 17158,
+      "start": 196.94000244140625,
+      "end": 199.33999633789062,
+      "text": " Like a director using your office email.",
+      "tokens": [
+        51632,
+        1743,
+        257,
+        5391,
+        1228,
+        428,
+        3398,
+        3796,
+        13,
+        51752
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.9469638466835022,
+      "compression_ratio": 1.2417582273483276,
+      "no_speech_prob": 0.1531423032283783
+    },
+    {
+      "id": 16,
+      "seek": 20158,
+      "start": 202.4600067138672,
+      "end": 203.10000610351562,
+      "text": " Oh, yeah.",
+      "tokens": [
+        50408,
+        876,
+        11,
+        1338,
+        13,
+        50440
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.9315352439880371,
+      "compression_ratio": 0.8666666746139526,
+      "no_speech_prob": 0.01763124391436577
+    },
+    {
+      "id": 17,
+      "seek": 20158,
+      "start": 212.94000244140625,
+      "end": 214.05999755859375,
+      "text": " Oh, sorry.",
+      "tokens": [
+        50932,
+        876,
+        11,
+        2597,
+        13,
+        50988
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.9315352439880371,
+      "compression_ratio": 0.8666666746139526,
+      "no_speech_prob": 0.01763124391436577
+    },
+    {
+      "id": 18,
+      "seek": 20158,
+      "start": 224.05999755859375,
+      "end": 224.3800048828125,
+      "text": " Yeah.",
+      "tokens": [
+        51488,
+        865,
+        13,
+        51504
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.9315352439880371,
+      "compression_ratio": 0.8666666746139526,
+      "no_speech_prob": 0.01763124391436577
+    },
+    {
+      "id": 19,
+      "seek": 23158,
+      "start": 231.5800018310547,
+      "end": 232.05999755859375,
+      "text": " Complaints.",
+      "tokens": [
+        50364,
+        33736,
+        19594,
+        13,
+        50388
+      ],
+      "temperature": 0.20000000298023224,
+      "avg_logprob": -0.7565590739250183,
+      "compression_ratio": 0.9772727489471436,
+      "no_speech_prob": 0.006318478845059872
+    },
+    {
+      "id": 20,
+      "seek": 23158,
+      "start": 234.6199951171875,
+      "end": 234.94000244140625,
+      "text": " Okay.",
+      "tokens": [
+        50516,
+        1033,
+        13,
+        50532
+      ],
+      "temperature": 0.20000000298023224,
+      "avg_logprob": -0.7565590739250183,
+      "compression_ratio": 0.9772727489471436,
+      "no_speech_prob": 0.006318478845059872
+    },
+    {
+      "id": 21,
+      "seek": 23158,
+      "start": 246.94000244140625,
+      "end": 247.25999450683594,
+      "text": " Okay.",
+      "tokens": [
+        51132,
+        1033,
+        13,
+        51148
+      ],
+      "temperature": 0.20000000298023224,
+      "avg_logprob": -0.7565590739250183,
+      "compression_ratio": 0.9772727489471436,
+      "no_speech_prob": 0.006318478845059872
+    },
+    {
+      "id": 22,
+      "seek": 23158,
+      "start": 250.77999877929688,
+      "end": 251.5,
+      "text": " I'm thinking.",
+      "tokens": [
+        51324,
+        286,
+        478,
+        1953,
+        13,
+        51360
+      ],
+      "temperature": 0.20000000298023224,
+      "avg_logprob": -0.7565590739250183,
+      "compression_ratio": 0.9772727489471436,
+      "no_speech_prob": 0.006318478845059872
+    },
+    {
+      "id": 23,
+      "seek": 23158,
+      "start": 255.82000732421875,
+      "end": 256.05999755859375,
+      "text": " Yeah.",
+      "tokens": [
+        51576,
+        865,
+        13,
+        51588
+      ],
+      "temperature": 0.20000000298023224,
+      "avg_logprob": -0.7565590739250183,
+      "compression_ratio": 0.9772727489471436,
+      "no_speech_prob": 0.006318478845059872
+    },
+    {
+      "id": 24,
+      "seek": 26158,
+      "start": 261.739990234375,
+      "end": 262.2200012207031,
+      "text": " Outlook.",
+      "tokens": [
+        50372,
+        5925,
+        12747,
+        13,
+        50396
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.6626815795898438,
+      "compression_ratio": 1.0499999523162842,
+      "no_speech_prob": 0.0011068935273215175
+    },
+    {
+      "id": 25,
+      "seek": 26158,
+      "start": 271.739990234375,
+      "end": 272.7799987792969,
+      "text": " Let me find that.",
+      "tokens": [
+        50872,
+        961,
+        385,
+        915,
+        300,
+        13,
+        50924
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.6626815795898438,
+      "compression_ratio": 1.0499999523162842,
+      "no_speech_prob": 0.0011068935273215175
+    },
+    {
+      "id": 26,
+      "seek": 26158,
+      "start": 278.3800048828125,
+      "end": 280.05999755859375,
+      "text": " Authentication authentication.",
+      "tokens": [
+        51204,
+        40231,
+        317,
+        8758,
+        26643,
+        13,
+        51288
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.6626815795898438,
+      "compression_ratio": 1.0499999523162842,
+      "no_speech_prob": 0.0011068935273215175
+    },
+    {
+      "id": 27,
+      "seek": 26158,
+      "start": 287.260009765625,
+      "end": 287.5799865722656,
+      "text": " Okay.",
+      "tokens": [
+        51648,
+        1033,
+        13,
+        51664
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.6626815795898438,
+      "compression_ratio": 1.0499999523162842,
+      "no_speech_prob": 0.0011068935273215175
+    },
+    {
+      "id": 28,
+      "seek": 29158,
+      "start": 292.29998779296875,
+      "end": 292.8599853515625,
+      "text": " I don't think.",
+      "tokens": [
+        50400,
+        286,
+        500,
+        380,
+        519,
+        13,
+        50428
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.5365419387817383,
+      "compression_ratio": 0.7142857313156128,
+      "no_speech_prob": 0.002953600138425827
+    },
+    {
+      "id": 29,
+      "seek": 29158,
+      "start": 316.70001220703125,
+      "end": 316.8599853515625,
+      "text": " Okay.",
+      "tokens": [
+        51620,
+        1033,
+        13,
+        51628
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.5365419387817383,
+      "compression_ratio": 0.7142857313156128,
+      "no_speech_prob": 0.002953600138425827
+    },
+    {
+      "id": 30,
+      "seek": 31686,
+      "start": 317.4599914550781,
+      "end": 319.239990234375,
+      "text": " The laws of the minimum.",
+      "tokens": [
+        50394,
+        440,
+        6064,
+        220,
+        2670,
+        264,
+        7285,
+        13,
+        50483
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.734837532043457,
+      "compression_ratio": 1.21875,
+      "no_speech_prob": 0.16721957921981812
+    },
+    {
+      "id": 31,
+      "seek": 31686,
+      "start": 327.8999938964844,
+      "end": 332.70001220703125,
+      "text": " I got a rakat ticket number, runs object under description is there.",
+      "tokens": [
+        50916,
+        286,
+        658,
+        257,
+        35544,
+        267,
+        10550,
+        1230,
+        11,
+        6676,
+        2657,
+        833,
+        3855,
+        307,
+        456,
+        13,
+        51156
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.734837532043457,
+      "compression_ratio": 1.21875,
+      "no_speech_prob": 0.16721957921981812
+    },
+    {
+      "id": 32,
+      "seek": 31686,
+      "start": 333.739990234375,
+      "end": 335.55999755859375,
+      "text": " They liberated of the logo.",
+      "tokens": [
+        51208,
+        314,
+        17230,
+        43304,
+        295,
+        220,
+        3322,
+        9699,
+        13,
+        51299
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.734837532043457,
+      "compression_ratio": 1.21875,
+      "no_speech_prob": 0.16721957921981812
+    },
+    {
+      "id": 33,
+      "seek": 31686,
+      "start": 337.5,
+      "end": 338.94000244140625,
+      "text": " Future altheyorkagaru to the NASA.",
+      "tokens": [
+        51396,
+        20805,
+        419,
+        13162,
+        1284,
+        29124,
+        84,
+        281,
+        264,
+        12077,
+        13,
+        51468
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.734837532043457,
+      "compression_ratio": 1.21875,
+      "no_speech_prob": 0.16721957921981812
+    },
+    {
+      "id": 34,
+      "seek": 33894,
+      "start": 338.94000244140625,
+      "end": 340.739990234375,
+      "text": " The other.",
+      "tokens": [
+        50364,
+        440,
+        4337,
+        511,
+        13,
+        50454
+      ],
+      "temperature": 1,
+      "avg_logprob": -3.2224223613739014,
+      "compression_ratio": 1.1694915294647217,
+      "no_speech_prob": 0.025690730661153793
+    },
+    {
+      "id": 35,
+      "seek": 33894,
+      "start": 346.7799987792969,
+      "end": 348.3800048828125,
+      "text": " Jimkin and undergraduates.",
+      "tokens": [
+        50756,
+        6637,
+        5843,
+        293,
+        833,
+        861,
+        345,
+        84,
+        1024,
+        13,
+        50836
+      ],
+      "temperature": 1,
+      "avg_logprob": -3.2224223613739014,
+      "compression_ratio": 1.1694915294647217,
+      "no_speech_prob": 0.025690730661153793
+    },
+    {
+      "id": 36,
+      "seek": 33894,
+      "start": 349.4200134277344,
+      "end": 351.82000732421875,
+      "text": " Jimkin.",
+      "tokens": [
+        50888,
+        6637,
+        5843,
+        13,
+        51008
+      ],
+      "temperature": 1,
+      "avg_logprob": -3.2224223613739014,
+      "compression_ratio": 1.1694915294647217,
+      "no_speech_prob": 0.025690730661153793
+    },
+    {
+      "id": 37,
+      "seek": 33894,
+      "start": 353.9200134277344,
+      "end": 355.9800109863281,
+      "text": " Conference.",
+      "tokens": [
+        51113,
+        22131,
+        13,
+        51216
+      ],
+      "temperature": 1,
+      "avg_logprob": -3.2224223613739014,
+      "compression_ratio": 1.1694915294647217,
+      "no_speech_prob": 0.025690730661153793
+    },
+    {
+      "id": 38,
+      "seek": 33894,
+      "start": 363.7200012207031,
+      "end": 366.0400085449219,
+      "text": " Conference.",
+      "tokens": [
+        51603,
+        11701,
+        323,
+        77,
+        384,
+        13,
+        51719
+      ],
+      "temperature": 1,
+      "avg_logprob": -3.2224223613739014,
+      "compression_ratio": 1.1694915294647217,
+      "no_speech_prob": 0.025690730661153793
+    },
+    {
+      "id": 39,
+      "seek": 36894,
+      "start": 369.3399963378906,
+      "end": 372.82000732421875,
+      "text": " um",
+      "tokens": [
+        50384,
+        1105,
+        50558
+      ],
+      "temperature": 1,
+      "avg_logprob": -3.278128147125244,
+      "compression_ratio": 0.7575757503509521,
+      "no_speech_prob": 0.286079078912735
+    },
+    {
+      "id": 40,
+      "seek": 36894,
+      "start": 374.2799987792969,
+      "end": 377.6199951171875,
+      "text": " Yeah.",
+      "tokens": [
+        50631,
+        865,
+        13,
+        50798
+      ],
+      "temperature": 1,
+      "avg_logprob": -3.278128147125244,
+      "compression_ratio": 0.7575757503509521,
+      "no_speech_prob": 0.286079078912735
+    },
+    {
+      "id": 41,
+      "seek": 36894,
+      "start": 379.2799987792969,
+      "end": 382.4200134277344,
+      "text": " What's up?",
+      "tokens": [
+        50881,
+        220,
+        3748,
+        311,
+        493,
+        30,
+        51038
+      ],
+      "temperature": 1,
+      "avg_logprob": -3.278128147125244,
+      "compression_ratio": 0.7575757503509521,
+      "no_speech_prob": 0.286079078912735
+    },
+    {
+      "id": 42,
+      "seek": 36894,
+      "start": 388.760009765625,
+      "end": 392.55999755859375,
+      "text": " Okay.",
+      "tokens": [
+        51355,
+        1033,
+        13,
+        51545
+      ],
+      "temperature": 1,
+      "avg_logprob": -3.278128147125244,
+      "compression_ratio": 0.7575757503509521,
+      "no_speech_prob": 0.286079078912735
+    },
+    {
+      "id": 43,
+      "seek": 39256,
+      "start": 392.70001220703125,
+      "end": 395.9599914550781,
+      "text": " it's",
+      "tokens": [
+        50371,
+        309,
+        311,
+        50534
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.9877278804779053,
+      "compression_ratio": 0.7333333492279053,
+      "no_speech_prob": 0.07350227236747742
+    },
+    {
+      "id": 44,
+      "seek": 39256,
+      "start": 395.9599914550781,
+      "end": 398.8599853515625,
+      "text": " yeah.",
+      "tokens": [
+        50534,
+        1338,
+        13,
+        50679
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.9877278804779053,
+      "compression_ratio": 0.7333333492279053,
+      "no_speech_prob": 0.07350227236747742
+    },
+    {
+      "id": 45,
+      "seek": 39256,
+      "start": 405.3800048828125,
+      "end": 409,
+      "text": " You can get",
+      "tokens": [
+        51005,
+        220,
+        3223,
+        393,
+        483,
+        51186
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.9877278804779053,
+      "compression_ratio": 0.7333333492279053,
+      "no_speech_prob": 0.07350227236747742
+    },
+    {
+      "id": 46,
+      "seek": 42256,
+      "start": 423.5199890136719,
+      "end": 427.55999755859375,
+      "text": " But it's",
+      "tokens": [
+        50412,
+        583,
+        309,
+        311,
+        50614
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.9058234691619873,
+      "compression_ratio": 1.0512820482254028,
+      "no_speech_prob": 0.01344552356749773
+    },
+    {
+      "id": 47,
+      "seek": 42256,
+      "start": 430.6600036621094,
+      "end": 433.6199951171875,
+      "text": " Yeah.",
+      "tokens": [
+        50769,
+        865,
+        13,
+        50917
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.9058234691619873,
+      "compression_ratio": 1.0512820482254028,
+      "no_speech_prob": 0.01344552356749773
+    },
+    {
+      "id": 48,
+      "seek": 42256,
+      "start": 433.79998779296875,
+      "end": 436.9599914550781,
+      "text": " Yeah.",
+      "tokens": [
+        50926,
+        865,
+        13,
+        51084
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.9058234691619873,
+      "compression_ratio": 1.0512820482254028,
+      "no_speech_prob": 0.01344552356749773
+    },
+    {
+      "id": 49,
+      "seek": 42256,
+      "start": 437.739990234375,
+      "end": 440.739990234375,
+      "text": " Hmm.",
+      "tokens": [
+        51123,
+        8239,
+        13,
+        51273
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.9058234691619873,
+      "compression_ratio": 1.0512820482254028,
+      "no_speech_prob": 0.01344552356749773
+    },
+    {
+      "id": 50,
+      "seek": 42256,
+      "start": 441.0400085449219,
+      "end": 443.8599853515625,
+      "text": " So,",
+      "tokens": [
+        51288,
+        407,
+        11,
+        51429
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.9058234691619873,
+      "compression_ratio": 1.0512820482254028,
+      "no_speech_prob": 0.01344552356749773
+    },
+    {
+      "id": 51,
+      "seek": 42256,
+      "start": 450.8599853515625,
+      "end": 452.1400146484375,
+      "text": " Okay.",
+      "tokens": [
+        51779,
+        1033,
+        13,
+        51843
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.9058234691619873,
+      "compression_ratio": 1.0512820482254028,
+      "no_speech_prob": 0.01344552356749773
+    },
+    {
+      "id": 52,
+      "seek": 42256,
+      "start": 452.1400146484375,
+      "end": 452.2200012207031,
+      "text": " Okay.",
+      "tokens": [
+        51843,
+        1033,
+        13,
+        51847
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.9058234691619873,
+      "compression_ratio": 1.0512820482254028,
+      "no_speech_prob": 0.01344552356749773
+    },
+    {
+      "id": 53,
+      "seek": 45222,
+      "start": 452.5799865722656,
+      "end": 455.8599853515625,
+      "text": " I know.",
+      "tokens": [
+        50382,
+        286,
+        458,
+        13,
+        50546
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.427607774734497,
+      "compression_ratio": 0.6190476417541504,
+      "no_speech_prob": 0.13199202716350555
+    },
+    {
+      "id": 54,
+      "seek": 45222,
+      "start": 457.8599853515625,
+      "end": 461.0199890136719,
+      "text": " Yeah.",
+      "tokens": [
+        50646,
+        865,
+        13,
+        50804
+      ],
+      "temperature": 1,
+      "avg_logprob": -2.427607774734497,
+      "compression_ratio": 0.6190476417541504,
+      "no_speech_prob": 0.13199202716350555
+    }
+  ],
+  "title": "Call with Ramamuni Reddy Yanamala Recap",
+  "summary": "This video captures a conversation involving screen sharing, authentication processes, and tool discussions. Participants engage in troubleshooting and sharing information relevant to their tasks.",
+  "keyPoints": [
+    {
+      "text": "Participants discuss screen sharing issues",
+      "timestamp": 0
+    },
+    {
+      "text": "Mention of authentication processes",
+      "timestamp": 189
+    },
+    {
+      "text": "Discussion about a tool and its usage",
+      "timestamp": 149
+    },
+    {
+      "text": "Reference to a ticket number and related tasks",
+      "timestamp": 327
+    }
+  ],
+  "createdAt": "2026-02-10T22:23:52.927Z"
+}
