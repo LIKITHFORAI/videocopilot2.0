@@ -50,8 +50,7 @@ export async function DELETE(
         const { mediaId } = job;
 
         // 2. Cancel the running job if it's still processing
-        // Import cancelJob from the process route
-        const { cancelJob } = await import('../../process/route');
+        const { cancelJob } = await import('@/lib/jobTracker');
         cancelJob(jobId);
 
         // 3. Delete Upload Directory (and all contents)

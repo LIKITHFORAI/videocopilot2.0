@@ -1,0 +1,65 @@
+[
+  {
+    "id": "action-1770685898129-0",
+    "category": "Topics",
+    "action_item": "Topics - Discuss the purpose and drive behind the company.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Focus on understanding the company's role in the behavioral health sector.",
+    "timestamp": 60
+  },
+  {
+    "id": "action-1770685898129-1",
+    "category": "Requirements",
+    "action_item": "Requirements - Clarify the subscription model for the software.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Confirm that the software is offered as a yearly subscription and discuss customization needs.",
+    "timestamp": 215
+  },
+  {
+    "id": "action-1770685898129-2",
+    "category": "DrFirst/EPCS",
+    "action_item": "DrFirst/EPCS - Explore the AI group scribing tool.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Investigate the capabilities of the new AI tool for recording and analyzing patient meetings.",
+    "timestamp": 252
+  },
+  {
+    "id": "action-1770685898129-3",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Identify the marketing and growth team structure.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Determine how many people are in the marketing team and if there is a dedicated growth team.",
+    "timestamp": 735
+  },
+  {
+    "id": "action-1770685898129-4",
+    "category": "Key Question",
+    "action_item": "Key Question - Assess current marketing strategies and outreach.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Evaluate how the company can improve its presence on platforms like LinkedIn.",
+    "timestamp": 559
+  },
+  {
+    "id": "action-1770685898129-5",
+    "category": "Topics",
+    "action_item": "Topics - Plan a meeting with the CTO and sales personnel.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Coordinate a meeting to discuss marketing strategies and growth targets.",
+    "timestamp": 750
+  },
+  {
+    "id": "action-1770685898129-6",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Update and send resume.",
+    "responsible_party": "Alamji",
+    "due_date": "2023-10-20",
+    "notes": "Ensure resume is updated based on career advisor's recommendations.",
+    "timestamp": 1152
+  }
+]

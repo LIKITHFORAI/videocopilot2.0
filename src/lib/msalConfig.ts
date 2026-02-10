@@ -20,5 +20,12 @@ export const msalConfig: Configuration = {
 };
 
 export const loginRequest: PopupRequest = {
-    scopes: ["User.Read", "Files.Read.All", "Sites.Read.All"]
+    scopes: [
+        "User.Read",
+        "Files.Read.All",
+        "Files.ReadWrite.All",
+        "Sites.Read.All",
+        "Sites.ReadWrite.All"
+    ],
+    prompt: "select_account"
 };

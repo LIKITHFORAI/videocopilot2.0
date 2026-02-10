@@ -7,21 +7,7 @@ import { extractAudio, splitAudio, transcribeChunk, getAudioDurationInSeconds, r
 import { getUploadPath, getJobPath, getTranscriptPath, cleanupMedia, ensureDirs } from '@/lib/storage';
 import { generateSummary, extractActionItems } from '@/lib/intelligence';
 
-// Global cancellation tracker
-const cancelledJobs = new Map<string, boolean>();
-
-export function cancelJob(jobId: string) {
-    cancelledJobs.set(jobId, true);
-    console.log(`🛑 Job ${jobId} marked for cancellation`);
-}
-
-export function isJobCancelled(jobId: string): boolean {
-    return cancelledJobs.get(jobId) === true;
-}
-
-export function clearJobCancellation(jobId: string) {
-    cancelledJobs.delete(jobId);
-}
+import { cancelJob, isJobCancelled, clearJobCancellation } from '@/lib/jobTracker';
 
 // In-memory job status tracker for MVP (since fs writes might be slow for status polling if high freq)
 // But we used file-based persistence in the stub. Let's stick to file-based for persistence across restarts.
@@ -78,7 +64,7 @@ async function processMedia(jobId: string, mediaId: string, personality: string 
         if (!isAudio) {
             await updateJob(jobId, { status: 'EXTRACTING_AUDIO', progress: 10 });
             console.log(`Job ${jobId}: Extracting audio...`);
-            await extractAudio(inputPath, audioMasterPath);
+            await extractAudio(inputPath, audioMasterPath, jobId);
         } else {
             // If it's already audio, copy to master
             if (videoFile.toLowerCase().endsWith('.mp3')) {
@@ -101,7 +87,7 @@ async function processMedia(jobId: string, mediaId: string, personality: string 
             await updateJob(jobId, { status: 'COMPRESSING_VIDEO', progress: 15 });
             console.log(`Job ${jobId}: Compressing video to 360p...`);
             const video360pPath = join(uploadDir, 'video_360p.mp4');
-            await reencodeToLowQuality(inputPath, video360pPath);
+            await reencodeToLowQuality(inputPath, video360pPath, jobId);
             console.log(`Job ${jobId}: Video compression complete`);
         }
 
@@ -117,7 +103,7 @@ async function processMedia(jobId: string, mediaId: string, personality: string 
         await updateJob(jobId, { status: 'CHUNKING', progress: 22 });
         console.log(`Job ${jobId}: Chunking audio...`);
         const chunksDir = join(uploadDir, 'chunks');
-        const chunkFiles = await splitAudio(audioMasterPath, chunksDir);
+        const chunkFiles = await splitAudio(audioMasterPath, chunksDir, jobId);
 
         // 3. TRANSCRIBING
         await updateJob(jobId, { status: 'TRANSCRIBING', progress: 32 });

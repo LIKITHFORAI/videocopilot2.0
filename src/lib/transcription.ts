@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import OpenAI from 'openai';
 import { promisify } from 'util';
+import { isJobCancelled } from './jobTracker';
 
 // Initialize Azure OpenAI for Whisper transcription
 const azureWhisperEndpoint = process.env.AZURE_OPENAI_WHISPER_ENDPOINT;
@@ -34,15 +35,23 @@ export const getAudioDurationInSeconds = async (filePath: string): Promise<numbe
     });
 };
 
-export const extractAudio = async (inputPath: string, outputPath: string): Promise<void> => {
+export const extractAudio = async (inputPath: string, outputPath: string, jobId?: string): Promise<void> => {
     return new Promise((resolve, reject) => {
-        ffmpeg(inputPath)
+        const command = ffmpeg(inputPath)
             .noVideo()
             .audioCodec('libmp3lame')
             .audioBitrate('128k') // Standard bitrate
-            .save(outputPath)
+            .on('progress', () => {
+                if (jobId && isJobCancelled(jobId)) {
+                    console.log(`[FFMPEG] Killing extractAudio for job ${jobId}`);
+                    command.kill('SIGKILL');
+                    reject(new Error('Job cancelled'));
+                }
+            })
             .on('end', () => resolve())
             .on('error', (err) => reject(err));
+
+        command.save(outputPath);
     });
 };
 
@@ -51,9 +60,9 @@ export const extractAudio = async (inputPath: string, outputPath: string): Promi
  * Reduces file size by 85-95% while maintaining acceptable quality
  * Perfect for training videos where visual context matters more than quality
  */
-export const reencodeToLowQuality = async (inputPath: string, outputPath: string): Promise<void> => {
+export const reencodeToLowQuality = async (inputPath: string, outputPath: string, jobId?: string): Promise<void> => {
     return new Promise((resolve, reject) => {
-        ffmpeg(inputPath)
+        const command = ffmpeg(inputPath)
             .videoCodec('libx264')
             .size('640x360') // 360p resolution (16:9 aspect ratio)
             .videoBitrate('400k') // Low bitrate for small file size
@@ -67,8 +76,13 @@ export const reencodeToLowQuality = async (inputPath: string, outputPath: string
             .audioCodec('aac')
             .audioBitrate('64k') // Low audio bitrate
             .audioChannels(1) // Mono audio
-            .save(outputPath)
             .on('progress', (progress) => {
+                if (jobId && isJobCancelled(jobId)) {
+                    console.log(`[FFMPEG] Killing reencodeToLowQuality for job ${jobId}`);
+                    command.kill('SIGKILL');
+                    reject(new Error('Job cancelled'));
+                    return;
+                }
                 if (progress.percent) {
                     console.log(`Re-encoding progress: ${Math.round(progress.percent)}%`);
                 }
@@ -81,6 +95,8 @@ export const reencodeToLowQuality = async (inputPath: string, outputPath: string
                 console.error('Re-encoding error:', err);
                 reject(err);
             });
+
+        command.save(outputPath);
     });
 };
 
@@ -91,7 +107,7 @@ const TARGET_CHUNK_SIZE = 20 * 1024 * 1024;
 const BYTES_PER_SEC = 16000;
 const SECONDS_PER_CHUNK = Math.floor(TARGET_CHUNK_SIZE / BYTES_PER_SEC); // ~1300 seconds (~21 mins)
 
-export const splitAudio = async (inputPath: string, outputDir: string): Promise<string[]> => {
+export const splitAudio = async (inputPath: string, outputDir: string, jobId?: string): Promise<string[]> => {
     if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true });
     }
@@ -100,13 +116,20 @@ export const splitAudio = async (inputPath: string, outputDir: string): Promise<
     const outputPattern = path.join(outputDir, 'chunk_%03d.mp3');
 
     return new Promise((resolve, reject) => {
-        ffmpeg(inputPath)
+        const command = ffmpeg(inputPath)
             .outputOptions([
                 `-f segment`,
                 `-segment_time ${SECONDS_PER_CHUNK}`,
                 `-c copy` // fast split without re-encoding
             ])
             .output(outputPattern)
+            .on('progress', () => {
+                if (jobId && isJobCancelled(jobId)) {
+                    console.log(`[FFMPEG] Killing splitAudio for job ${jobId}`);
+                    command.kill('SIGKILL');
+                    reject(new Error('Job cancelled'));
+                }
+            })
             .on('end', () => {
                 // Read directory to get generated files
                 const files = fs.readdirSync(outputDir)
@@ -115,8 +138,9 @@ export const splitAudio = async (inputPath: string, outputDir: string): Promise<
                     .map(f => path.join(outputDir, f));
                 resolve(files);
             })
-            .on('error', (err) => reject(err))
-            .run();
+            .on('error', (err) => reject(err));
+
+        command.run();
     });
 };
 

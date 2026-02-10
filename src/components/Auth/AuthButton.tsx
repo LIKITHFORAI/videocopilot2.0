@@ -19,6 +19,8 @@ export default function AuthButton() {
         instance.logoutRedirect();
     };
 
+    const [isHovered, setIsHovered] = useState(false);
+
     // Show loading state while MSAL is processing or logging in
     if (inProgress !== "none" || isLoggingIn) {
         return (
@@ -49,27 +51,29 @@ export default function AuthButton() {
         return (
             <button
                 onClick={handleLogout}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
                 style={{
                     height: '44px',
                     padding: '0 1.5rem',
-                    background: '#3b82f6',
+                    background: isHovered ? '#ef4444' : '#3b82f6',
                     color: 'white',
                     border: 'none',
                     borderRadius: '6px',
                     cursor: 'pointer',
                     fontSize: '0.9rem',
                     fontWeight: '700',
-                    transition: 'background 0.2s',
+                    transition: 'all 0.2s ease',
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px',
                     display: 'flex',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    minWidth: '120px',
+                    justifyContent: 'center'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#2563eb'}
-                onMouseLeave={(e) => e.currentTarget.style.background = '#3b82f6'}
                 title={`Signed in as ${account.username}`}
             >
-                {account.name?.split(' ')[0]?.toUpperCase() || 'USER'}
+                {isHovered ? 'LOGOUT' : (account.name?.split(' ')[0]?.toUpperCase() || 'USER')}
             </button>
         );
     }
