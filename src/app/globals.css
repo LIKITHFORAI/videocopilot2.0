@@ -554,3 +554,14 @@ a {
   border-color: #334155;
   color: white;
 }
+
+/* Hide Next.js Error Indicator */
+nextjs-portal,
+[data-nextjs-dialog-overlay],
+[data-nextjs-toast],
+#__next-build-watcher {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}

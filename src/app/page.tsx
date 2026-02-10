@@ -7,12 +7,14 @@ import TranscriptPanel from '../components/analysis/TranscriptPanel';
 import ActionItemsPanel from '../components/analysis/ActionItemsPanel';
 import AuthGate from '../components/Auth/AuthGate';
 import { useState, useRef, useEffect } from 'react';
-import { useMsal } from '@azure/msal-react';
+import { useMsal, useIsAuthenticated } from '@azure/msal-react';
+import { InteractionStatus } from '@azure/msal-browser';
 import OneDriveBrowser from '../components/SharePoint/OneDriveBrowser';
 import PersonalityChooser, { Personality } from '../components/Personality/PersonalityChooser';
 
 export default function Home() {
-  const { accounts } = useMsal();
+  const { inProgress } = useMsal();
+  const isAuthenticated = useIsAuthenticated();
   const [activeMediaId, setActiveMediaId] = useState<string | null>(null);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [jobStatus, setJobStatus] = useState<string>('');
@@ -49,7 +51,13 @@ export default function Home() {
   const isAuthBypassed = process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true';
   const isDevBypassed = typeof window !== 'undefined' && localStorage.getItem('devBypassAuth') === 'true';
 
-  if (!isAuthBypassed && !isDevBypassed && accounts.length === 0) {
+  // If MSAL is currently processing (login, logout, or handling redirect), show nothing
+  if (inProgress !== InteractionStatus.None) {
+    return null;
+  }
+
+  // If not authenticated and not bypassed, show login page
+  if (!isAuthBypassed && !isDevBypassed && !isAuthenticated) {
     return <AuthGate />;
   }
 

@@ -16,7 +16,10 @@ export default function AuthButton() {
     };
 
     const handleLogout = () => {
-        instance.logoutRedirect();
+        // Clear all accounts from cache (local-only logout)
+        instance.clearCache();
+        // Redirect to login page
+        window.location.href = window.location.origin;
     };
 
     const [isHovered, setIsHovered] = useState(false);

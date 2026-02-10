@@ -47,7 +47,7 @@ export default function AuthContext({ children }: { children: ReactNode }) {
 
     // Don't render MsalProvider during SSR or before initialization
     if (!msalInstance) {
-        return <>{children}</>;
+        return null;
     }
 
     return (

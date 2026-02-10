@@ -72,7 +72,24 @@ If the context doesn't contain relevant information, say so clearly.`;
                 }
             );
 
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Azure OpenAI API error:', response.status, errorText);
+                return NextResponse.json({
+                    error: 'Failed to get AI response',
+                    details: `API returned ${response.status}`
+                }, { status: 500 });
+            }
+
             const data = await response.json();
+
+            if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                console.error('Invalid API response structure:', data);
+                return NextResponse.json({
+                    error: 'Invalid response from AI service'
+                }, { status: 500 });
+            }
+
             const answer = data.choices[0].message.content;
 
             return NextResponse.json({ answer, sources });

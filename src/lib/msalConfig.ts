@@ -13,6 +13,13 @@ export const msalConfig: Configuration = {
                 return `${window.location.origin}${basePath}/`;
             })()
             : 'http://localhost:3000/',
+        postLogoutRedirectUri: typeof window !== 'undefined'
+            ? (() => {
+                const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                const basePath = isLocalhost ? '' : (process.env.NEXT_PUBLIC_BASE_PATH || '');
+                return `${window.location.origin}${basePath}/`;
+            })()
+            : 'http://localhost:3000/',
     },
     cache: {
         cacheLocation: "sessionStorage",
