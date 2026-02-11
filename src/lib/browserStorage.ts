@@ -1,5 +1,7 @@
 'use client';
 
+import { getApiPath } from '@/lib/apiPath';
+
 /**
  * Browser-side IndexedDB storage for video files.
  *
@@ -135,5 +137,45 @@ export async function deleteVideoFromLocal(mediaId: string, userEmail: string): 
         });
     } catch (err) {
         console.warn('[BrowserStorage] Failed to delete video from local storage:', err);
+    }
+}
+
+/** 
+ * Download video from server and save to local storage.
+ * Used for SharePoint imports or syncing across devices (if enabled).
+ */
+export async function downloadVideoFromServer(
+    mediaId: string,
+    userEmail: string,
+    onProgress?: (percent: number) => void
+): Promise<boolean> {
+    try {
+        console.log(`[BrowserStorage] Downloading video ${mediaId} from server...`);
+        // Use getApiPath to ensure correct base path in production
+        const url = getApiPath(`/api/media/${mediaId}/stream`);
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            console.error(`[BrowserStorage] Download failed: ${response.status} ${response.statusText}`);
+            return false;
+        }
+
+        const blob = await response.blob();
+        if (blob.size < 100) {
+            console.error('[BrowserStorage] Downloaded blob is too small, likely an error page');
+            return false;
+        }
+
+        // Create a File object from the blob (optional, but good for metadata)
+        const fileName = `imported_${mediaId}.mp4`; // We might not know the original name here easily without another API call, but that's fine
+        const file = new File([blob], fileName, { type: blob.type || 'video/mp4' });
+
+        await saveVideoToLocal(mediaId, file, userEmail);
+        console.log(`[BrowserStorage] Successfully downloaded and saved video ${mediaId} to IndexedDB`);
+        return true;
+
+    } catch (error) {
+        console.error('[BrowserStorage] Error in downloadVideoFromServer:', error);
+        return false;
     }
 }

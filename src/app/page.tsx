@@ -12,8 +12,10 @@ import { InteractionStatus } from '@azure/msal-browser';
 
 import PersonalityChooser, { Personality } from '../components/Personality/PersonalityChooser';
 
+import { saveVideoToLocal, getVideoFromLocal, downloadVideoFromServer } from '@/lib/browserStorage';
+
 export default function Home() {
-  const { inProgress } = useMsal();
+  const { inProgress, accounts } = useMsal();
   const isAuthenticated = useIsAuthenticated();
   const [activeMediaId, setActiveMediaId] = useState<string | null>(null);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
@@ -43,6 +45,22 @@ export default function Home() {
     setJobStatus('');
     setJobProgress(0);
   };
+
+  // Auto-download video to local storage upon completion (for SharePoint imports)
+  useEffect(() => {
+    async function checkAndDownload() {
+      if (jobStatus === 'COMPLETED' && activeMediaId && accounts[0]?.username) {
+        const userEmail = accounts[0].username;
+        // Check if we have it locally
+        const existing = await getVideoFromLocal(activeMediaId, userEmail);
+        if (!existing) {
+          console.log(`[Page] Job completed but video missing locally (likely SharePoint import). Downloading...`);
+          await downloadVideoFromServer(activeMediaId, userEmail);
+        }
+      }
+    }
+    checkAndDownload();
+  }, [jobStatus, activeMediaId, accounts]);
 
   const videoPlayerRef = useRef<VideoPlayerRef>(null);
   const fileUploaderRef = useRef<FileUploaderRef>(null);
