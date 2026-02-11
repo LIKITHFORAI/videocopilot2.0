@@ -26,11 +26,17 @@ export function getJobPath(jobId: string) {
 }
 
 /**
- * Aggressive cleanup: delete ALL files in the upload directory.
+ * Selective cleanup: delete intermediate files but KEEP video_360p.mp4.
  * 
- * With decentralized storage, the server no longer needs to keep any
- * video or audio files after processing. The client stores the video
- * in IndexedDB for local playback. The server retains only:
+ * The compressed video must remain on the server so the stream endpoint
+ * can serve it for:
+ *   - SharePoint imports (never saved to IndexedDB)
+ *   - Cross-device playback (video not on this device's IndexedDB)
+ * 
+ * Files DELETED: original upload, audio_master.mp3, chunks/
+ * Files KEPT:    video_360p.mp4
+ * 
+ * The server also retains:
  *   - Transcript JSON files (data/transcripts/)
  *   - Database entries (transcripts.db)
  *   - Job status files (data/jobs/)
@@ -39,11 +45,27 @@ export async function cleanupMedia(mediaId: string) {
     const uploadPath = getUploadPath(mediaId);
 
     try {
-        console.log(`[CLEANUP] Deleting ALL media files for ${mediaId} (decentralized storage mode)...`);
-        await recursiveDelete(uploadPath);
-        console.log(`[CLEANUP] Complete: ${mediaId} — all media files removed from server.`);
-    } catch (e) {
-        console.error('[CLEANUP] Critical error during cleanup:', e);
+        console.log(`[CLEANUP] Cleaning intermediate files for ${mediaId} (keeping video_360p.mp4)...`);
+        const entries = await readdir(uploadPath);
+
+        for (const entry of entries) {
+            // KEEP the compressed video for streaming
+            if (entry === 'video_360p.mp4') continue;
+
+            const fullPath = join(uploadPath, entry);
+            const info = await stat(fullPath);
+            if (info.isDirectory()) {
+                await recursiveDelete(fullPath);
+            } else {
+                await unlink(fullPath);
+            }
+        }
+
+        console.log(`[CLEANUP] Complete: ${mediaId} — intermediate files removed, video_360p.mp4 preserved.`);
+    } catch (e: any) {
+        if (e.code !== 'ENOENT') {
+            console.error('[CLEANUP] Critical error during cleanup:', e);
+        }
     }
 }
 

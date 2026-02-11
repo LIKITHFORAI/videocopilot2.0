@@ -4,6 +4,7 @@ import { forwardRef, useImperativeHandle, useRef, useState, useEffect } from 're
 import { useMsal } from '@azure/msal-react';
 import { useDragDrop } from '@/hooks/useDragDrop';
 import { getVideoFromLocal } from '@/lib/browserStorage';
+import { getApiPath } from '@/lib/apiPath';
 
 export interface VideoPlayerRef {
     seekTo: (time: number) => void;
@@ -66,9 +67,9 @@ const VideoPlayer = forwardRef<VideoPlayerRef, VideoPlayerProps>(({ mediaId, job
 
             // 2. Try server stream (HEAD request to check if file exists)
             try {
-                const resp = await fetch(`/api/media/${mediaId}/stream`, { method: 'HEAD' });
+                const resp = await fetch(getApiPath(`/api/media/${mediaId}/stream`), { method: 'HEAD' });
                 if (resp.ok && !cancelled) {
-                    setVideoSrc(`/api/media/${mediaId}/stream`);
+                    setVideoSrc(getApiPath(`/api/media/${mediaId}/stream`));
                     setSourceType('server');
                     setLoading(false);
                     return;
