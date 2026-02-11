@@ -1,6 +1,7 @@
 'use client';
 
 import { forwardRef, useImperativeHandle, useRef, useState, useEffect } from 'react';
+import { useMsal } from '@azure/msal-react';
 import { useDragDrop } from '@/hooks/useDragDrop';
 import { getVideoFromLocal } from '@/lib/browserStorage';
 
@@ -16,6 +17,8 @@ interface VideoPlayerProps {
 
 const VideoPlayer = forwardRef<VideoPlayerRef, VideoPlayerProps>(({ mediaId, jobStatus, onFileDrop }, ref) => {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const { accounts } = useMsal();
+    const userEmail = accounts[0]?.username || '';
     const { isDragging, dragHandlers } = useDragDrop(onFileDrop);
 
     // Video source: either a local blob URL or the server stream endpoint
@@ -48,7 +51,7 @@ const VideoPlayer = forwardRef<VideoPlayerRef, VideoPlayerProps>(({ mediaId, job
 
             // 1. Try IndexedDB (local blob)
             try {
-                const local = await getVideoFromLocal(mediaId!);
+                const local = await getVideoFromLocal(mediaId!, userEmail);
                 if (local && !cancelled) {
                     const url = URL.createObjectURL(local.blob);
                     blobUrlRef.current = url;
@@ -91,7 +94,7 @@ const VideoPlayer = forwardRef<VideoPlayerRef, VideoPlayerProps>(({ mediaId, job
                 URL.revokeObjectURL(blobUrlRef.current);
             }
         };
-    }, [mediaId, jobStatus]);
+    }, [mediaId, jobStatus, userEmail]);
 
     // ── No media selected ──
     if (!mediaId) {

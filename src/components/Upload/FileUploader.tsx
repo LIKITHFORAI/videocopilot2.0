@@ -284,8 +284,8 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
 
                     // Save video blob to IndexedDB with the real mediaId
                     try {
-                        await saveVideoToLocal(response.mediaId, file);
-                        console.log(`[FileUploader] Saved ${file.name} to IndexedDB (${response.mediaId})`);
+                        await saveVideoToLocal(response.mediaId, file, accounts[0]?.username || 'anonymous');
+                        console.log(`[FileUploader] Saved ${file.name} to IndexedDB for ${accounts[0]?.username} (${response.mediaId})`);
                     } catch (idbErr) {
                         console.warn('[FileUploader] Failed to save video locally:', idbErr);
                     }

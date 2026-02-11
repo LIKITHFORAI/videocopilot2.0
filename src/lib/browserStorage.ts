@@ -3,22 +3,28 @@
 /**
  * Browser-side IndexedDB storage for video files.
  *
- * Videos are stored as Blobs keyed by mediaId so the player can
- * render them locally even when the server has removed the file.
+ * Each user gets their own IndexedDB database, named by email.
+ * This ensures two users on the same browser never see each other's data.
  *
- * DB:   video-copilot-media
+ * DB:   videoCopilot_{userEmail}   (e.g.  videoCopilot_john@contoso.com)
  * Store: videos
  * Key:   mediaId  (string – UUID)
  * Value: { blob: Blob, mimeType: string, fileName: string, savedAt: string }
  */
 
-const DB_NAME = 'video-copilot-media';
 const DB_VERSION = 1;
 const STORE_NAME = 'videos';
 
-function openDB(): Promise<IDBDatabase> {
+function getDBName(userEmail: string): string {
+    // Sanitise email for IDB name (replace chars that could cause issues)
+    const safe = userEmail.toLowerCase().replace(/[^a-z0-9@._-]/g, '_');
+    return `videoCopilot_${safe}`;
+}
+
+function openDB(userEmail: string): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        const dbName = getDBName(userEmail);
+        const request = indexedDB.open(dbName, DB_VERSION);
 
         request.onupgradeneeded = () => {
             const db = request.result;
@@ -33,9 +39,13 @@ function openDB(): Promise<IDBDatabase> {
 }
 
 /** Persist a video file blob for later local playback. */
-export async function saveVideoToLocal(mediaId: string, file: File): Promise<void> {
+export async function saveVideoToLocal(mediaId: string, file: File, userEmail: string): Promise<void> {
+    if (!userEmail) {
+        console.warn('[BrowserStorage] No userEmail provided, skipping save.');
+        return;
+    }
     try {
-        const db = await openDB();
+        const db = await openDB(userEmail);
         return new Promise((resolve, reject) => {
             const tx = db.transaction(STORE_NAME, 'readwrite');
             const store = tx.objectStore(STORE_NAME);
@@ -64,10 +74,15 @@ export async function saveVideoToLocal(mediaId: string, file: File): Promise<voi
 
 /** Retrieve a video blob from local storage. Returns null if not found. */
 export async function getVideoFromLocal(
-    mediaId: string
+    mediaId: string,
+    userEmail: string
 ): Promise<{ blob: Blob; mimeType: string; fileName: string } | null> {
+    if (!userEmail) {
+        console.warn('[BrowserStorage] No userEmail provided, skipping read.');
+        return null;
+    }
     try {
-        const db = await openDB();
+        const db = await openDB(userEmail);
         return new Promise((resolve, reject) => {
             const tx = db.transaction(STORE_NAME, 'readonly');
             const store = tx.objectStore(STORE_NAME);
@@ -97,9 +112,13 @@ export async function getVideoFromLocal(
 }
 
 /** Remove a specific video from local storage. */
-export async function deleteVideoFromLocal(mediaId: string): Promise<void> {
+export async function deleteVideoFromLocal(mediaId: string, userEmail: string): Promise<void> {
+    if (!userEmail) {
+        console.warn('[BrowserStorage] No userEmail provided, skipping delete.');
+        return;
+    }
     try {
-        const db = await openDB();
+        const db = await openDB(userEmail);
         return new Promise((resolve, reject) => {
             const tx = db.transaction(STORE_NAME, 'readwrite');
             const store = tx.objectStore(STORE_NAME);
