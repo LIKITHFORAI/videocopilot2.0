@@ -44,5 +44,11 @@ BATCH_*.txt
 
 # User uploads
 data/uploads/
+
+# SQLite database files (runtime, per-environment)
+data/*.db
+data/*.db-shm
+data/*.db-wal
+
 *.tar.gz
 *.zip
