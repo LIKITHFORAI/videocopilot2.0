@@ -18,8 +18,9 @@ export default function AuthButton() {
     const handleLogout = () => {
         // Clear all accounts from cache (local-only logout)
         instance.clearCache();
-        // Redirect to login page
-        window.location.href = window.location.origin;
+        // Redirect to login page (include basePath for production)
+        const basePath = process.env.NEXT_PUBLIC_BASEPATH || '';
+        window.location.href = `${window.location.origin}${basePath}/`;
     };
 
     const [isHovered, setIsHovered] = useState(false);
