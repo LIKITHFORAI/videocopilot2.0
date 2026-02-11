@@ -72,10 +72,59 @@ try {
   db.exec(`ALTER TABLE videos ADD COLUMN personality TEXT DEFAULT 'meetings'`);
   console.log('✅ Added personality column to videos table');
 } catch (e: any) {
-  // Column already exists, ignore error
   if (!e.message.includes('duplicate column name')) {
     console.error('Error adding personality column:', e);
   }
+}
+
+// Migration: Add client_id column to videos table if missing (pre-user-segregation databases)
+try {
+  db.exec(`ALTER TABLE videos ADD COLUMN client_id TEXT NOT NULL DEFAULT 'legacy'`);
+  console.log('✅ Migration: Added client_id column to videos table');
+} catch (e: any) {
+  if (!e.message.includes('duplicate column name')) {
+    console.error('Error adding client_id column to videos:', e);
+  }
+}
+
+// Migration: Add client_id column to chunk_metadata if missing
+try {
+  db.exec(`ALTER TABLE chunk_metadata ADD COLUMN client_id TEXT NOT NULL DEFAULT 'legacy'`);
+  console.log('✅ Migration: Added client_id column to chunk_metadata table');
+} catch (e: any) {
+  if (!e.message.includes('duplicate column name')) {
+    console.error('Error adding client_id column to chunk_metadata:', e);
+  }
+}
+
+// Migration: Recreate FTS5 transcript_chunks if it's missing client_id
+// FTS5 tables cannot be ALTERed, so we must drop and recreate
+try {
+  // Check if client_id column exists in FTS5 table
+  const ftsInfo = db.prepare(`SELECT * FROM transcript_chunks LIMIT 0`).columns();
+  const hasClientId = ftsInfo.some((col: any) => col.name === 'client_id');
+
+  if (!hasClientId) {
+    console.log('🔄 Migration: Recreating transcript_chunks FTS5 table with client_id...');
+    db.exec(`DROP TABLE IF EXISTS transcript_chunks`);
+    db.exec(`
+      CREATE VIRTUAL TABLE transcript_chunks USING fts5(
+        id UNINDEXED,
+        video_id UNINDEXED,
+        client_id UNINDEXED,
+        chunk_index UNINDEXED,
+        chunk_text,
+        speaker,
+        start_time UNINDEXED,
+        end_time UNINDEXED,
+        created_at UNINDEXED,
+        tokenize = 'porter'
+      );
+    `);
+    console.log('✅ Migration: transcript_chunks FTS5 table recreated with client_id');
+  }
+} catch (e: any) {
+  console.error('Error during FTS5 migration:', e);
 }
 
 console.log('✅ SQLite database initialized at:', DB_PATH);
