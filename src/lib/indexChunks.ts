@@ -104,7 +104,7 @@ export interface SearchResult {
 
 export function searchTranscripts(
     query: string,
-    clientId: string,
+    clientId?: string, // Kept for API compatibility; no longer used for filtering (Global Knowledge Base)
     limit: number = 10
 ): SearchResult[] {
     const stmt = db.prepare(`
@@ -119,11 +119,10 @@ export function searchTranscripts(
     FROM transcript_chunks c
     JOIN chunk_metadata m ON c.id = m.id
     LEFT JOIN videos v ON c.video_id = v.id
-    WHERE transcript_chunks MATCH ? 
-      AND c.client_id = ?
+    WHERE transcript_chunks MATCH ?
     ORDER BY rank, v.upload_date DESC
     LIMIT ?
   `);
 
-    return stmt.all(query, clientId, limit) as SearchResult[];
+    return stmt.all(query, limit) as SearchResult[];
 }
