@@ -3,12 +3,12 @@
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import MinimalProgressBar from './MinimalProgressBar';
 import { useDragDrop } from '@/hooks/useDragDrop';
-import AuthButton from '@/components/Auth/AuthButton';
+import AuthButton from '@/features/auth/components/AuthButton';
 import SharePointPicker from '@/components/SharePoint/SharePointPicker';
 import type { ServerImportResult } from '@/components/SharePoint/SharePointPicker';
 import PersonalityChooser, { Personality } from '@/components/Personality/PersonalityChooser';
-import { theme } from '@/lib/theme';
-import { getApiPath } from '@/lib/apiPath';
+import { theme } from '@/shared/design/theme';
+import { getApiPath } from '@/shared/utils/apiPath';
 import { saveVideoToLocal } from '@/lib/browserStorage';
 
 import { useMsal } from '@azure/msal-react';
@@ -19,6 +19,7 @@ export interface FileUploaderRef {
 
 interface FileUploaderProps {
     onUploadComplete: (mediaId: string, jobId: string) => void;
+    onLoadExisting?: (mediaId: string) => void; // Load already-completed media without polling
     currentJobStatus?: string;
     currentJobProgress?: number;
     onCancel?: () => void;
@@ -36,6 +37,7 @@ interface HistoryItem {
 
 const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
     onUploadComplete,
+    onLoadExisting,
     currentJobStatus,
     currentJobProgress = 0,
     onCancel,
@@ -189,7 +191,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                     // Remove from History using the jobId
                     const newHistory = history.filter(h => h.jobId !== jId);
                     setHistory(newHistory);
-                    localStorage.setItem('vc_history', JSON.stringify(newHistory));
+                    localStorage.setItem(`vc_history_${personality}`, JSON.stringify(newHistory));
 
                 } catch (e) {
                     console.error("Failed to delete job", e);
@@ -252,7 +254,11 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
 
             if (useExisting) {
                 setLoadingFromHistory(true);
-                onUploadComplete(existing.mediaId, existing.jobId);
+                if (onLoadExisting) {
+                    onLoadExisting(existing.mediaId);
+                } else {
+                    onUploadComplete(existing.mediaId, existing.jobId);
+                }
                 // Reset flag after a brief delay
                 setTimeout(() => setLoadingFromHistory(false), 500);
                 return;
@@ -637,7 +643,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                                                 e.stopPropagation();
                                                 if (window.confirm('Clear all saved media history?')) {
                                                     setHistory([]);
-                                                    localStorage.removeItem('vc_history');
+                                                    localStorage.removeItem(`vc_history_${personality}`);
                                                 }
                                             }}
                                             style={{
@@ -680,7 +686,11 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                                                     onClick={() => {
                                                         setLoadingFromHistory(true);
                                                         setStatus('idle');
-                                                        onUploadComplete(item.mediaId, item.jobId);
+                                                        if (onLoadExisting) {
+                                                            onLoadExisting(item.mediaId);
+                                                        } else {
+                                                            onUploadComplete(item.mediaId, item.jobId);
+                                                        }
                                                         setShowHistory(false);
                                                         setTimeout(() => setLoadingFromHistory(false), 500);
                                                     }}
@@ -700,7 +710,7 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                                                         if (window.confirm(`Remove "${item.fileName}" from history?`)) {
                                                             const newHistory = history.filter((_, index) => index !== i);
                                                             setHistory(newHistory);
-                                                            localStorage.setItem('vc_history', JSON.stringify(newHistory));
+                                                            localStorage.setItem(`vc_history_${personality}`, JSON.stringify(newHistory));
                                                         }
                                                     }}
                                                     style={{

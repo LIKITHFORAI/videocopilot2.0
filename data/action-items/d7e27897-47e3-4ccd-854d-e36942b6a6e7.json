@@ -1,0 +1,47 @@
+[
+  {
+    "id": "action-1770936839293-0",
+    "category": "Requirements",
+    "action_item": "Requirements - Forward the document containing steps to access NextGen to the team including Surya.",
+    "responsible_party": "Neil",
+    "due_date": "N/A",
+    "notes": "Ensure all team members have verified their NextGen access.",
+    "timestamp": 23
+  },
+  {
+    "id": "action-1770936839293-1",
+    "category": "Reports",
+    "action_item": "Reports - Upload the claim form into the chat for review.",
+    "responsible_party": "Beth",
+    "due_date": "N/A",
+    "notes": "Ensure the claim form is accessible for all participants.",
+    "timestamp": 558
+  },
+  {
+    "id": "action-1770936839293-2",
+    "category": "Reports",
+    "action_item": "Reports - Move the folder with claim examples for each payer to the SharePoint folder.",
+    "responsible_party": "Hema",
+    "due_date": "N/A",
+    "notes": "Ensure examples for 60% of payers are included.",
+    "timestamp": 591
+  },
+  {
+    "id": "action-1770936839293-3",
+    "category": "Requirements",
+    "action_item": "Requirements - Consolidate billing rules and service codes into the Excel spreadsheet.",
+    "responsible_party": "Neil",
+    "due_date": "N/A",
+    "notes": "Include information on service codes and payer information.",
+    "timestamp": 451
+  },
+  {
+    "id": "action-1770936839293-4",
+    "category": "Topics",
+    "action_item": "Topics - Discuss the need for setting up automated billing rules instead of manual processes.",
+    "responsible_party": "Richen",
+    "due_date": "N/A",
+    "notes": "Evaluate if the current manual system can be improved.",
+    "timestamp": 1095
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "jobId": "478405bd-d860-4e91-b1d4-45dcb78a8608",
+  "mediaId": "757466a0-7d9a-4ffa-b480-117470142eaa",
+  "userEmail": "lgopireddy.i@drcloudehr.com",
+  "personality": "meetings",
+  "status": "COMPLETED",
+  "createdAt": "2026-02-12T22:11:08.881Z",
+  "progress": 100,
+  "updatedAt": "2026-02-12T22:11:50.281Z",
+  "chunkIndex": 1,
+  "totalChunks": 1,
+  "resultUrl": "/api/transcript/757466a0-7d9a-4ffa-b480-117470142eaa"
+}

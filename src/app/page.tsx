@@ -1,16 +1,16 @@
 'use client';
 
-import FileUploader, { FileUploaderRef } from '../components/Upload/FileUploader';
-import VideoPlayer, { VideoPlayerRef } from '../components/media/VideoPlayer';
-import IntelligencePanel from '../components/analysis/IntelligencePanel';
-import TranscriptPanel from '../components/analysis/TranscriptPanel';
-import ActionItemsPanel from '../components/analysis/ActionItemsPanel';
-import AuthGate from '../components/Auth/AuthGate';
+import FileUploader, { FileUploaderRef } from '@/features/upload/components/FileUploader';
+import VideoPlayer, { VideoPlayerRef } from '@/features/player/components/VideoPlayer';
+import IntelligencePanel from '@/features/intelligence/components/IntelligencePanel';
+import TranscriptPanel from '@/features/transcript/components/TranscriptPanel';
+import ActionItemsPanel from '@/features/action-items/components/ActionItemsPanel';
+import AuthGate from '@/features/auth/components/AuthGate';
 import { useState, useRef, useEffect } from 'react';
 import { useMsal, useIsAuthenticated } from '@azure/msal-react';
 import { InteractionStatus } from '@azure/msal-browser';
 
-import PersonalityChooser, { Personality } from '../components/Personality/PersonalityChooser';
+import PersonalityChooser, { Personality } from '@/features/personality/components/PersonalityChooser';
 
 import { saveVideoToLocal, getVideoFromLocal, downloadVideoFromServer } from '@/lib/browserStorage';
 
@@ -22,6 +22,7 @@ export default function Home() {
   const [jobStatus, setJobStatus] = useState<string>('');
   const [jobProgress, setJobProgress] = useState<number>(0);
   const [personality, setPersonality] = useState<Personality>('meetings');
+  const [highlightTimestamp, setHighlightTimestamp] = useState<number | null>(null);
 
   // Load personality from localStorage
   useEffect(() => {
@@ -87,8 +88,17 @@ export default function Home() {
     console.log('Upload complete, mediaId:', mediaId, 'jobId:', jobId);
   };
 
+  const handleLoadExisting = (mediaId: string) => {
+    setActiveMediaId(mediaId);
+    setActiveJobId(null);       // No job to poll — content already exists
+    setJobStatus('COMPLETED');
+    setJobProgress(100);
+    console.log('Loading existing media:', mediaId);
+  };
+
   const handleSeek = (time: number) => {
     videoPlayerRef.current?.seekTo(time);
+    setHighlightTimestamp(time);
   };
 
   const handleFileDrop = (file: File) => {
@@ -108,6 +118,7 @@ export default function Home() {
       <FileUploader
         ref={fileUploaderRef}
         onUploadComplete={handleUploadComplete}
+        onLoadExisting={handleLoadExisting}
         currentJobStatus={jobStatus}
         currentJobProgress={jobProgress}
         onCancel={handleCancel}
@@ -128,6 +139,8 @@ export default function Home() {
             jobId={activeJobId}
             jobStatus={jobStatus}
             onSeek={handleSeek}
+            highlightTimestamp={highlightTimestamp}
+            onHighlightDone={() => setHighlightTimestamp(null)}
           />
         </div>
 

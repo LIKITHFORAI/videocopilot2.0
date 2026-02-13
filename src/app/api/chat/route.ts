@@ -4,12 +4,9 @@ import { getTranscriptPath } from '@/lib/storage';
 import { answerQuestion } from '@/lib/intelligence';
 import { existsSync } from 'fs';
 import { searchTranscripts } from '@/lib/indexChunks';
+import { formatTime } from '@/shared/utils/formatTime';
 
-function formatTime(seconds: number): string {
-    const min = Math.floor(seconds / 60);
-    const sec = Math.floor(seconds % 60);
-    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
-}
+// formatTime imported from @/shared/utils/formatTime
 
 export async function POST(req: NextRequest) {
     try {

@@ -3,6 +3,7 @@ import ffmpeg from 'fluent-ffmpeg';
 import path from 'path';
 import fs from 'fs/promises';
 import { existsSync } from 'fs';
+import { formatTime } from '@/shared/utils/formatTime';
 
 export async function POST(req: NextRequest) {
     try {
@@ -58,7 +59,7 @@ export async function POST(req: NextRequest) {
                 return {
                     filename,
                     timestamp,
-                    timestampFormatted: formatTimestamp(timestamp),
+                    timestampFormatted: formatTime(timestamp),
                     data: `data:image/jpeg;base64,${base64}`
                 };
             })
@@ -81,8 +82,4 @@ export async function POST(req: NextRequest) {
     }
 }
 
-function formatTimestamp(seconds: number): string {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-}
+// formatTime imported from @/shared/utils/formatTime

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { theme } from '@/lib/theme';
+import { theme } from '@/shared/design/theme';
 
 export type Personality = 'meetings' | 'training' | 'support';
 

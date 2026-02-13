@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { theme } from '@/lib/theme';
+import { theme } from '@/shared/design/theme';
 
 interface Step {
     id: number;

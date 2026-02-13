@@ -1,0 +1,178 @@
+:root {
+    /* Core Colors */
+    --primary: #0070f3;
+    --primary-hover: #3291ff;
+
+    /* Backgrounds */
+    --background: #4f629a;
+    /* Medical Blue (Light Mode Default) */
+    --surface: #ffffff;
+    --panel-bg: #c8d4e9;
+
+    /* Text */
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-light: #9ca3af;
+    --text-white: #ffffff;
+
+    /* Borders */
+    --border-default: #e2e8f0;
+    --border-dark: #334155;
+    --border-light: #f1f5f9;
+    --shadow-small: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+
+    /* Status */
+    --status-success: #107C10;
+    --status-success-bg: #dcfce7;
+    --status-error: #dc3545;
+    --status-active: #6366f1;
+
+    /* Component Specific */
+    --upload-modal-bg: #f8fafc;
+    --upload-hover-bg: #f1f5f9;
+    --upload-box: #1e293b;
+    --upload-box-border: #334155;
+
+    /* Progress Bar */
+    --progress-bg: #E5E7EB;
+    --progress-fill: #3b82f6;
+
+    /* Accents & Highlights */
+    --accent-primary: #0070f3;
+
+    /* Action Item Colors (Light Mode) */
+    --action-decision: #FDE68A;
+    --action-coord: #A7F3D0;
+    --action-exec: #FED7AA;
+    --action-review: #BFDBFE;
+    --action-portal: #DDD6FE;
+    --action-report: #FBCFE8;
+    --action-req: #FECACA;
+    --action-topic: #C7D2FE;
+    --action-question: #FEF08A;
+    --action-reaction: #FCBFBD;
+    --action-default: #F3F4F6;
+    --action-panel-bg: #fffaea;
+    /* Light Mode Cream */
+
+    /* UI Layout & Extras */
+    --header-bg: #1e293b;
+    --header-text: #ffffff;
+    --brand-accent: #a0b1ffe8;
+    --scrollbar-track: #f1f5f9;
+    --scrollbar-thumb: #cbd5e1;
+    --btn-success-bg: #107C10;
+    --btn-success-text: #ffffff;
+    --btn-error-bg: #dc3545;
+    --btn-error-hover: #b91c1c;
+
+    /* Semantic UI Elements */
+    --panel-border: var(--border-default);
+    --card-bg: var(--surface);
+    --badge-text: var(--text-primary);
+    --jump-btn-color: var(--primary);
+    --chat-bubble-ai: var(--upload-modal-bg);
+
+    /* Modal & Dialogs */
+    --modal-overlay: rgba(0, 0, 0, 0.5);
+    --modal-bg: #ffffff;
+    --modal-header-bg: #f8fafc;
+    --modal-footer-bg: #f8fafc;
+    --modal-border: #e2e8f0;
+    --modal-text-primary: #1e293b;
+    --modal-text-secondary: #64748b;
+    --modal-item-hover: #f1f5f9;
+    --modal-item-selected: #e0e7ff;
+
+    /* Brand Colors */
+    --ms-blue: #0078D4;
+    --ms-purple: #6C63FF;
+    --ms-teal: #038387;
+    --folder-yellow: #FFC107;
+    --video-red: #E53935;
+
+    /* --- Granular Segmented Variables --- */
+
+    /* Header (Topper) */
+    --header-logo-text: #ffffff;
+    --header-brand-text: #a0b1ffe8;
+    --header-btn-personality-bg: #4aaaff;
+    --header-btn-personality-text: #ffffff;
+    --header-btn-upload-bg: #3b82f6;
+    --header-btn-upload-text: #ffffff;
+    --header-btn-history-bg: #3b82f6;
+    --header-btn-history-text: #ffffff;
+    --header-btn-auth-bg: #1e293b;
+    --header-btn-auth-text: #ffffff;
+    --header-dropdown-bg: #ffffff;
+    --header-dropdown-border: #e2e8f0;
+    --header-dropdown-item-hover: #f1f5f9;
+
+    /* Video Player */
+    --video-container-bg: #c8d4e9;
+    --video-loading-overlay: rgba(30, 41, 59, 0.8);
+    --video-badge-local-bg: #3b82f6;
+    --video-error-text: #dc3545;
+
+    /* Transcript Panel */
+    --transcript-panel-bg: #e2e8f0;
+    --transcript-timestamp-text: #26466c;
+    --transcript-content-text: #64748b;
+    --transcript-segment-hover: #f1f5f9;
+    --transcript-segment-highlight-bg: #dbeafe;
+    --transcript-segment-highlight-border: #3b82f6;
+    --transcript-active-highlight: #e0e7ff;
+
+    /* Chat & Intelligence */
+    --chat-panel-bg: #ffffff;
+    --chat-header-bg: #f8fafc;
+    --chat-recap-bg: #ffffff;
+    --chat-messages-bg: #ffffff;
+    --chat-recap-title: #1e293b;
+    --chat-recap-summary: #64748b;
+    --chat-bubble-user-bg: #0070f3;
+    --chat-bubble-ai-bg: #f8fafc;
+    --chat-input-bg: #ffffff;
+    --chat-input-border: #e2e8f0;
+    --chat-input-area-bg: #ffffff;
+    --chat-input-btn-bg: #0070f3;
+
+    /* Chat Highlights (Granular) */
+    --highlight-card-bg: #ffffff;
+    --highlight-card-border: #e2e8f0;
+    --highlight-number-bg: #0070f3;
+    --highlight-number-text: #ffffff;
+    --highlight-title-text: #1e293b;
+    --highlight-jump-link: #0070f3;
+    --ai-typing-indicator: #64748b;
+
+    /* Action Items (Granular) */
+    --action-panel-bg: #fffaea;
+    --action-card-bg: #ffffff;
+    --action-card-border: #e2e8f0;
+    --action-card-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --action-task-text: #1e293b;
+    --action-meta-text: #64748b;
+    --action-jump-btn-bg: #ffffff;
+    --action-jump-btn-text: #0070f3;
+    --action-export-btn-bg: #107C10;
+    --action-note-bg: #f1f5f9;
+    --action-note-text: #64748b;
+
+    /* Action Item Badges (Categorized) */
+    --action-badge-req-bg: #FECACA;
+    --action-badge-reports-bg: #FBCFE8;
+    --action-badge-default-bg: #F3F4F6;
+    --action-badge-text: #1e293b;
+
+    /* SharePoint Picker */
+    --sharepoint-bg: #ffffff;
+    --sharepoint-header-bg: #f8fafc;
+    --sharepoint-item-hover: #f1f5f9;
+    --sharepoint-item-selected: #e2e8f0;
+    --sharepoint-breadcrumb-text: #3b82f6;
+    --sharepoint-search-input-bg: #f1f5f9;
+    --sharepoint-btn-search-bg: #0078d4;
+    --sharepoint-icon-folder: #0078d4;
+    --sharepoint-icon-file: #607d8b;
+}

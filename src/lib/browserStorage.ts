@@ -1,6 +1,6 @@
 'use client';
 
-import { getApiPath } from '@/lib/apiPath';
+import { getApiPath } from '@/shared/utils/apiPath';
 
 /**
  * Browser-side IndexedDB storage for video files.

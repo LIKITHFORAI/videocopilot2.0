@@ -2,7 +2,10 @@
 
 import { useMsal } from "@azure/msal-react";
 import { useState, useCallback, useEffect } from "react";
-import { getApiPath } from '@/lib/apiPath';
+import { getApiPath } from '@/shared/utils/apiPath';
+import { formatTime } from '@/shared/utils/formatTime';
+import { formatDate } from '@/shared/utils/formatDate';
+import { formatSize } from '@/shared/utils/formatSize';
 
 const GRAPH_BASE = "https://graph.microsoft.com/v1.0";
 const VIDEO_EXTENSIONS = ['.mp4', '.avi', '.mov', '.mkv', '.webm', '.m4v', '.wmv'];
@@ -460,20 +463,8 @@ export default function SharePointPicker({ onFileSelected, isOpen, onClose }: Sh
         }
     };
 
-    const formatSize = (bytes?: number) => {
-        if (!bytes) return '';
-        if (bytes < 1024) return `${bytes} B`;
-        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
-        if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-        return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
-    };
-
-    const formatDate = (dateStr?: string) => {
-        if (!dateStr) return '';
-        return new Date(dateStr).toLocaleDateString('en-US', {
-            month: 'short', day: 'numeric', year: 'numeric'
-        });
-    };
+    // formatSize imported from @/shared/utils/formatSize
+    // formatDate imported from @/shared/utils/formatDate
 
     // Get the breadcrumb label for the current source
     const getSourceLabel = (): string => {

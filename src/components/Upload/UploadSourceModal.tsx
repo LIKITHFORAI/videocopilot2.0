@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import SharePointPicker from '../SharePoint/SharePointPicker';
 import type { ServerImportResult } from '../SharePoint/SharePointPicker';
-import { theme } from '@/lib/theme';
+import { theme } from '@/shared/design/theme';
 
 interface UploadSourceModalProps {
     onClose: () => void;

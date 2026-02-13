@@ -1,0 +1,83 @@
+[
+  {
+    "id": "action-1770944581675-0",
+    "category": "Topics",
+    "action_item": "Topics - Discuss billing process in Dr. Cloud EHR including claims creation and marking claims as billed.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Focus on the ability to print 837s and submit claims electronically.",
+    "timestamp": 9
+  },
+  {
+    "id": "action-1770944581675-1",
+    "category": "Requirements",
+    "action_item": "Requirements - Update rate tables and master charge list in Dr. Cloud EHR.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Ensure usual and customary rates are correctly reflected.",
+    "timestamp": 36
+  },
+  {
+    "id": "action-1770944581675-2",
+    "category": "Requirements",
+    "action_item": "Requirements - Handle special billing scenarios using billing rules based on client age or diagnoses.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Implement rules related to specific service codes.",
+    "timestamp": 48
+  },
+  {
+    "id": "action-1770944581675-3",
+    "category": "Reports",
+    "action_item": "Reports - Generate month-end closed report for the general ledger.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Include contract management for payers' contracted rates.",
+    "timestamp": 79
+  },
+  {
+    "id": "action-1770944581675-4",
+    "category": "Data Migration",
+    "action_item": "Data Migration - Ensure the system supports multiple clearinghouses for claims submission.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Verify the ability to mark claims as cleared for record-keeping.",
+    "timestamp": 220
+  },
+  {
+    "id": "action-1770944581675-5",
+    "category": "Key Question",
+    "action_item": "Key Question - Clarify requirements for sending encounters to Medicaid authority for reporting.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Determine the formatting needed for data submission.",
+    "timestamp": 429
+  },
+  {
+    "id": "action-1770944581675-6",
+    "category": "Users & Roles",
+    "action_item": "Users & Roles - Set up notifications for claims not getting generated due to missing information.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Allow customization of claim rules on a per-payer level.",
+    "timestamp": 616
+  },
+  {
+    "id": "action-1770944581675-7",
+    "category": "Payers",
+    "action_item": "Payers - Manage contracts with payers for billing amounts and adjustments.",
+    "responsible_party": "DoctorCloud Technical Team",
+    "due_date": "N/A",
+    "notes": "Ensure contracted rates are applied correctly in claims.",
+    "timestamp": 1404
+  },
+  {
+    "id": "action-1770944581675-8",
+    "category": "Reports",
+    "action_item": "Reports - Generate net revenue report based on contracted rates.",
+    "responsible_party": "HHS Program Team",
+    "due_date": "N/A",
+    "notes": "Include expected revenue and adjustments in the report.",
+    "timestamp": 1575
+  }
+]

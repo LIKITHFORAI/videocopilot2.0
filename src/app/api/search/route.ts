@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { searchTranscripts } from '@/lib/indexChunks';
-import { getApiPath } from '@/lib/apiPath';
+import { getApiPath } from '@/shared/utils/apiPath';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

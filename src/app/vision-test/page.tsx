@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { getApiPath } from '@/lib/apiPath';
+import { getApiPath } from '@/shared/utils/apiPath';
 
 interface Frame {
     filename: string;

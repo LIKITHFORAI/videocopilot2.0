@@ -52,3 +52,7 @@ data/*.db-wal
 
 *.tar.gz
 *.zip
+
+# Historical archives and test data
+/archive/
+/docs/analysis/db-verification-results.txt
