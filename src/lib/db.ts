@@ -34,6 +34,7 @@ function getDb(): Database.Database {
       status TEXT DEFAULT 'processing',
       indexed INTEGER DEFAULT 0,
       personality TEXT DEFAULT 'meetings',
+      hidden INTEGER DEFAULT 0,
       created_at INTEGER DEFAULT (strftime('%s', 'now'))
     );
 
@@ -79,6 +80,16 @@ function getDb(): Database.Database {
   } catch (e: any) {
     if (!e.message.includes('duplicate column name')) {
       console.error('Error adding indexed column to videos:', e);
+    }
+  }
+
+  // Migration: Add hidden column to videos table if missing
+  try {
+    _db.exec(`ALTER TABLE videos ADD COLUMN hidden INTEGER DEFAULT 0`);
+    console.log('✅ Migration: Added hidden column to videos table');
+  } catch (e: any) {
+    if (!e.message.includes('duplicate column name')) {
+      console.error('Error adding hidden column to videos:', e);
     }
   }
 

@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
 
         // Allow filtering by userEmail, or return all if admin/legacy (for now strictly filter if provided)
         let query = `
-            SELECT 
+            SELECT
                 id,
                 title,
                 upload_date,
@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
                 client_id
             FROM videos
             WHERE personality = ?
+              AND (hidden = 0 OR hidden IS NULL)
         `;
 
         const params: any[] = [personality];
@@ -38,6 +39,31 @@ export async function GET(request: NextRequest) {
         console.error('Failed to fetch videos:', error);
         return NextResponse.json(
             { error: 'Failed to fetch videos' },
+            { status: 500 }
+        );
+    }
+}
+
+// PATCH: Hide videos from Recent Media without deleting data
+export async function PATCH(request: NextRequest) {
+    try {
+        const { mediaId, userEmail, personality } = await request.json();
+
+        if (mediaId) {
+            // Hide a single video
+            db.prepare('UPDATE videos SET hidden = 1 WHERE id = ?').run(mediaId);
+        } else if (userEmail && personality) {
+            // Hide all videos for this user + personality
+            db.prepare('UPDATE videos SET hidden = 1 WHERE client_id = ? AND personality = ?').run(userEmail, personality);
+        } else {
+            return NextResponse.json({ error: 'Missing mediaId or userEmail+personality' }, { status: 400 });
+        }
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('Failed to hide videos:', error);
+        return NextResponse.json(
+            { error: 'Failed to hide videos' },
             { status: 500 }
         );
     }

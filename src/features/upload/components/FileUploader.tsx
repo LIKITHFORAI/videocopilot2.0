@@ -645,6 +645,15 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                                                 if (window.confirm('Clear all saved media history?')) {
                                                     setHistory([]);
                                                     localStorage.removeItem(`vc_history_${personality}`);
+                                                    // Hide all on server so they don't reappear on next login
+                                                    const userEmail = accounts[0]?.username;
+                                                    if (userEmail) {
+                                                        fetch(getApiPath('/api/media/list'), {
+                                                            method: 'PATCH',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({ userEmail, personality })
+                                                        }).catch(err => console.error('Failed to hide media on server:', err));
+                                                    }
                                                 }
                                             }}
                                             style={{
@@ -712,6 +721,12 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                                                             const newHistory = history.filter((_, index) => index !== i);
                                                             setHistory(newHistory);
                                                             localStorage.setItem(`vc_history_${personality}`, JSON.stringify(newHistory));
+                                                            // Hide on server so it doesn't reappear on next login
+                                                            fetch(getApiPath('/api/media/list'), {
+                                                                method: 'PATCH',
+                                                                headers: { 'Content-Type': 'application/json' },
+                                                                body: JSON.stringify({ mediaId: item.mediaId })
+                                                            }).catch(err => console.error('Failed to hide media on server:', err));
                                                         }
                                                     }}
                                                     style={{

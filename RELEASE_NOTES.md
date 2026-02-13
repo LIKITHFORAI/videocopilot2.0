@@ -1,27 +1,19 @@
 # Release Notes - DrCloudEHR GetThingsDone
 
-## Version 2.2.0 - Stability & Style Isolation Release
+## Version 2.2.0 - New Features & Improvements
 
-### Overview
-This release focuses on industrial-grade styling isolation and system stability. We've transitioned to a granular CSS variable architecture to prevent style leaks between components and implemented critical database migrations to ensure cross-device consistency and central knowledge search performance.
+### What's New?
+- **Project Rebranding**: Officially renamed to **DrCloudEHR GetThingsDone**.
+- **Dark & Light Mode**: The app now looks great in both dark and light modes. We've also dimmed the video brightness in dark mode to make it easier on your eyes.
+- **Smart "Jump" Feature**: When you find an action item, you can click "Jump" to go straight to that moment in the video. The transcript will highlight the exact section so you don't lose your place.
+- **Central Knowledge Search**: You can now ask questions about *all* your past meetings at once. The AI will search through everything it knows to give you an answer, even if you are currently watching a different video.
+- **Smart History Management**: You can now clear your recent media list or delete individual videos. This keeps your workspace clean without losing your data.
+- **Instant Re-Upload**: If you upload a video you've processed before, all your previous notes, transcripts, and summaries will appear instantly—no waiting for the AI to work again!
+- **Instant Recent Media**: Your uploaded videos and history now load instantly, letting you pick up right where you left off.
 
-### Key Changes
-- **Project Rebranding**: Officially transitioned project naming and references to **DrCloudEHR GetThingsDone**.
-- **Granular CSS Variable System**:
-  - Defined explicit CSS variables for all segments (Header, Video, Transcript, Chat, Action Items).
-  - Isolated component headers to allow independent theming without affecting shared "surface" colors.
-  - Implemented a theme-aware citation system with isolated tokens.
-- **Database & Stability Fixes**:
-  - **Schema Migration**: Added automatic `ALTER TABLE` logic in `src/lib/db.ts` to add the `indexed` column to existing local databases. This resolves `SqliteError` for legacy datasets.
-  - **TypeScript Prop Sync**: Resolved prop mismatches for the `onLoadExisting` function in the `FileUploader` component.
-  - **Environment Stability**: Fixed Next.js build issues related to workspace root inference.
-- **AI & Knowledge Integration**:
-  - Optimized the **Central Knowledge Search** in `src/app/api/chat/route.ts`. The system now correctly queries the central local database to provide context from past meetings, even when focused on a single video.
-
-### UI & UX Enhancements
-- **Dark Mode Optimization**: Reduced video brightness to 80% automatically when dark mode is enabled for superior eye comfort.
-- **Visual Boundaries**: Each functional area now has clearly defined visual boundaries via isolated background and border tokens.
-- **Improved Highlighting**: Enhanced the Transcript highlight system for better visibility during "Jump to" operations from action items.
+### General Improvements
+- **Improved Visuals**: Each part of the app (Header, Chat, Action Items, and Transcript) is now more distinct and easier to read.
+- **Better Stability**: Fixed several issues that were causing the app to crash or show errors during file loading and database updates.
 
 ---
 *Date: February 13, 2026*
