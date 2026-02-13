@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
 import { getTranscriptPath } from '@/lib/storage';
-import { answerQuestion } from '@/lib/intelligence';
+import { answerQuestion, CrossVideoContext } from '@/lib/intelligence';
 import { existsSync } from 'fs';
 import { searchTranscripts } from '@/lib/indexChunks';
 import { formatTime } from '@/shared/utils/formatTime';
@@ -92,7 +92,7 @@ If the context doesn't contain relevant information, say so clearly.`;
             return NextResponse.json({ answer, sources });
         }
 
-        //Single video mode (existing logic)
+        //Single video mode + cross-video knowledge
         if (mediaId) {
             const transcriptPath = getTranscriptPath(mediaId);
             if (!existsSync(transcriptPath)) {
@@ -102,9 +102,40 @@ If the context doesn't contain relevant information, say so clearly.`;
             const data = await readFile(transcriptPath, 'utf-8');
             const transcript = JSON.parse(data);
 
-            const result = await answerQuestion(transcript.segments, question, history);
+            // Also search across other videos for supplementary context
+            let crossVideoContext: CrossVideoContext | undefined;
 
-            return NextResponse.json(result);
+            if (useSearch) {
+                try {
+                    const searchResults = searchTranscripts(question, clientId, 5, mediaId);
+
+                    if (searchResults && searchResults.length > 0) {
+                        const formattedContext = searchResults
+                            .map((r, i) =>
+                                `[Other Video ${i + 1}: "${r.videoTitle}" at ${formatTime(r.startTime)}]\n${r.chunkText}`
+                            )
+                            .join('\n\n');
+
+                        const sources = searchResults.map(r => ({
+                            videoId: r.videoId,
+                            videoTitle: r.videoTitle,
+                            timestamp: r.startTime,
+                            text: r.chunkText.substring(0, 150) + '...',
+                        }));
+
+                        crossVideoContext = { formattedContext, sources };
+                    }
+                } catch (searchError) {
+                    console.warn('Cross-video search failed, continuing with single video:', searchError);
+                }
+            }
+
+            const result = await answerQuestion(transcript.segments, question, history, crossVideoContext);
+
+            return NextResponse.json({
+                ...result,
+                crossVideoSources: crossVideoContext?.sources || []
+            });
         }
 
         return NextResponse.json({ error: 'Either mediaId or useSearch must be provided' }, { status: 400 });

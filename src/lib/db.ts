@@ -72,6 +72,16 @@ function getDb(): Database.Database {
     CREATE INDEX IF NOT EXISTS idx_chunks_meta_video ON chunk_metadata(video_id);
   `);
 
+  // Migration: Add indexed column to videos table if missing
+  try {
+    _db.exec(`ALTER TABLE videos ADD COLUMN indexed INTEGER DEFAULT 0`);
+    console.log('✅ Migration: Added indexed column to videos table');
+  } catch (e: any) {
+    if (!e.message.includes('duplicate column name')) {
+      console.error('Error adding indexed column to videos:', e);
+    }
+  }
+
   // Add personality column to existing tables if it doesn't exist
   try {
     _db.exec(`ALTER TABLE videos ADD COLUMN personality TEXT DEFAULT 'meetings'`);

@@ -5,11 +5,19 @@ import { getApiPath } from '@/shared/utils/apiPath';
 import { formatTrainingResponse } from '../utils/trainingFormatters';
 import { Personality } from '@/features/personality/components/PersonalityChooser';
 
+export interface CrossVideoSource {
+    videoId: string;
+    videoTitle: string;
+    timestamp: number;
+    text: string;
+}
+
 export interface Message {
     role: 'user' | 'assistant';
     content: string;
     citations?: { start: number; end: number; label: string }[];
     followUps?: string[];
+    crossVideoSources?: CrossVideoSource[];
 }
 
 export type TrainingTab = 'chat' | 'scribe' | 'voiceover';
@@ -209,7 +217,8 @@ export function useIntelligence(
                     role: 'assistant',
                     content: content,
                     citations: data.citations,
-                    followUps: data.followUps || data.suggested_questions
+                    followUps: data.followUps || data.suggested_questions,
+                    crossVideoSources: data.crossVideoSources
                 };
 
                 if (personality === 'training') {

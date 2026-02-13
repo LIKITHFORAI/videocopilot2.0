@@ -7,6 +7,9 @@ const basePathValue = isProd ? '/getthingsdone' : '';
 const nextConfig: NextConfig = {
   basePath: basePathValue,
   assetPrefix: basePathValue,
+  turbopack: {
+    root: __dirname,
+  },
   env: {
     // Expose basePath to client-side code
     NEXT_PUBLIC_BASEPATH: basePathValue,

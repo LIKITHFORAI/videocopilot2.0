@@ -19,6 +19,7 @@ export interface FileUploaderRef {
 
 interface FileUploaderProps {
     onUploadComplete: (mediaId: string, jobId: string) => void;
+    onLoadExisting?: (mediaId: string) => void;
     currentJobStatus?: string;
     currentJobProgress?: number;
     onCancel?: () => void;
@@ -36,6 +37,7 @@ interface HistoryItem {
 
 const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
     onUploadComplete,
+    onLoadExisting,
     currentJobStatus,
     currentJobProgress = 0,
     onCancel,
@@ -252,7 +254,11 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
 
             if (useExisting) {
                 setLoadingFromHistory(true);
-                onUploadComplete(existing.mediaId, existing.jobId);
+                if (onLoadExisting) {
+                    onLoadExisting(existing.mediaId);
+                } else {
+                    onUploadComplete(existing.mediaId, existing.jobId);
+                }
                 // Reset flag after a brief delay
                 setTimeout(() => setLoadingFromHistory(false), 500);
                 return;
@@ -681,7 +687,11 @@ const FileUploader = forwardRef<FileUploaderRef, FileUploaderProps>(({
                                                     onClick={() => {
                                                         setLoadingFromHistory(true);
                                                         setStatus('idle');
-                                                        onUploadComplete(item.mediaId, item.jobId);
+                                                        if (onLoadExisting) {
+                                                            onLoadExisting(item.mediaId);
+                                                        } else {
+                                                            onUploadComplete(item.mediaId, item.jobId);
+                                                        }
                                                         setShowHistory(false);
                                                         setTimeout(() => setLoadingFromHistory(false), 500);
                                                     }}

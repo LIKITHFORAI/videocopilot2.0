@@ -110,7 +110,8 @@ This email was generated from Video Copilot. Please review and add any additiona
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     padding: '1.5rem',
-                    borderBottom: `1px solid var(--border-default)`
+                    borderBottom: `1px solid var(--border-default)`,
+                    background: 'var(--action-header-bg)'
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <h2 style={{ fontSize: '1.3rem', fontWeight: '700', margin: 0, color: 'var(--action-task-text)' }}>

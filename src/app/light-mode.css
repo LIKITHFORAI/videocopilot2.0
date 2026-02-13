@@ -116,6 +116,7 @@
 
     /* Transcript Panel */
     --transcript-panel-bg: #e2e8f0;
+    --transcript-header-bg: #f8fafc;
     --transcript-timestamp-text: #26466c;
     --transcript-content-text: #64748b;
     --transcript-segment-hover: #f1f5f9;
@@ -148,6 +149,7 @@
 
     /* Action Items (Granular) */
     --action-panel-bg: #fffaea;
+    --action-header-bg: #fffcf0;
     --action-card-bg: #ffffff;
     --action-card-border: #e2e8f0;
     --action-card-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -175,4 +177,10 @@
     --sharepoint-btn-search-bg: #0078d4;
     --sharepoint-icon-folder: #0078d4;
     --sharepoint-icon-file: #607d8b;
+
+    /* Extra UI Segments */
+    --tab-active-border: #0070f3;
+    --citation-chip-bg: #f8fafc;
+    --citation-chip-text: #0070f3;
+    --citation-chip-border: #e2e8f0;
 }

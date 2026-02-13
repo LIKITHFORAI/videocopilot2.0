@@ -136,7 +136,7 @@ export default function TranscriptPanel({ mediaId, jobId, jobStatus, onSeek, hig
         <div className="transcript-panel">
             <div className="panel-card">
                 <div style={{
-                    backgroundColor: 'var(--surface)',
+                    backgroundColor: 'var(--transcript-header-bg)',
                     fontSize: '1.3rem',
                     fontWeight: '700',
                     padding: '1.2rem',

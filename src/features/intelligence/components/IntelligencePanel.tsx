@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { formatTime } from '@/shared/utils/formatTime';
 import { Personality } from '@/features/personality/components/PersonalityChooser';
-import { useIntelligence, Message, TrainingTab } from '../hooks/useIntelligence';
+import { useIntelligence, Message, TrainingTab, CrossVideoSource } from '../hooks/useIntelligence';
 
 interface IntelligencePanelProps {
     mediaId: string | null;
@@ -228,6 +228,28 @@ export default function IntelligencePanel({
                                                         onClick={() => handleSendMessage(q)}
                                                         className="followup-btn"
                                                     >{q}</button>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {m.role === 'assistant' && m.crossVideoSources && m.crossVideoSources.length > 0 && (
+                                            <div style={{
+                                                marginTop: '0.75rem',
+                                                padding: '0.75rem',
+                                                background: 'var(--upload-hover-bg)',
+                                                borderRadius: '8px',
+                                                border: '1px solid var(--border-default)',
+                                                fontSize: '0.85rem'
+                                            }}>
+                                                <div style={{ fontWeight: 600, marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>
+                                                    Referenced from other videos:
+                                                </div>
+                                                {m.crossVideoSources.map((src: CrossVideoSource, idx: number) => (
+                                                    <div key={idx} style={{
+                                                        padding: '0.3rem 0',
+                                                        color: 'var(--highlight-jump-link)',
+                                                    }}>
+                                                        {src.videoTitle} at {formatTime(src.timestamp)}
+                                                    </div>
                                                 ))}
                                             </div>
                                         )}

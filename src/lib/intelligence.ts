@@ -103,7 +103,12 @@ export async function generateSummary(segments: any[], filename?: string) {
     }
 }
 
-export async function answerQuestion(transcriptSegments: any[], question: string, history: any[] = []) {
+export interface CrossVideoContext {
+    formattedContext: string;
+    sources: { videoId: string; videoTitle: string; timestamp: number; text: string }[];
+}
+
+export async function answerQuestion(transcriptSegments: any[], question: string, history: any[] = [], crossVideoContext?: CrossVideoContext) {
     if (!openai) {
         return {
             answer: "### ⚠️ No API Key Detected\nI'm currently in **offline mode**. To enable full chat capabilities with grounded timestamps and AI analysis, please provide a valid `OPENAI_API_KEY` in your `.env.local` file.",
@@ -164,13 +169,33 @@ export async function answerQuestion(transcriptSegments: any[], question: string
                     - Do not guess or invent details
                     - Still provide the closest accurate explanation based on the video
                     
+                    CROSS-VIDEO CONTEXT (STRICT PRIORITY RULES)
+                    You may receive additional context from OTHER videos in the knowledge base below the current video's transcript.
+
+                    PRIORITY: The CURRENT VIDEO is ALWAYS your primary and highest-priority source. Follow these rules strictly:
+
+                    1. ALWAYS try to answer from the current video FIRST. If the current video has ANY relevant information, use it.
+                    2. ONLY use cross-video context when ALL of these conditions are met:
+                       a) The current video's transcript genuinely does NOT contain information about what the user is asking
+                       b) The user appears to be consciously asking about a different topic, person, meeting, or event not present in this video
+                       c) The cross-video context clearly matches what the user is asking about
+                    3. NEVER mix cross-video information into an answer that can be fully answered by the current video.
+                    4. When you DO reference another video, make it crystal clear by:
+                       - Starting with a phrase like "That topic isn't covered in this video, but in the **[Video Title]** meeting (at 3:45)..."
+                       - ALWAYS mention the source video title in bold
+                       - Using plain text timestamps like "(at 3:45)" — do NOT use the bracketed format [3:45] which is reserved for the current video only
+                    5. If unsure whether the user means this video or another, answer from the current video first, then briefly mention that related information exists in another video.
+
                     RESPONSE FORMAT (JSON ONLY)
                     You must respond with a JSON object containing:
-                    1. "answer": Your natural chat response (string), including the approximate timestamps like [12:30].
+                    1. "answer": Your natural chat response (string), including the approximate timestamps like [12:30] for the current video.
                     2. "suggested_questions": An array of 3-4 short, relevant follow-up questions the user might want to ask next based on your answer. These should be phrasing as questions (e.g., "How do I configure X?", "What about Y?").
 
                     ### CONTEXT (Transcript segments with [seconds]):
-                    ${context.substring(0, 120000)}`
+                    ${context.substring(0, crossVideoContext ? 100000 : 120000)}${crossVideoContext ? `
+
+                    ### ADDITIONAL CONTEXT FROM OTHER VIDEOS IN THE KNOWLEDGE BASE:
+                    ${crossVideoContext.formattedContext.substring(0, 15000)}` : ''}`
                 },
                 ...history.slice(-10), // More history for better context
                 {

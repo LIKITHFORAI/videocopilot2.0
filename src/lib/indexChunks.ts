@@ -105,10 +105,32 @@ export interface SearchResult {
 export function searchTranscripts(
     query: string,
     clientId?: string, // Kept for API compatibility; no longer used for filtering (Global Knowledge Base)
-    limit: number = 10
+    limit: number = 10,
+    excludeVideoId?: string
 ): SearchResult[] {
+    if (excludeVideoId) {
+        const stmt = db.prepare(`
+        SELECT
+          c.video_id as videoId,
+          COALESCE(v.title, v.filename, 'Untitled') as videoTitle,
+          c.chunk_text as chunkText,
+          c.speaker,
+          m.start_time as startTime,
+          m.end_time as endTime,
+          rank as relevance
+        FROM transcript_chunks c
+        JOIN chunk_metadata m ON c.id = m.id
+        LEFT JOIN videos v ON c.video_id = v.id
+        WHERE transcript_chunks MATCH ?
+          AND c.video_id != ?
+        ORDER BY rank, v.upload_date DESC
+        LIMIT ?
+      `);
+        return stmt.all(query, excludeVideoId, limit) as SearchResult[];
+    }
+
     const stmt = db.prepare(`
-    SELECT 
+    SELECT
       c.video_id as videoId,
       COALESCE(v.title, v.filename, 'Untitled') as videoTitle,
       c.chunk_text as chunkText,
