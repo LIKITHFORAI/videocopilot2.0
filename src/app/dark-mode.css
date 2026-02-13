@@ -211,6 +211,11 @@
         border-color: var(--border-dark);
     }
 
+    .video-section video {
+        filter: brightness(0.8);
+        transition: filter 0.3s ease;
+    }
+
     .action-items-panel .panel-card {
         background: var(--surface);
         border: 1px solid var(--border-dark);

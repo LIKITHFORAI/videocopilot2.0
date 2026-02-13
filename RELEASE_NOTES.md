@@ -24,6 +24,7 @@ This release introduces a major architectural refactor of the styling system, mo
 - Each functional area (Header, Chat, Action Items, Transcript) now has its own visual boundaries defined by independent color tokens.
 - Improved "Jump" button and "Note" section aesthetics in the Action Items panel.
 - Enhanced highlight states in the Transcript for better accessibility.
+- **Dark Mode UX**: Reduced video brightness to 80% when dark mode is active for eye comfort.
 
 ---
 *Date: February 12, 2026*
